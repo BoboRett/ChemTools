@@ -1,3 +1,3 @@
 # ChemTools
 
-Home to all the various chemistry reivison tools I put together
+Home to all the various chemistry revison tools I put together
