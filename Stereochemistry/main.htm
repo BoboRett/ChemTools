@@ -1,0 +1,321 @@
+<!DOCTYPE html><meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="main.css"/>
+
+<body>
+	<div class="header">
+		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Stereochemistry</p>
+
+		<a href="http://www.leeds.ac.uk/"><img src="../unileeds.svg" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
+	</div>
+
+	<div class="page" style="overflow:hidden">
+		<div id="gameFrame" style="overflow:hidden">
+			<div class="view3D" style="width:100%; float:left; height:40vw;">
+			</div>
+			<div class="view2D" style="width:0%; float:right; height:0px;">
+			</div>
+			<div class="menu" id="root">
+				<div style="position: relative; height: 200px; left: 0px; top: 0px;">
+					<p>Revision Type:</p>
+					<button class="button" onclick="MenuView( 'CIP' )">Cahn - Ingold - Prelog</button>
+					<button class="button" onclick="MenuView( 'Newman' )" style="float:right;">Newman Projections</button>
+				</div>
+				<div style="position: relative; height: 200px; left: 1000px; top: -200px;">
+					<p>Difficulty:</p>
+					<button class="button" onclick="MenuView( 'root' )">Back</button>
+					<button class="button" onclick="runCIP( 1 )">Easy</button></br>
+					<button class="button" onclick="runCIP( 2 )">Medium</button></br>
+					<button class="button" onclick="runCIP( 3 )">Hard</button>
+				</div>
+				<div style="position: relative; height: 200px; left: 2000px; top: -400px;">
+					<p>Mode:</p>
+					<button class="button" onclick="MenuView( 'root' )">Back</button>
+					<button class="button" onclick="runNewman( 1 )">Newman => 2D</button>
+					<button class="button" onclick="runNewman( 2 )" style="float:right;">2D => Newman</button>
+				</div>
+			</div>
+			<div class="menu" id="CIPinputs">
+				<div id="CIPrank">
+					<button class="button" onclick="MenuView( 'root' )" style="width:100px;">Menu</button>
+					<input type="text"></input>
+					<input type="text"></input>
+					<input type="text"></input>
+					<input type="text"></input>
+				</div>
+				<div id="clockwise">
+					<p>boop</p>
+				</div>
+			</div>
+			<div class="menu" id="Nminputs"></div>
+
+		</div>
+	</div>
+
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+	<script src="https://www.lactame.com/lib/openchemlib/5.4.0/openchemlib-minimal.js"></script>
+
+	<script src="three.min.js"></script>
+	<script src="stats.min.js"></script>
+	<script src="Detector.js"></script>
+	<script src="TrackballControls.js"></script>
+	<script src="OutlineEffect.js"></script>
+	<script src="molViewer.js"></script>
+	<script src="mol.js"></script>
+	<script>
+
+
+
+	padset = function(){
+		var gameFrame = d3.select( "#gameFrame" ).node().getBoundingClientRect()
+		var viewer3D =  d3.select( ".view3D" ).node().getBoundingClientRect()
+		var viewer2D =  d3.select( ".view2D" ).node().getBoundingClientRect()
+		d3.selectAll( "#gameFrame > .menu > *" ).each( function(d,i){ d3.select( this ).style( "left", i*d3.select( "#gameFrame > .menu  > :nth-child(1)" ).node().getBoundingClientRect().width + "px" ) })
+		d3.select( ".gameFrame" ).style( "top", -gameFrame.height + "px" ).style( "height", gameFrame.height + "px" )
+		d3.select( ".page" ).style( "height", viewer3D.height + 200 + "px" )
+	};
+	padset()
+	window.addEventListener( "resize", padset );
+
+	var mol3d = new Mol3D( d3.select( "#gameFrame > .view3D" ), {disableInteractions: true, showfGroups: false, highlight: false, autoRotate: true} );
+	var mol2d = new Mol2D( d3.select( "#gameFrame > .view2D"), [0,0,250,250]);
+
+	d3.select( "#view2d" ).style( "max-height", "550px" );
+
+	//mol3d.getFromSMILE( "C1=CC2=C(C=C1O)C(=CN2)CCN" );
+	//document.addEventListener( "ajaxComplete", ( ) => mol3d.draw() );
+
+	mol3d.parse( intromolfile )
+	mol3d.draw()
+
+	function MenuView( state ){
+		d3.transition()
+			.duration( 1500 )
+			.tween( null, function(){ return function( t ){ mol3d.controls.target.lerp( new THREE.Vector3( 0, 0, 0 ), t ) } })
+
+		mol3d.interactions( false );
+		mol3d.autoRotate( true );
+		mol3d.highlightSync( false );
+		mol3d.highlight( false );
+
+		//////FRAME REPOSITIONING//////
+		d3.selectAll( ".view2D" )
+			.transition()
+			.duration( 1500 )
+			//.ease( d3.easeBackIn )
+			.style( "height", "0%" )
+			.style( "width", "0%" )
+		d3.select( ".view3D" )
+			.transition()
+			.duration( 1500 )
+			.style( "width", "100%" )
+			.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+
+		d3.select( "#root" )
+			.transition()
+			.duration( 1000 )
+			.ease( d3.easeBackInOut )
+			.style( "top", "0px" )
+		d3.selectAll( "#CIPinputs, #Nminputs" )
+			.transition()
+			.duration( 1000 )
+			.ease( d3.easeBackInOut )
+			.style( "top", "00px")
+		//////------//////
+
+		const w = d3.select( "#gameFrame > .menu > :nth-child(1)" ).node().getBoundingClientRect().width;
+		var states = {
+			root: [0, w, 2*w],
+			CIP: [-w, 0, w],
+			Newman: [-2*w, -w, 0],
+		};
+
+		d3.select( "#gameFrame > #root > :nth-child(1)" ).transition()
+			.duration(1000)
+			.ease(d3.easeBackInOut)
+			.style( "left", states[state][0] + "px")
+
+		d3.select( "#gameFrame > #root > :nth-child(2)" ).transition()
+			.duration(1000)
+			.ease(d3.easeBackInOut)
+			.style( "left", states[state][1] + "px")
+
+		d3.select( "#gameFrame > #root > :nth-child(3)" ).transition()
+			.duration(1000)
+			.ease(d3.easeBackInOut)
+			.style( "left", states[state][2] + "px")
+	}
+
+	function runCIP( diff ){
+
+
+		mol3d.interactions( true );
+		mol3d.autoRotate( false );
+		mol3d.highlightSync( true );
+		mol3d.highlight( true );
+
+		d3.transition()
+			.duration( 1500 )
+			.tween( null, function(){ return function( t ){mol3d.scene.traverse( obj => {obj instanceof THREE.Mesh && obj.scale.set( 1-t, 1-t, 1-t )} )} } )
+			.on( "end", () => {
+				mol3d.scene.remove( mol3d.molGroup );
+				runGame( diff );
+			} )
+
+		//////FRAME REPOSITIONING//////
+		d3.selectAll( "#gameFrame > .view3D, #gameFrame > .view2D" )
+			.style( "height", "40vw" )
+			.transition()
+			.duration( 1500 )
+			//.ease( d3.easeBackIn )
+			.style( "width", "50%" )
+			.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+
+		d3.select( "#gameFrame > #root" )
+			.transition()
+			.duration( 1000 )
+			.ease( d3.easeBackInOut )
+			.style( "top", "200px" )
+		d3.select( "#gameFrame > #CIPinputs" )
+			.transition()
+			.duration( 1000 )
+			.ease( d3.easeBackInOut )
+			.style( "top", "-200px")
+		//////------//////
+
+		function runGame( diff ){
+			console.log( diff );
+
+			//d3.csv("data.csv", function(d){
+			var d = ""
+
+			console.log( d );
+			var answer = {Data2D: molfile2d, Data3D: molfile3d, CIPRoot: "1"};//d.filter( el => +el.CIPLvl === diff )[0];
+			console.log(answer)
+			mol2d.parse( answer.Data2D );
+			mol3d.parse( answer.Data3D );
+			mol2d.draw();
+			mol3d.draw( true );
+
+			//////Highlight svg atom//////
+			var rootAtom2D = d3.select( "[id='"+ answer.CIPRoot + "']" );
+			rootAtom2D.node().parentNode.insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").node(), rootAtom2D.node().nextSibling );
+
+			//////Highlight 3D atom//////
+			var rootAtom3D =  mol3d.scene.getObjectByName( +answer.CIPRoot );
+			rootAtom3D.geometry.scale( 1.5, 1.5, 1.5 );
+			rootAtom3D.material.color.set( new THREE.Color().setRGB( 1, 0.5, 0 ) );
+
+ 			var cameraUp = new THREE.Vector3().copy( mol3d.scene.getObjectByName( rootAtom3D.userData.source.bondedTo[0].el.index ).position ).sub( rootAtom3D.position ).normalize();
+
+			//////Orient molecule//////
+			mol3d.molGroup.rotateOnAxis( new THREE.Vector3().crossVectors( cameraUp, new THREE.Vector3( 0, 1, 0 ) ).normalize() , cameraUp.angleTo( new THREE.Vector3(0,1,0)) );
+
+			//////Fade non-essential atoms//////
+			var essentials = [rootAtom3D]
+			rootAtom3D.userData.source.bondedTo.forEach( el => {
+				essentials.push( mol3d.scene.getObjectByName( el.el.index ) );
+				essentials.push( mol3d.scene.getObjectByName( el.bond.start.index + "_" + el.bond.end.index ) );
+			} );
+
+			mol3d.molGroup.traverse( obj => { if( obj instanceof THREE.Mesh ){
+					obj.scale.set( 0.01, 0.01, 0.01 );
+					obj.visible = true;
+					if( essentials.indexOf( obj ) === -1 ){
+						obj.material.transparent = true;
+						obj.material.opacity = 0.2;
+					}
+				}
+			} );
+
+			var mouseover = mol3d.container.addEventListener( "mouseover", function() {
+						mol3d.molGroup.traverse( obj => {
+							if( obj instanceof THREE.Mesh && essentials.indexOf( obj ) === -1 ){
+								obj.material.opacity = 1;
+							}
+						})
+					});
+
+			var mouseout = mol3d.container.addEventListener( "mouseout", function() {
+					mol3d.molGroup.traverse( obj => {
+						if( obj instanceof THREE.Mesh && essentials.indexOf( obj ) === -1 ){
+							obj.material.opacity = 0.2;
+						}
+					})
+				});
+
+			//////Focus Camera on atom//////
+			var controlsStart = mol3d.controls.target;
+			d3.transition()
+				.duration( 2000 )
+				.tween( null, () => function( t ){
+					mol3d.molGroup.traverse( obj => obj.scale.set( t, t, t ) )
+					mol3d.controls.target.copy( new THREE.Vector3( ).copy( controlsStart ).lerp( new THREE.Vector3().copy( rootAtom3D.getWorldPosition() ), t ) );
+				} )
+		}
+	}
+
+	function runNewman( diff ){
+
+	}
+
+
+/*	mol2d = new Mol2D( d3.select( "#R" ), [0,0,250,250] );
+	mol2d.parse( molfile2d );
+	mol2d.draw();
+	mol3d = new Mol3D( d3.select("#L") );
+	mol3d.parse( molfile3d );
+	mol3d.draw()
+	mol3d.showfGroups( false );
+
+	padset()
+	window.addEventListener( "resize", padset );
+
+	//////ROTATE BONDS ON CLICK//////
+	mol3d.onMouseDown = function( ){
+		const down = [d3.event.clientX, d3.event.clientY, d3.event.buttons];
+
+		d3.select(this).on( 'mouseup', function(){
+			if( down[0] === d3.event.clientX && down[1] === d3.event.clientY){
+				var raycaster = new THREE.Raycaster();
+				raycaster.setFromCamera( mol3d.mouse, mol3d.camActive );
+				var intersects = raycaster.intersectObjects( mol3d.scene.children, true );
+
+				if( intersects.length > 0 ){
+					console.log( intersects[0].object )
+					switch( intersects[0].object.userData.type ){
+						case "bond":
+
+							d3.select(this).on( 'mousedown', null );
+							d3.select(this).on( 'mouseup', null );
+
+							var last_t = 0;
+							var axis = new THREE.Vector3( ...intersects[0].object.userData.source.end.pos ).sub( new THREE.Vector3( ...intersects[0].object.userData.source.start.pos ) ).normalize();
+							d3.transition()
+								.duration(1000)
+								.ease(d3.easeBackInOut)
+								.tween(null, function(){
+										return function( t ) {
+											intersects[0].object.rotateOnWorldAxis ( axis , ( down[2] === 1 ? 1 : -1 )*(t - last_t)*Math.PI/4 )
+											last_t = t
+										};
+								})
+								.on( 'end', function(){ d3.select( mol3d.renderer.domElement ).on( 'mousedown', mol3d.onMouseDown, true) } );
+							break;
+
+						case "fGroup":
+
+							console.log( intersects[0].object.userData.tooltip )
+							break;
+
+					}
+				}
+
+			}
+			d3.select( mol3d.renderer.domElement ).on( 'mouseup', null );
+		}, true);
+	}
+	d3.select( mol3d.container ).on( 'mousedown', mol3d.onMouseDown, true);*/
+	</script>
+</body>

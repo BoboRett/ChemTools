@@ -1,0 +1,127 @@
+::-webkit-scrollbar {
+    display: none;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    margin: -8px;
+    background-color: #3e4649;
+    display: block;
+    width: 100%;
+    z-index: 10;
+    border-bottom: 3px solid #212121;
+}
+
+body {
+	margin-top: 80px;
+    background-color: #262f35;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.page {
+    width: 80%;
+	height: 100%;
+    margin: auto;
+    min-width: 400px;
+    background-color: #dee8f9;
+	border: 3px solid #5d5d65;
+}
+
+.view2D, .view3D {
+    position:relative;
+    left:0px;
+    top:0px;
+    max-height:550px;
+}
+
+.inputs {
+	position: relative;
+    top: 40vw;
+    height: 200px;
+}
+
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 49%;
+}
+
+
+.menu {
+	position: relative;
+	top: 0px;
+	overflow: hidden;
+	height: 200px;
+    width: 100%;
+}
+
+.menu > div > p{
+	margin-top: 0px;
+	text-align: center;
+    font-family: fantasy;
+    font-size: 28px;
+}
+
+.bond > line, .bond_dbl > line, .bond_hash > line, .bond_trp > line {
+    stroke: black;
+    stroke-width: 1px;
+}
+
+.highlight {
+	stroke-width: 0;
+	stroke: black;
+    fill: yellow;
+    fill-opacity: 0;
+}
+
+.highlight_hover {
+	stroke-width: 0.5px;
+	stroke: black;
+    fill: yellow;
+    fill-opacity: 0.5;
+}
+
+.atomFocus {
+    stroke-width: 0.5px;
+	stroke: black;
+    fill: orange;
+}
+
+.wedge {
+    fill: black;
+}
+
+g {
+    text-anchor: middle;
+    pointer-events: none;
+    font-family: sans-serif;
+    font-size: 16px;
+}
+
+.label_O{
+	fill: red;
+}
+.label_N{
+	fill: blue;
+}
+
+.atomind{
+	font-size: 8px;
+}
+
+div#controls {
+    margin-top: 16px;
+}
