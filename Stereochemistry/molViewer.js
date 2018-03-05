@@ -142,8 +142,9 @@ var Mol2D = function( container, dims ){
 			const tmp = atomsroot.append( "g" ).attr( "class", "atom_" + atom.element );
 			tmp.append( "circle" ).attr( "class", "highlight" ).attr( "id", i ).attr( "cx", atom.pos[0] ).attr( "cy", atom.pos[1] ).attr( "r", 12 );
 
-			atom.element != "C" && TextGen( tmp, "label_" + atom.element, "", atom.pos[0], atom.pos[1] + 6, atom.element, [], [] );
-			TextGen( tmp, "atomind", "", atom.pos[0]+7, atom.pos[1] -3, i, [], [] );
+			const txt = TextGen( tmp, "label_" + atom.element, "", atom.pos[0], atom.pos[1] + 6, atom.element != "C" ? atom.element : "" , [], [] );
+
+			TextGen( tmp, "atomind", "", atom.pos[0] - txt.node().getBBox().width/2 - i.toString().split("").length * 2 , atom.pos[1] -3, i, [], [] );
 			atom.element != "H" && tmp.append( "g" ).attr( "class", "hydrogens" );
 
 		})
@@ -849,7 +850,6 @@ var Mol3D = function( container, params ){
 
 				hlmesh.visible = showfGroups
 
-
 			})
 
 		}
@@ -994,6 +994,7 @@ var Mol3D = function( container, params ){
 	self.autoRotate = function( on ){
 		self.frameFunctions.autoRotate.enabled = on
 	}
+
 }
 
 //////UTILS//////

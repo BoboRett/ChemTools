@@ -26,12 +26,15 @@ body {
 }
 
 .page {
-    width: 80%;
-	height: 100%;
+    width: 1020px;
+	height: 800px;
     margin: auto;
-    min-width: 400px;
     background-color: #dee8f9;
 	border: 3px solid #5d5d65;
+}
+
+div{
+    overflow: overlay;
 }
 
 .view2D, .view3D {
@@ -39,40 +42,96 @@ body {
     left:0px;
     top:0px;
     max-height:550px;
-}
-
-.inputs {
-	position: relative;
-    top: 40vw;
-    height: 200px;
+    min-height:260px;
 }
 
 .button {
     background-color: #4CAF50; /* Green */
     border: none;
     color: white;
-    padding: 15px 32px;
+    padding: 15px 0px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    width: 49%;
+    width: 45%;
+    margin: 5px;
+    margin-left: 10px;
 }
 
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 400px;
+  height: 45px;
+  margin: 5px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #4CAF50;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 37px;
+  width: 200px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #4c98af;
+}
+
+input:checked + .slider:before {
+    transform: translateX(192px);
+}
+/* ---------------- */
 
 .menu {
 	position: relative;
 	top: 0px;
 	overflow: hidden;
-	height: 200px;
+	height: 240px;
     width: 100%;
 }
 
-.menu > div > p{
-	margin-top: 0px;
+#root > div{
+    position: relative;
+    height: 240px;
+}
+
+h1{
+	margin: 3px;
 	text-align: center;
-    font-family: fantasy;
+    font-family: "Bookman Old Style";
     font-size: 28px;
+}
+
+h2{
+    font-family: "Bookman Old Style";
+    margin: 0px;
+    font-size: 18px;
+    pointer-events: none;
+    position: relative;
+    top: 25%;
+    width: 50%;
+    height: 100%;
+    text-align: center;
 }
 
 .bond > line, .bond_dbl > line, .bond_hash > line, .bond_trp > line {
