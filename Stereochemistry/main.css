@@ -141,6 +141,7 @@ h2{
     font-weight: bolder;
     font-family: sans-serif;
     background-color: #ffffff75;
+    margin: 0px;
 }
 
 .bond > line, .bond_dbl > line, .bond_hash > line, .bond_trp > line {

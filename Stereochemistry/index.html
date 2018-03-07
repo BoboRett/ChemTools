@@ -252,17 +252,20 @@
 				d3.select( "index_" + el.el.index ).attr( "display", null );
 			});
 
-			var fn = function(){
-				var widthHalf = window.innerWidth/2
-				var heightHalf = window.innerHeight/2
-				for( label of labels ){
-					var vector = new THREE.Vector3().setFromMatrixPosition( mol3d.scene.getObjectByName( +label.html() ).matrixWorld );
-					vector.project( mol3d.camActive );
-					label.style("left", ( ( vector.x * widthHalf/2 ) + widthHalf/2 - 50 ) + "px" )
-					label.style("top", ( - ( vector.y * heightHalf/2 ) + heightHalf/2 - 50 ) + "px" )
-				}
-			}
-			mol3d.frameFunctions.labelPos = { enabled: true, fn: fn };
+			mol3d.frameFunctions.labelPos = {
+				enabled: true,
+				fn: function(){
+						var widthHalf = mol3d.container.getBoundingClientRect().width/2;
+						var heightHalf = mol3d.container.getBoundingClientRect().height/2;
+						for( label of labels ){
+							var vector = new THREE.Vector3().setFromMatrixPosition( mol3d.scene.getObjectByName( +label.html() ).matrixWorld );
+							vector.project( mol3d.camActive );
+
+							label.style("right", ( - ( vector.x * widthHalf ) + widthHalf ) + "px" )
+							label.style("bottom", ( ( vector.y * heightHalf ) + heightHalf ) + "px" )
+						}
+					}
+			};
 
 			//////Highlight svg atom//////
 			var rootAtom2D = d3.select( "#highlight_"+ answer.CIPRoot );
@@ -337,11 +340,11 @@
 		var start = [ el.getAttribute( "x" ), el.getAttribute( "y" ) ];
 
 
-		var dra = ( evt ) => {
+		var drag = ( evt ) => {
 				d3.select( el ).attr( "x", + el.getAttribute( "x" ) + evt.movementX );
 				d3.select( el ).attr( "y", + el.getAttribute( "y" ) + evt.movementY );
 			}
-		var dro = ( evt ) => {
+		var drop = ( evt ) => {
 				if( ( evt.path[0].getAttribute( "id" ) || "" ).slice( -3 ) === "TAR" ){
 					console.log( "boop" )
 					d3.select( el ).attr( "x", +evt.path[0].getAttribute( "x" ) + 50 );
@@ -367,8 +370,8 @@
 
 			}
 
-		window.addEventListener( "mousemove", dra );
-		window.addEventListener( "mouseup", dro );
+		window.addEventListener( "mousemove", drag );
+		window.addEventListener( "mouseup", drop );
 
 
 	}
