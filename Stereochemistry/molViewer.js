@@ -50,15 +50,21 @@ function TextGen( root, cls, id, x, y, text, attributes, styles ){ //Text templa
 	return tmp
 }
 
-var Mol2D = function( container, dims ){
+var Mol2D = function( container, dims, params ){
+
+	params = params || {}
+
 	var self = this
 	self.container = container;
 	self.molecule = {};
 	self.molfile = "";
 	self.svg = self.container.append( "svg" ).attr( "viewBox", dims.join( "," ) ).attr( "id", "view2d" );
+
+	var showIndices = params.showIndices !== undefined ? params.showIndices : false;
 	var root = self.svg.append( "g" ).attr( "id", "rootframe" );
 
 	var zoomFunc = d3.zoom().on( "zoom", function(){
+				console.log( "boop" )
 
 				var screenScale = root.node().getBoundingClientRect().width / self.svg.node().viewBox.baseVal.width;
 				var d = root.datum();
@@ -139,12 +145,14 @@ var Mol2D = function( container, dims ){
 		const atomsroot = root.append( "g" ).attr( "class", "atoms" )
 		atoms.map( function( atom, i ){
 
-			const tmp = atomsroot.append( "g" ).attr( "class", "atom_" + atom.element );
-			tmp.append( "circle" ).attr( "class", "highlight" ).attr( "id", i ).attr( "cx", atom.pos[0] ).attr( "cy", atom.pos[1] ).attr( "r", 12 );
+			const tmp = atomsroot.append( "g" ).attr( "class", "atom_" + atom.element ).attr( "id", i );
+			tmp.append( "circle" ).attr( "class", "highlight" ).attr( "id", "highlight_" + i ).attr( "cx", atom.pos[0] ).attr( "cy", atom.pos[1] ).attr( "r", 12 );
 
-			const txt = TextGen( tmp, "label_" + atom.element, "", atom.pos[0], atom.pos[1] + 6, atom.element != "C" ? atom.element : "" , [], [] );
+			const txt = TextGen( tmp, "label_" + atom.element, "label_" + i, atom.pos[0], atom.pos[1] + 6, atom.element != "C" ? atom.element : "" , [], [] );
 
-			TextGen( tmp, "atomind", "", atom.pos[0] - txt.node().getBBox().width/2 - i.toString().split("").length * 2 , atom.pos[1] -3, i, [], [] );
+			const ind = TextGen( tmp, "atomind", "atomind_" + i, atom.pos[0] - txt.node().getBBox().width/2 - i.toString().split("").length * 2 , atom.pos[1] -3, i, [], [] );
+			ind.attr( "display", showIndices ? null : "none" );
+
 			atom.element != "H" && tmp.append( "g" ).attr( "class", "hydrogens" );
 
 		})
@@ -165,7 +173,7 @@ var Mol2D = function( container, dims ){
 				.attr( "width", length + 2*labelOffset ).attr( "height", 15)
 				.attr("transform", "translate(" + bond.start.pos[0] + "," + bond.start.pos[1] + ")rotate(" + theta*180/Math.PI + ")" )
 				.attr( "class", "highlight" )
-				.attr( "id", bond.start.index + "_" + bond.end.index );
+				.attr( "id", "highlight_" + bond.start.index + "_" + bond.end.index );
 
 			var bondline = LineGen( tmp, "bondline", "",
 				bond.start.pos[0] + ( bond.start.element === "C" ? 0 : labelOffset * Math.cos( theta ) ),
@@ -176,8 +184,8 @@ var Mol2D = function( container, dims ){
 
 			if( bond.start.element === "H" || bond.end.element === "H" ){
 
-				document.getElementById( bond.start.element === "H" ? bond.end.index : bond.start.index ).parentNode.getElementsByClassName("hydrogens")[0].appendChild( tmp.node() )
-				document.getElementById( bond.start.element === "H" ? bond.end.index : bond.start.index ).parentNode.getElementsByClassName("hydrogens")[0].appendChild( document.getElementById( ( bond.start.element === "H" ? bond.start.index : bond.end.index ) ).parentNode )
+				document.getElementById( bond.start.element === "H" ? bond.end.index : bond.start.index ).getElementsByClassName("hydrogens")[0].appendChild( tmp.node() )
+				document.getElementById( bond.start.element === "H" ? bond.end.index : bond.start.index ).getElementsByClassName("hydrogens")[0].appendChild( document.getElementById( ( bond.start.element === "H" ? bond.start.index : bond.end.index ) ) )
 
 			}
 
@@ -366,15 +374,15 @@ var Mol3D = function( container, params ){
 
 														case "fGroup":
 
-															self.hovered = d3.selectAll( "[id='" + highlighted.userData.source.source.index + "'], " + highlighted.userData.source.domain.map( el =>  "[id='" + el.index + "']" ).join( ", " ) )
+															self.hovered = d3.selectAll( "#highlight_" + highlighted.userData.source.source.index + ", " + highlighted.userData.source.domain.map( el =>  "#highlight_" + el.index ).join( ", " ) )
 															break;
 
 														case "atom":
 														case "bond":
 
 															self.hovered = highlighted.name.toString().includes("_") ?
-																d3.select( "[id='" + highlighted.name + "'], [id='" + highlighted.name.toString().split("").reverse().join("") + "']" ) :
-																d3.select( "[id='" + highlighted.name + "']" )
+																d3.select( "#highlight_" + highlighted.name + ", #highlight_" + highlighted.name.toString().split("").reverse().join("") ) :
+																d3.select( "#highlight_" + highlighted.name )
 															break;
 
 													}
@@ -646,6 +654,7 @@ var Mol3D = function( container, params ){
 				self.animate()
 				self.onWindowResize();
 				window.addEventListener( "resize", self.onWindowResize );
+				window.addEventListener( "mousemove", self.onMouseMove, false );
 			} else {
 				var warning = Detector.getWebGLErrorMessage();
 				d3.select( self.container ).appendChild( warning );
@@ -674,9 +683,6 @@ var Mol3D = function( container, params ){
 		sceneBox.height = sceneBox.max.y - sceneBox.min.y;
 		const zoom = sceneBox.width > sceneBox.height ? sceneBox.width : sceneBox.height;
 		camPersp.position.z = zoom;
-
-		//////MOUSE EVENTS//////
-		d3.select( document ).on( 'mousemove', self.onMouseMove, false );
 
 		function drawAtoms( atoms ){
 			//////ATOMS//////
@@ -995,6 +1001,13 @@ var Mol3D = function( container, params ){
 		self.frameFunctions.autoRotate.enabled = on
 	}
 
+	self.pause = function(){
+		cancelAnimationFrame( self.animID );
+	}
+
+	self.play = function(){
+		self.animID = requestAnimationFrame( self.animate );
+	}
 }
 
 //////UTILS//////
