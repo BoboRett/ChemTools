@@ -86,7 +86,7 @@
 				</div>
 				<div class="buttons">
 					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: right;">Back</button>
-					<button class="button" onclick="console.log('boop')" style="width:100px;float: right;">Submit</button>
+					<button class="button" onclick="CIPSubmit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
 			<div class="menu" id="Nminputs"></div>
@@ -330,6 +330,17 @@
 
 	}
 
+	function CIPSubmit(){
+		var ranks = []
+		d3.selectAll( "#CIPdragdrop > text" ).each( function( el ){
+			console.log( el, this );
+			if(  ){
+				ranks.append()
+			}
+		} )
+		console.log( )
+	}
+
 	function runNewman( diff ){
 
 	}
@@ -345,28 +356,27 @@
 				d3.select( el ).attr( "y", + el.getAttribute( "y" ) + evt.movementY );
 			}
 		var drop = ( evt ) => {
+				var svg = el.parentNode
 				if( ( evt.path[0].getAttribute( "id" ) || "" ).slice( -3 ) === "TAR" ){
-					console.log( "boop" )
 					d3.select( el ).attr( "x", +evt.path[0].getAttribute( "x" ) + 50 );
 					d3.select( el ).attr( "y", +evt.path[0].getAttribute( "y" ) + 39 );
-					d3.selectAll( ".dd > text" ).each( function( e ){
-						console.log( e )
-						if( e === evt.path[0] ){
+					d3.selectAll( "#" + svg.getAttribute( "id" ) + " > text" ).each( function( e ){
+						if( e === evt.path[0].getAttribute( "id" ).substr( 2, 1 ) ){
 							d3.select( this ).attr( "x", start[0] );
 							d3.select( this ).attr( "y", start[1] );
 							d3.select( this ).datum( d3.select( el ).datum() || null )
 						}
 					});
 
-					d3.select( el ).datum( evt.path[0] )
+					d3.select( el ).datum( evt.path[0].getAttribute( "id" ).substr( 2, 1 ) )
 				} else{
 					d3.select( el ).attr( "x", start[0] );
 					d3.select( el ).attr( "y", start[1] );
 				}
-				window.removeEventListener( "mousemove", dra )
-				window.removeEventListener( "mouseup", dro )
+				window.removeEventListener( "mousemove", drag )
+				window.removeEventListener( "mouseup", drop )
 
-				d3.selectAll( ".dd > text" ).each( function(){ this.setAttribute( "pointer-events", "all" ) } )
+				d3.selectAll( "#" + svg.getAttribute( "id" ) + " > text" ).each( function(){ this.setAttribute( "pointer-events", "all" ) } )
 
 			}
 
