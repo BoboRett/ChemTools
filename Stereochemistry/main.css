@@ -46,7 +46,7 @@ div{
 }
 
 .button {
-    background-color: #4CAF50; /* Green */
+    background-color: #5b7da0;
     border: none;
     color: white;
     padding: 15px 0px;
@@ -76,7 +76,7 @@ div{
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #4CAF50;
+  background-color: #5b7da0;
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -108,6 +108,7 @@ input:checked + .slider:before {
 	overflow: hidden;
 	height: 240px;
     width: 100%;
+    background: linear-gradient(-90deg, lightslategrey, #8ca1b5);
 }
 
 #root > div{
