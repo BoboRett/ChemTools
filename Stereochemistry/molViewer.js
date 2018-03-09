@@ -64,8 +64,6 @@ var Mol2D = function( container, dims, params ){
 	var root = self.svg.append( "g" ).attr( "id", "rootframe" );
 
 	var zoomFunc = d3.zoom().on( "zoom", function(){
-				console.log( "boop" )
-
 				var screenScale = root.node().getBoundingClientRect().width / self.svg.node().viewBox.baseVal.width;
 				var d = root.datum();
 
@@ -1071,29 +1069,29 @@ fGroupSearcher = function( mol ){
 
 			ss.found = false;
 			source.bondedTo.filter( link => link.el.index !== rootIndex && domain.map( dom => dom.index ).indexOf( link.el.index ) === -1 && link.bond.claimed === false ).forEach( function( link ){
-					if( !ss.found && link.bond.type.split( "_" )[0] === ss.btype ){
-						if( ( ss.el === "R" ? true : ( ss.el === "X" ? ["Cl", "Br", "I", "F"].indexOf(link.el.element) !== -1 : link.el.element === ss.el ) ) ){
+				if( !ss.found && link.bond.type.split( "_" )[0] === ss.btype ){
+					if( ( ss.el === "R" ? true : ( ss.el === "X" ? ["Cl", "Br", "I", "F"].indexOf(link.el.element) !== -1 : link.el.element === ss.el ) ) ){
 
-							domain.push( link.el );
-							claimed.push( link.bond );
+						domain.push( link.el );
+						claimed.push( link.bond );
 
-							if( ss.hasOwnProperty( "bondedTo" ) ){
+						if( ss.hasOwnProperty( "bondedTo" ) ){
 
-								//////Recursive search//////
-								var deepSearch = inBonds( link.el , ss.bondedTo, rootIndex, domain );
+							//////Recursive search//////
+							var deepSearch = inBonds( link.el , ss.bondedTo, rootIndex, domain );
 
-								if( deepSearch.hasOwnProperty( "source" ) ){
-									claimed = claimed.concat( deepSearch.claimed);
-									ss.found = true;
-								}
-
-							} else{
+							if( deepSearch.hasOwnProperty( "source" ) ){
+								claimed = claimed.concat( deepSearch.claimed);
 								ss.found = true;
 							}
 
+						} else{
+							ss.found = true;
 						}
+
 					}
-				})
+				}
+			})
 
 		})
 

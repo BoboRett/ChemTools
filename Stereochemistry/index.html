@@ -23,9 +23,9 @@
 				<div style="left: 1020px; top: -240px;">
 					<h1>Difficulty:</h1>
 					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 164px;">Back</button>
-					<button class="button" onclick="runCIP( 1 )">Easy</button><br>
-					<button class="button" onclick="runCIP( 2 )">Medium</button><br>
-					<button class="button" onclick="runCIP( 3 )">Hard</button>
+					<button class="button" onclick="cip = new CIP( 1 )">Easy</button><br>
+					<button class="button" onclick="cip = new CIP( 2 )">Medium</button><br>
+					<button class="button" onclick="cip = new CIP( 3 )">Hard</button>
 				</div>
 				<div style="left: 2040px; top: -480px;">
 					<h1>Mode:</h1>
@@ -39,37 +39,8 @@
 					<h1>Cahn-Ingold-Prelog Rule</h1>
 				</div>
 				<div class="inputs">
-					<div id="CIPrank" style="float: left; width: 600px; height: 120px;">
-						<svg class="dd" id="CIPdragdrop" viewBox="0,0,600,120">
-							<defs>
-								<mask id="first">
-									<rect  width="100%" height="100%" fill="#fff"/>
-									<text x="110" y="42">1st</text>
-								</mask>
-								<mask id="second">
-									<rect  width="100%" height="100%" fill="#fff"/>
-									<text x="235" y="42">2nd</text>
-								</mask>
-								<mask id="third">
-									<rect  width="100%" height="100%" fill="#fff"/>
-									<text x="360" y="42">3rd</text>
-								</mask>
-								<mask id="fourth">
-									<rect  width="100%" height="100%" fill="#fff"/>
-									<text x="485" y="42">4th</text>
-								</mask>
-							</defs>
-							<rect id="dd1_TAR" x="60" y="5" width="100" height="50" mask="url('#first')"></rect>
-							<rect id="dd2_TAR" x="185" y="5" width="100" height="50" mask="url('#second')"></rect>
-							<rect id="dd3_TAR" x="310" y="5" width="100" height="50" mask="url('#third')"></rect>
-							<rect id="dd4_TAR" x="435" y="5" width="100" height="50" mask="url('#fourth')"></rect>
-							<text id="dd1" x="110" y="100" onmousedown="dragLabel( this, event )"></text>
-							<text id="dd2" x="235" y="100" onmousedown="dragLabel( this, event )"></text>
-							<text id="dd3" x="360" y="100" onmousedown="dragLabel( this, event )"></text>
-							<text id="dd4" x="485" y="100" onmousedown="dragLabel( this, event )"></text>
-						</svg>
-					</div>
-					<div id="toggleSwitches" style="float: right;width: 420px;">
+					<div id="CIPrank" style="float: left; width: 600px; height: 120px;"></div>
+					<div id="CIPtoggles" style="float: right;width: 420px;">
 						<label class="switch">
 							<input type="checkbox">
 							<span class="slider"></span>
@@ -85,7 +56,7 @@
 					</div>
 				</div>
 				<div class="buttons">
-					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: right;">Back</button>
+					<button class="button" onclick="cip.closeGame()" style="width:100px;float: right;">Back</button>
 					<button class="button" onclick="CIPSubmit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
@@ -93,7 +64,6 @@
 
 		</div>
 	</div>
-
 
 	<script src="https://d3js.org/d3.v4.min.js"></script>
 	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
@@ -108,6 +78,66 @@
 	<script src="mol.js"></script>
 
 	<script>
+
+	var intromolfile = `C10H12N2O
+		APtclcactv03021811533D 0   0.00000     0.00000
+
+		 25 26  0  0  0  0  0  0  0  0999 V2000
+		   -2.9412    0.0426    0.2708 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -2.3564   -1.2023    0.3322 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.9908   -1.3410    0.1065 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.2173   -0.2031   -0.1836 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.8213    1.0549   -0.2437 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -2.1779    1.1716   -0.0163 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -2.7714    2.3937   -0.0736 O   0  0  0  0  0  0  0  0  0  0  0  0
+		    1.1554   -0.6813   -0.3648 C   0  0  0  0  0  0  0  0  0  0  0  0
+		    1.1354   -2.0113   -0.1836 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.1378   -2.4245    0.0989 N   0  0  0  0  0  0  0  0  0  0  0  0
+		    2.3616    0.1603   -0.6930 C   0  0  0  0  0  0  0  0  0  0  0  0
+		    2.9483    0.7359    0.5975 C   0  0  0  0  0  0  0  0  0  0  0  0
+		    4.1241    1.5564    0.2775 N   0  0  0  0  0  0  0  0  0  0  0  0
+		   -4.0026    0.1441    0.4424 H   0  0  0  0  0  0  0  0  0  0  0  0
+		   -2.9577   -2.0710    0.5560 H   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.2304    1.9311   -0.4661 H   0  0  0  0  0  0  0  0  0  0  0  0
+		   -3.0553    2.5240   -0.9887 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    1.9968   -2.6593   -0.2512 H   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.4011   -3.3424    0.2690 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    3.1109   -0.4565   -1.1893 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    2.0669    0.9758   -1.3535 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    2.1991    1.3527    1.0937 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    3.2431   -0.0795    1.2580 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    4.4758    1.9131    1.1534 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    4.8267    0.9281   -0.0827 H   0  0  0  0  0  0  0  0  0  0  0  0
+		  1  2  2  0  0  0  0
+		  2  3  1  0  0  0  0
+		  3  4  2  0  0  0  0
+		  4  5  1  0  0  0  0
+		  5  6  2  0  0  0  0
+		  1  6  1  0  0  0  0
+		  6  7  1  0  0  0  0
+		  4  8  1  0  0  0  0
+		  8  9  2  0  0  0  0
+		  9 10  1  0  0  0  0
+		  3 10  1  0  0  0  0
+		  8 11  1  0  0  0  0
+		 11 12  1  0  0  0  0
+		 12 13  1  0  0  0  0
+		  1 14  1  0  0  0  0
+		  2 15  1  0  0  0  0
+		  5 16  1  0  0  0  0
+		  7 17  1  0  0  0  0
+		  9 18  1  0  0  0  0
+		 10 19  1  0  0  0  0
+		 11 20  1  0  0  0  0
+		 11 21  1  0  0  0  0
+		 12 22  1  0  0  0  0
+		 12 23  1  0  0  0  0
+		 13 24  1  0  0  0  0
+		 13 25  1  0  0  0  0
+		M  END
+		$$$$
+	`
+
 	padset = function(){
 		var gameFrame = d3.select( "#gameFrame" ).node().getBoundingClientRect()
 		var viewer3D =  d3.select( ".view3D" ).node().getBoundingClientRect()
@@ -130,44 +160,6 @@
 	mol3d.draw()
 
 	function MenuView( state ){
-		mol3d.container.removeEventListener( "mouseover", mouseover);
-		mol3d.container.removeEventListener( "mouseout", mouseout);
-
-		while( labels.length > 0 ){ labels.pop( 0 ).remove() }
-
-		d3.transition()
-			.duration( 1500 )
-			.tween( null, function(){ return function( t ){ mol3d.controls.target.lerp( new THREE.Vector3( 0, 0, 0 ), t ) } })
-
-		mol3d.interactions( false );
-		mol3d.autoRotate( true );
-		mol3d.highlightSync( false );
-		mol3d.highlight( false );
-
-		//////FRAME REPOSITIONING//////
-		d3.selectAll( ".view2D" )
-			.transition()
-			.duration( 1500 )
-			//.ease( d3.easeBackIn )
-			.style( "width", "0px" )
-			.style( "height", "0px" )
-		d3.select( ".view3D" )
-			.transition()
-			.duration( 1500 )
-			.style( "width", "1020px" )
-			.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
-
-		d3.select( "#root" )
-			.transition()
-			.duration( 1000 )
-			.ease( d3.easeBackInOut )
-			.style( "top", "0px" )
-		d3.selectAll( "#CIPinputs, #Nminputs" )
-			.transition()
-			.duration( 1000 )
-			.ease( d3.easeBackInOut )
-			.style( "top", "0px")
-		//////------//////
 
 		const w = 1020;
 		var states = {
@@ -192,20 +184,51 @@
 			.style( "left", states[state][2] + "px")
 	}
 
-	function runCIP( diff ){
-
+	CIP = function( diff ){
+		var self = this;
 
 		mol3d.interactions( true );
 		mol3d.autoRotate( false );
 		mol3d.highlightSync( true );
 		mol3d.highlight( true );
 
+		d3.select( "#CIPrank" ).html(
+			`<svg class="dd" id="CIPdragdrop" viewBox="0,0,600,120">
+				<defs>
+					<mask id="first">
+						<rect  width="100%" height="100%" fill="#fff"/>
+						<text x="110" y="42" fill="grey">1st</text>
+					</mask>
+					<mask id="second">
+						<rect  width="100%" height="100%" fill="#fff"/>
+						<text x="235" y="42" fill="grey">2nd</text>
+					</mask>
+					<mask id="third">
+						<rect  width="100%" height="100%" fill="#fff"/>
+						<text x="360" y="42" fill="grey">3rd</text>
+					</mask>
+					<mask id="fourth">
+						<rect  width="100%" height="100%" fill="#fff"/>
+						<text x="485" y="42" fill="grey">4th</text>
+					</mask>
+				</defs>
+				<rect id="dd1_TAR" x="60" y="5" width="100" height="50" mask="url('#first')"></rect>
+				<rect id="dd2_TAR" x="185" y="5" width="100" height="50" mask="url('#second')"></rect>
+				<rect id="dd3_TAR" x="310" y="5" width="100" height="50" mask="url('#third')"></rect>
+				<rect id="dd4_TAR" x="435" y="5" width="100" height="50" mask="url('#fourth')"></rect>
+				<text id="dd1" x="110" y="100" onmousedown="dragLabel( this, event )"></text>
+				<text id="dd2" x="235" y="100" onmousedown="dragLabel( this, event )"></text>
+				<text id="dd3" x="360" y="100" onmousedown="dragLabel( this, event )"></text>
+				<text id="dd4" x="485" y="100" onmousedown="dragLabel( this, event )"></text>
+			</svg>`
+		);
+
 		d3.transition()
 			.duration( 1500 )
 			.tween( null, function(){ return function( t ){mol3d.scene.traverse( obj => {obj instanceof THREE.Mesh && obj.scale.set( 1-t, 1-t, 1-t )} )} } )
 			.on( "end", () => {
 				mol3d.scene.remove( mol3d.molGroup );
-				runGame( diff );
+				self.runGame( diff );
 			} )
 
 		d3.select( "#gameFrame > #root" )
@@ -219,126 +242,182 @@
 			.ease( d3.easeBackInOut )
 			.style( "top", "-240px")
 
-		function runGame( diff ){
-			console.log( diff );
+		self.runGame = function( diff ){
 
-			//d3.csv("data.csv", function(d){
-			var d = ""
+			d3.csv("data.csv", function(d){
 
-			console.log( d );
-			var answer = {Data2D: molfile2d, Data3D: molfile3d, CIPRoot: "1"};//d.filter( el => +el.CIPLvl === diff )[0];
-			console.log(answer)
+				console.log( d );
+				answer = {Data2D: molfile2d, Data3D: molfile3d, CIPRoot: "1"};//d.filter( el => +el.CIPLvl === diff )[0];
+				console.log(answer)
 
-			mol2d.parse( answer.Data2D );
-			mol3d.parse( answer.Data3D );
-			mol2d.draw();
-			mol3d.draw( true );
+				mol2d.parse( answer.Data2D );
+				mol3d.parse( answer.Data3D );
+				mol2d.draw();
+				mol3d.draw( true );
 
-			d3.selectAll( "#gameFrame > .view3D, #gameFrame > .view2D" )
-				.transition()
-				.duration( 1500 )
-				//.ease( d3.easeBackIn )
-				.style( "width", "480px" )
-				.style( "height", "480px" )
-				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+				d3.selectAll( "#gameFrame > .view3D, #gameFrame > .view2D" )
+					.transition()
+					.duration( 2000 )
+					//.ease( d3.easeBackIn )
+					.style( "width", "480px" )
+					.style( "height", "480px" )
+					.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
 
-			mol3d.scene.getObjectByName( +answer.CIPRoot ).userData.source.bondedTo.forEach( function( el, i ){
-				var label = d3.select( ".view3D" ).append( "p" )
-					.html( el.el.index )
-					.attr( "class", "label")
-				labels.push( label );
+				mol3d.scene.getObjectByName( +answer.CIPRoot ).userData.source.bondedTo.forEach( function( el, i ){
+					var label = d3.select( ".view3D" ).append( "p" )
+						.html( el.el.index )
+						.attr( "class", "label")
+					labels.push( label );
 
-				d3.select( "#dd" + (i+1) ).text( el.el.index );
-				d3.select( "index_" + el.el.index ).attr( "display", null );
-			});
+					d3.select( "#dd" + ( i + 1 ) ).text( el.el.element + "-" + el.el.index );
 
-			mol3d.frameFunctions.labelPos = {
-				enabled: true,
-				fn: function(){
-						var widthHalf = mol3d.container.getBoundingClientRect().width/2;
-						var heightHalf = mol3d.container.getBoundingClientRect().height/2;
-						for( label of labels ){
-							var vector = new THREE.Vector3().setFromMatrixPosition( mol3d.scene.getObjectByName( +label.html() ).matrixWorld );
-							vector.project( mol3d.camActive );
+					d3.select( "#atomind_" + el.el.index ).attr( "display", null );
+				});
 
-							label.style("right", ( - ( vector.x * widthHalf ) + widthHalf ) + "px" )
-							label.style("bottom", ( ( vector.y * heightHalf ) + heightHalf ) + "px" )
+				//////Attach labels to atoms in 3d//////
+				mol3d.frameFunctions.labelPos = {
+					enabled: true,
+					fn: function(){
+							var widthHalf = mol3d.container.getBoundingClientRect().width/2;
+							var heightHalf = mol3d.container.getBoundingClientRect().height/2;
+							for( label of labels ){
+								var vector = new THREE.Vector3().setFromMatrixPosition( mol3d.scene.getObjectByName( +label.html() ).matrixWorld );
+								vector.project( mol3d.camActive );
+
+								label.style("right", ( - ( vector.x * widthHalf ) + widthHalf ) + "px" )
+								label.style("bottom", ( ( vector.y * heightHalf ) + heightHalf ) + "px" )
+							}
+						}
+				};
+
+				//////Highlight svg atom//////
+				var rootAtom2D = d3.select( "#highlight_"+ answer.CIPRoot );
+				rootAtom2D.node().parentNode.insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").node(), rootAtom2D.node().nextSibling );
+
+				//////Highlight 3D atom//////
+				var rootAtom3D =  mol3d.scene.getObjectByName( +answer.CIPRoot );
+				rootAtom3D.geometry.scale( 1.5, 1.5, 1.5 );
+				rootAtom3D.material.color.set( new THREE.Color().setRGB( 1, 0.5, 0 ) );
+
+	 			var cameraUp = new THREE.Vector3().copy( mol3d.scene.getObjectByName( rootAtom3D.userData.source.bondedTo[0].el.index ).position ).sub( rootAtom3D.position ).normalize();
+
+				//////Orient molecule//////
+				mol3d.molGroup.rotateOnAxis( new THREE.Vector3().crossVectors( cameraUp, new THREE.Vector3( 0, 1, 0 ) ).normalize() , cameraUp.angleTo( new THREE.Vector3(0,1,0)) );
+
+				//////Fade non-essential atoms//////
+				var essentials = [rootAtom3D];
+				rootAtom3D.userData.source.bondedTo.forEach( el => {
+					essentials.push( mol3d.scene.getObjectByName( el.el.index ) );
+					essentials.push( mol3d.scene.getObjectByName( el.bond.start.index + "_" + el.bond.end.index ) );
+				} );
+
+
+				mol3d.molGroup.traverse( obj => { if( obj instanceof THREE.Mesh && obj.userData.type !== "fGroup" ){
+						obj.scale.set( 0.01, 0.01, 0.01 );
+						obj.visible = true;
+						if( essentials.indexOf( obj ) === -1 ){
+							obj.material.transparent = true;
+							obj.material.opacity = 0.2;
 						}
 					}
-			};
+				} );
 
-			//////Highlight svg atom//////
-			var rootAtom2D = d3.select( "#highlight_"+ answer.CIPRoot );
-			rootAtom2D.node().parentNode.insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").node(), rootAtom2D.node().nextSibling );
+				mouseover = function() {
+							mol3d.molGroup.traverse( obj => {
+								if( obj instanceof THREE.Mesh && essentials.indexOf( obj ) === -1 ){
+									obj.material.opacity = 1;
+								}
+							})
+						};
 
-			//////Highlight 3D atom//////
-			var rootAtom3D =  mol3d.scene.getObjectByName( +answer.CIPRoot );
-			rootAtom3D.geometry.scale( 1.5, 1.5, 1.5 );
-			rootAtom3D.material.color.set( new THREE.Color().setRGB( 1, 0.5, 0 ) );
-
- 			var cameraUp = new THREE.Vector3().copy( mol3d.scene.getObjectByName( rootAtom3D.userData.source.bondedTo[0].el.index ).position ).sub( rootAtom3D.position ).normalize();
-
-			//////Orient molecule//////
-			mol3d.molGroup.rotateOnAxis( new THREE.Vector3().crossVectors( cameraUp, new THREE.Vector3( 0, 1, 0 ) ).normalize() , cameraUp.angleTo( new THREE.Vector3(0,1,0)) );
-
-			//////Fade non-essential atoms//////
-			var essentials = [rootAtom3D]
-			rootAtom3D.userData.source.bondedTo.forEach( el => {
-				essentials.push( mol3d.scene.getObjectByName( el.el.index ) );
-				essentials.push( mol3d.scene.getObjectByName( el.bond.start.index + "_" + el.bond.end.index ) );
-			} );
-
-
-			mol3d.molGroup.traverse( obj => { if( obj instanceof THREE.Mesh && obj.userData.type !== "fGroup" ){
-					obj.scale.set( 0.01, 0.01, 0.01 );
-					obj.visible = true;
-					if( essentials.indexOf( obj ) === -1 ){
-						obj.material.transparent = true;
-						obj.material.opacity = 0.2;
-					}
-				}
-			} );
-
-			mouseover = function() {
+				mouseout = function() {
 						mol3d.molGroup.traverse( obj => {
 							if( obj instanceof THREE.Mesh && essentials.indexOf( obj ) === -1 ){
-								obj.material.opacity = 1;
+								obj.material.opacity = 0.2;
 							}
 						})
 					};
 
-			mouseout = function() {
-					mol3d.molGroup.traverse( obj => {
-						if( obj instanceof THREE.Mesh && essentials.indexOf( obj ) === -1 ){
-							obj.material.opacity = 0.2;
+				mol3d.container.addEventListener( "mouseover", mouseover );
+				mol3d.container.addEventListener( "mouseout", mouseout );
+
+				//////Focus Camera on atom//////
+				var controlsStart = mol3d.controls.target;
+				d3.transition()
+					.duration( 2000 )
+					.tween( null, () => function( t ){
+						mol3d.molGroup.traverse( obj => obj.scale.set( t, t, t ) )
+						mol3d.controls.target.copy( new THREE.Vector3( ).copy( controlsStart ).lerp( new THREE.Vector3().copy( rootAtom3D.getWorldPosition() ), t ) );
+					} )
+					.on( "end", function(){
+					//////Hide 3D view on hardest difficulty//////
+						if( diff === 3 ){
+							var svg = d3.select( mol3d.container ).append( "svg" ).attr( "class", "Blocker3D" ).attr( "style", "width: 100%; height: 100%; position: absolute; left: 0px; top: 0px;")
+							svg.append( "polygon" ).attr( "points", "0,0 0,280 480,200 480,0" ).attr( "transform", "translate( 0, -280 )")
+							svg.append( "polygon" ).attr( "points", "0,480 0,280 480,200 480,480" ).attr( "transform", "translate( 0, 280 )")
+							d3.selectAll( ".Blocker3D > polygon" ).transition()
+								.duration( 1000 )
+								.ease( d3.easeBounceOut )
+								.attr( "transform", "translate( 0,0 )")
+								.on( "end", () => svg.append( "text" ).attr( "x", 240 ).attr( "y", 240 ).attr( "text-anchor", "middle" ).text( "No 3D on this difficulty!" ) )
 						}
-					})
-				};
+					} )
+			}
 
-			mol3d.container.addEventListener( "mouseover", mouseover );
-			mol3d.container.addEventListener( "mouseout", mouseout );
 
-			//////Focus Camera on atom//////
-			var controlsStart = mol3d.controls.target;
+		}
+
+		self.closeGame = function(){
+			mol3d.container.removeEventListener( "mouseover", mouseover);
+			mol3d.container.removeEventListener( "mouseout", mouseout);
+
+			while( labels.length > 0 ){ labels.pop( 0 ).remove() }
+
 			d3.transition()
-				.duration( 2000 )
-				.tween( null, () => function( t ){
-					mol3d.molGroup.traverse( obj => obj.scale.set( t, t, t ) )
-					mol3d.controls.target.copy( new THREE.Vector3( ).copy( controlsStart ).lerp( new THREE.Vector3().copy( rootAtom3D.getWorldPosition() ), t ) );
-				} )
+				.duration( 1500 )
+				.tween( null, function(){ return function( t ){ mol3d.controls.target.lerp( new THREE.Vector3( 0, 0, 0 ), t ) } })
+
+			mol3d.interactions( false );
+			mol3d.autoRotate( true );
+			mol3d.highlightSync( false );
+			mol3d.highlight( false );
+
+			//////FRAME REPOSITIONING//////
+			d3.selectAll( ".view2D" )
+				.transition()
+				.duration( 1500 )
+				//.ease( d3.easeBackIn )
+				.style( "width", "0px" )
+				.style( "height", "0px" )
+			d3.select( ".view3D" )
+				.transition()
+				.duration( 1500 )
+				.style( "width", "1020px" )
+				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+
+			d3.select( "#root" )
+				.transition()
+				.duration( 1000 )
+				.ease( d3.easeBackInOut )
+				.style( "top", "0px" )
+			d3.selectAll( "#CIPinputs, #Nminputs" )
+				.transition()
+				.duration( 1000 )
+				.ease( d3.easeBackInOut )
+				.style( "top", "0px")
+			//////----------//////
 		}
 
 	}
 
 	function CIPSubmit(){
-		var ranks = []
-		d3.selectAll( "#CIPdragdrop > text" ).each( function( el ){
-			console.log( el, this );
-			if(  ){
-				ranks.append()
-			}
+		var ranks = [null, null, null, null]
+		d3.selectAll( "#CIPdragdrop > text" ).each( function( rank ){
+			ranks[ rank - 1 ] = +this.innerHTML.split( "-" )[1];
 		} )
-		console.log( )
+		console.log( ranks );
+		var toggles = [...d3.selectAll( "#CIPtoggles > label > input" )._groups[0]].map( el => el.checked )
+		console.log( toggles )
 	}
 
 	function runNewman( diff ){
@@ -349,7 +428,6 @@
 		d3.selectAll( ".dd > text" ).each( function(){ this.setAttribute( "pointer-events", "none" ) } )
 
 		var start = [ el.getAttribute( "x" ), el.getAttribute( "y" ) ];
-
 
 		var drag = ( evt ) => {
 				d3.select( el ).attr( "x", + el.getAttribute( "x" ) + evt.movementX );

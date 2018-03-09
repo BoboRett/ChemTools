@@ -122,7 +122,7 @@ h1{
     font-size: 28px;
 }
 
-h2{
+.switch > h2{
     font-family: "Bookman Old Style";
     margin: 0px;
     font-size: 18px;
@@ -175,7 +175,6 @@ h2{
 
 #view2d {
     text-anchor: middle;
-    pointer-events: none;
     font-family: sans-serif;
     font-size: 16px;
 }
@@ -209,4 +208,15 @@ h2{
 
 div#controls {
     margin-top: 16px;
+}
+
+.Blocker3D > polygon {
+    fill: grey;
+}
+
+.Blocker3D > text {
+    color: white;
+    font-size: 24px;
+    font-family: "Verdana";
+    baseline-shift: -6px;
 }
