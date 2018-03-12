@@ -330,69 +330,69 @@ var Mol3D = function( container, params ){
 	self.frameFunctions = {
 		//////Highlight elements on hover//////
 		highlight: {enabled: false, fn: function(){
-								var raycaster = new THREE.Raycaster();
-								raycaster.setFromCamera( self.mouse, self.camActive );
+				var raycaster = new THREE.Raycaster();
+				raycaster.setFromCamera( self.mouse, self.camActive );
 
-								var intersects = raycaster.intersectObjects( self.scene.children, true );
+				var intersects = raycaster.intersectObjects( self.scene.children, true );
 
-								if( self.mouse.x > -1 && self.mouse.x < 1 && self.mouse.y > -1 && self.mouse.y < 1 && intersects.length > 0){
-									intersected && intersected.material.emissive.setHex( intersected.currentHex );
+				if( self.mouse.x > -1 && self.mouse.x < 1 && self.mouse.y > -1 && self.mouse.y < 1 && intersects.length > 0){
+					intersected && intersected.material.emissive.setHex( intersected.currentHex );
 
-									if( intersects[0].object instanceof THREE.Mesh ){
-										intersected = intersects[0].object;
-										intersected.currentHex = intersected.material.emissive.getHex();
-										intersected.material.emissive.setHex ( 0xff0000 );
-									}
-									else{
-										intersected = null;
-									}
+					if( intersects[0].object instanceof THREE.Mesh ){
+						intersected = intersects[0].object;
+						intersected.currentHex = intersected.material.emissive.getHex();
+						intersected.material.emissive.setHex ( 0xff0000 );
+					}
+					else{
+						intersected = null;
+					}
 
-								} else {
-									intersected && intersected.material.emissive.setHex( intersected.currentHex );
+				} else {
+					intersected && intersected.material.emissive.setHex( intersected.currentHex );
 
-								}
+				}
 
-							}
-			},
+			}
+		},
 		//////Auto rotate//////
 		autoRotate: {enabled: false, fn: function(){ self.molGroup.rotateOnWorldAxis( new THREE.Vector3( 0, 1, 0 ), 0.01 ) } },
 		//////Highlight svg elements from 3D//////
 		highlightSync: {enabled: false, fn: function(){
-												var raycaster = new THREE.Raycaster();
-												raycaster.setFromCamera( self.mouse, self.camActive );
+				var raycaster = new THREE.Raycaster();
+				raycaster.setFromCamera( self.mouse, self.camActive );
 
-												var intersects = raycaster.intersectObjects( self.scene.children, true );
+				var intersects = raycaster.intersectObjects( self.scene.children, true );
 
-												if( self.mouse.x > -1 && self.mouse.x < 1 && self.mouse.y > -1 && self.mouse.y < 1 && intersects.length > 0){
+				if( self.mouse.x > -1 && self.mouse.x < 1 && self.mouse.y > -1 && self.mouse.y < 1 && intersects.length > 0){
 
-													self.hovered && self.hovered.attr( "class", "highlight" );
+					self.hovered && self.hovered.attr( "class", "highlight" );
 
-													var highlighted = intersects[0].object;
-													switch( highlighted.userData.type ){
+					var highlighted = intersects[0].object;
+					switch( highlighted.userData.type ){
 
-														case "fGroup":
+						case "fGroup":
 
-															self.hovered = d3.selectAll( "#highlight_" + highlighted.userData.source.source.index + ", " + highlighted.userData.source.domain.map( el =>  "#highlight_" + el.index ).join( ", " ) )
-															break;
+							self.hovered = d3.selectAll( "#highlight_" + highlighted.userData.source.source.index + ", " + highlighted.userData.source.domain.map( el =>  "#highlight_" + el.index ).join( ", " ) )
+							break;
 
-														case "atom":
-														case "bond":
+						case "atom":
+						case "bond":
 
-															self.hovered = highlighted.name.toString().includes("_") ?
-																d3.select( "#highlight_" + highlighted.name + ", #highlight_" + highlighted.name.toString().split("").reverse().join("") ) :
-																d3.select( "#highlight_" + highlighted.name )
-															break;
+							self.hovered = highlighted.name.toString().includes("_") ?
+								d3.select( "#highlight_" + highlighted.name + ", #highlight_" + highlighted.name.toString().split("").reverse().join("") ) :
+								d3.select( "#highlight_" + highlighted.name )
+							break;
 
-													}
+					}
 
-													self.hovered && self.hovered.attr( "class", "highlight_hover" );
+					self.hovered && self.hovered.attr( "class", "highlight_hover" );
 
-												} else {
+				} else {
 
-													self.hovered && self.hovered.attr( "class", "highlight" )
+					self.hovered && self.hovered.attr( "class", "highlight" )
 
-												}
-											}
+				}
+			}
 		}
 	};
 
@@ -649,10 +649,10 @@ var Mol3D = function( container, params ){
 			if (Detector.webgl) {
 				self.addtoScene( hidden );
 				if( self.animID ){ window.cancelAnimationFrame( self.animID ) };
-				self.animate()
+				self.play()
 				self.onWindowResize();
 				window.addEventListener( "resize", self.onWindowResize );
-				window.addEventListener( "mousemove", self.onMouseMove, false );
+				self.renderer.domElement.addEventListener( "mousemove", self.onMouseMove, false );
 			} else {
 				var warning = Detector.getWebGLErrorMessage();
 				d3.select( self.container ).appendChild( warning );
@@ -669,7 +669,7 @@ var Mol3D = function( container, params ){
 		drawAtoms( self.molecule.atoms );
 		drawBonds( self.molecule.bonds );
 
-		hidden && console.warn("Molecule hidden. Use .molGroup to access scene objects.")
+		hidden && console.warn( "Molecule hidden. Use .molGroup to access scene objects." )
 		self.molGroup.traverse( obj => { if( obj instanceof THREE.Mesh ){ obj.visible = !hidden } } )
 		self.scene.add( self.molGroup );
 
@@ -711,7 +711,7 @@ var Mol3D = function( container, params ){
 
 			//////BONDS//////
 			bonds.forEach( function( el, i ){
-				var vec = new THREE.Vector3( ...el.end.pos ).sub( new THREE.Vector3( ...el.start.pos ) );//[el.end.pos[0] - el.start.pos[0], el.end.pos[1] - el.start.pos[1], el.end.pos[2] - el.start.pos[2]];
+				var vec = new THREE.Vector3( ...el.end.pos ).sub( new THREE.Vector3( ...el.start.pos ) );
 
 				switch ( el.type ){
 
@@ -734,10 +734,10 @@ var Mol3D = function( container, params ){
 							new THREE.QuadraticBezierCurve3(
 								new THREE.Vector3( 0, 0, 0 ),
 								new THREE.Vector3(
-											vec.x/2 + 0.5*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
-											vec.y/2 + 0.5*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
-											vec.z/2 + 0.5*Math.cos( polar_sphere[1] )
-											),
+									vec.x/2 + 0.5*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
+									vec.y/2 + 0.5*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
+									vec.z/2 + 0.5*Math.cos( polar_sphere[1] )
+								),
 								vec
 							), 10, .05, 8, false )
 						);
@@ -746,10 +746,10 @@ var Mol3D = function( container, params ){
 							new THREE.QuadraticBezierCurve3(
 								new THREE.Vector3( 0, 0, 0 ),
 								new THREE.Vector3(
-											vec.x/2 - 0.5*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
-											vec.y/2 - 0.5*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
-											vec.z/2 - 0.5*Math.cos( polar_sphere[1] )
-											),
+									vec.x/2 - 0.5*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
+									vec.y/2 - 0.5*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
+									vec.z/2 - 0.5*Math.cos( polar_sphere[1] )
+								),
 								vec
 							), 10, .05, 8, false )
 						);
@@ -938,9 +938,7 @@ var Mol3D = function( container, params ){
 	}
 
 	self.toggleCam = function( ){
-
 		self.camActive = self.camActive === camPersp ? camOrtho : camPersp;
-
 	}
 
 	self.showH = function( showH ){
@@ -1061,8 +1059,6 @@ fGroupSearcher = function( mol ){
 	//////SEARCH BONDS OF ATOM//////
 	function inBonds( source, subStruct, rootIndex, domain ){
 
-		var results = [];
-
 		var claimed = [];
 
 		subStruct.forEach( function( ss ){
@@ -1081,7 +1077,7 @@ fGroupSearcher = function( mol ){
 							var deepSearch = inBonds( link.el , ss.bondedTo, rootIndex, domain );
 
 							if( deepSearch.hasOwnProperty( "source" ) ){
-								claimed = claimed.concat( deepSearch.claimed);
+								claimed = claimed.concat( deepSearch.claimed );
 								ss.found = true;
 							}
 
@@ -1097,12 +1093,14 @@ fGroupSearcher = function( mol ){
 
 		if( subStruct.filter( el => !el.found ).length < 1 ){
 			results = {source: source, domain: domain, claimed: claimed};
+		} else{
+			results = []
 		}
 
 		return results
 	}
 
-	console.log( fGroups.map( el => el.type + " " + el.source.index + "," + el.domain.map( dom => dom.index ).join(",") ) )
+	//console.log( fGroups.map( el => el.type + " " + el.source.index + "," + el.domain.map( dom => dom.index ).join(",") ) )
 
 	return fGroups
 }

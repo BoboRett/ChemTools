@@ -8,9 +8,9 @@
 		<a href="http://www.leeds.ac.uk/"><img src="../unileeds.svg" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
 	</div>
 
-	<div class="page" style="overflow:hidden; height:720px;">
+	<div class="page" style="overflow:hidden; height:677px;">
 		<div id="gameFrame" style="overflow:hidden">
-			<div class="view3D" style="width:1020px; float:left; height:480px;">
+			<div class="view3D" style="width:1020px; float:left; height:431px;">
 			</div>
 			<div class="view2D" style="float:right; height:0px">
 			</div>
@@ -29,9 +29,9 @@
 				</div>
 				<div style="left: 2040px; top: -480px;">
 					<h1>Mode:</h1>
-					<button class="button" onclick="MenuView( 'root' )">Back</button>
-					<button class="button" onclick="runNewman( 1 )">Newman => 2D</button>
-					<button class="button" onclick="runNewman( 2 )" style="float:right;">2D => Newman</button>
+					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 164px;">Back</button>
+					<button class="button" onclick="nm = new Newman( 1 )">Newman => 2D</button>
+					<button class="button" onclick="nm = new Newman( 2 )">2D => Newman</button>
 				</div>
 			</div>
 			<div class="menu" id="CIPinputs">
@@ -187,66 +187,70 @@ $$$$
 
 	CIP = function( diff ){
 		var self = this;
-
+		self.diff = diff;
+		self.labels = [];
 		mol3d.interactions( true );
 		mol3d.autoRotate( false );
 		mol3d.highlightSync( true );
 		mol3d.highlight( true );
 
-		d3.select( "#CIPrank" ).html(
-			`<svg class="dd" id="CIPdragdrop" viewBox="0,0,600,120">
-				<defs>
-					<mask id="first">
-						<rect  width="100%" height="100%" fill="#fff"/>
-						<text x="110" y="42" fill="#b5b5b5">1st</text>
-					</mask>
-					<mask id="second">
-						<rect  width="100%" height="100%" fill="#fff"/>
-						<text x="235" y="42" fill="#b5b5b5">2nd</text>
-					</mask>
-					<mask id="third">
-						<rect  width="100%" height="100%" fill="#fff"/>
-						<text x="360" y="42" fill="#b5b5b5">3rd</text>
-					</mask>
-					<mask id="fourth">
-						<rect  width="100%" height="100%" fill="#fff"/>
-						<text x="485" y="42" fill="#b5b5b5">4th</text>
-					</mask>
-				</defs>
-				<rect id="dd1_TAR" x="60" y="5" width="100" height="50" mask="url('#first')"></rect>
-				<rect id="dd2_TAR" x="185" y="5" width="100" height="50" mask="url('#second')"></rect>
-				<rect id="dd3_TAR" x="310" y="5" width="100" height="50" mask="url('#third')"></rect>
-				<rect id="dd4_TAR" x="435" y="5" width="100" height="50" mask="url('#fourth')"></rect>
-				<text id="dd1" x="110" y="100" onmousedown="dragLabel( this, event )"></text>
-				<text id="dd2" x="235" y="100" onmousedown="dragLabel( this, event )"></text>
-				<text id="dd3" x="360" y="100" onmousedown="dragLabel( this, event )"></text>
-				<text id="dd4" x="485" y="100" onmousedown="dragLabel( this, event )"></text>
-			</svg>`
-		);
+		self.init = function(){
+			d3.select( "#CIPrank" ).html(
+				`<svg class="dd" id="CIPdragdrop" viewBox="0,0,600,120">
+					<defs>
+						<mask id="first">
+							<rect  width="100%" height="100%" fill="#fff"/>
+							<text x="110" y="42" fill="#b5b5b5">1st</text>
+						</mask>
+						<mask id="second">
+							<rect  width="100%" height="100%" fill="#fff"/>
+							<text x="235" y="42" fill="#b5b5b5">2nd</text>
+						</mask>
+						<mask id="third">
+							<rect  width="100%" height="100%" fill="#fff"/>
+							<text x="360" y="42" fill="#b5b5b5">3rd</text>
+						</mask>
+						<mask id="fourth">
+							<rect  width="100%" height="100%" fill="#fff"/>
+							<text x="485" y="42" fill="#b5b5b5">4th</text>
+						</mask>
+					</defs>
+					<rect id="dd1_TAR" x="60" y="5" width="100" height="50" mask="url('#first')"></rect>
+					<rect id="dd2_TAR" x="185" y="5" width="100" height="50" mask="url('#second')"></rect>
+					<rect id="dd3_TAR" x="310" y="5" width="100" height="50" mask="url('#third')"></rect>
+					<rect id="dd4_TAR" x="435" y="5" width="100" height="50" mask="url('#fourth')"></rect>
+					<text id="dd1" x="110" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd2" x="235" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd3" x="360" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd4" x="485" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+				</svg>`
+			);
 
-		d3.transition()
-			.duration( 1500 )
-			.tween( null, function(){ return function( t ){mol3d.scene.traverse( obj => {obj instanceof THREE.Mesh && obj.scale.set( 1-t, 1-t, 1-t )} )} } )
-			.on( "end", () => {
-				mol3d.scene.remove( mol3d.molGroup );
-				self.runGame( diff );
-			} )
+			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
 
-		d3.select( "#gameFrame > #root" )
-			.transition()
-			.duration( 1500 )
-			.ease( d3.easeBackInOut )
-			.style( "top", "240px" )
-		d3.select( "#gameFrame > #CIPinputs" )
+			d3.transition()
+				.duration( 1500 )
+				.tween( null, function(){ return function( t ){mol3d.scene.traverse( obj => {obj instanceof THREE.Mesh && obj.scale.set( 1-t, 1-t, 1-t )} )} } )
+				.on( "end", () => {
+					mol3d.scene.remove( mol3d.molGroup );
+					self.runGame( self.diff );
+				} )
+
+			d3.select( "#gameFrame > #root" )
+				.transition()
+				.duration( 1500 )
+				.ease( d3.easeBackInOut )
+				.style( "top", "240px" )
+			d3.select( "#gameFrame > #CIPinputs" )
 			.transition()
 			.duration( 1500 )
 			.ease( d3.easeBackInOut )
 			.style( "top", "-240px")
+		};
 
-		self.runGame = function( diff ){
+		self.runGame = function( ){
 
-			self.answer = d.filter( el => +el.CIPLvl === ( diff === 1 ? 1 : 2 ) )[0];
-			console.log(self.answer)
+			self.answer = d.filter( el => +el.CIPLvl === ( self.diff === 1 ? 1 : 2 ) )[0];
 
 			mol2d.parse( self.answer.Data2D );
 			mol3d.parse( self.answer.Data3D );
@@ -256,19 +260,18 @@ $$$$
 			d3.selectAll( "#gameFrame > .view3D, #gameFrame > .view2D" )
 				.transition()
 				.duration( 2000 )
-				//.ease( d3.easeBackIn )
 				.style( "width", "480px" )
-				.style( "height", "480px" )
+				.style( "height", "431px" )
 				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
 
+			//////Create labels for adjacent atoms//////
 			mol3d.scene.getObjectByName( +self.answer.CIPRoot ).userData.source.bondedTo.forEach( function( el, i ){
 				var label = d3.select( ".view3D" ).append( "p" )
 					.html( el.el.index )
 					.attr( "class", "label")
-				labels.push( label );
+				self.labels.push( label );
 
 				d3.select( "#dd" + ( i + 1 ) ).text( el.el.element + "-" + el.el.index );
-
 				d3.select( "#atomind_" + el.el.index ).attr( "display", null );
 			});
 
@@ -278,7 +281,7 @@ $$$$
 				fn: function(){
 						var widthHalf = mol3d.container.getBoundingClientRect().width/2;
 						var heightHalf = mol3d.container.getBoundingClientRect().height/2;
-						for( label of labels ){
+						for( label of self.labels ){
 							var vector = new THREE.Vector3().setFromMatrixPosition( mol3d.scene.getObjectByName( +label.html() ).matrixWorld );
 							vector.project( mol3d.camActive );
 
@@ -297,19 +300,16 @@ $$$$
 			rootAtom3D.geometry.scale( 1.5, 1.5, 1.5 );
 			rootAtom3D.material.color.set( new THREE.Color().setRGB( 1, 0.5, 0 ) );
 
- 			var cameraUp = new THREE.Vector3().copy( mol3d.scene.getObjectByName( rootAtom3D.userData.source.bondedTo[0].el.index ).position ).sub( rootAtom3D.position ).normalize();
-
 			//////Orient molecule//////
-			mol3d.molGroup.rotateOnAxis( new THREE.Vector3().crossVectors( cameraUp, new THREE.Vector3( 0, 1, 0 ) ).normalize() , cameraUp.angleTo( new THREE.Vector3(0,1,0)) );
+			var objUp = new THREE.Vector3().copy( mol3d.scene.getObjectByName( rootAtom3D.userData.source.bondedTo[0].el.index ).position ).sub( rootAtom3D.position ).normalize();
+			mol3d.molGroup.rotateOnAxis( new THREE.Vector3().crossVectors( objUp, new THREE.Vector3( 0, 1, 0 ) ).normalize() , objUp.angleTo( new THREE.Vector3(0,1,0)) );
 
 			//////Fade non-essential atoms//////
-			var essentials = [rootAtom3D];
+			var essentials = [ rootAtom3D ];
 			rootAtom3D.userData.source.bondedTo.forEach( el => {
 				essentials.push( mol3d.scene.getObjectByName( el.el.index ) );
 				essentials.push( mol3d.scene.getObjectByName( el.bond.start.index + "_" + el.bond.end.index ) );
 			} );
-
-
 			mol3d.molGroup.traverse( obj => { if( obj instanceof THREE.Mesh && obj.userData.type !== "fGroup" ){
 					obj.scale.set( 0.01, 0.01, 0.01 );
 					obj.visible = true;
@@ -349,15 +349,16 @@ $$$$
 				} )
 				.on( "end", function(){
 				//////Hide 3D view on hardest difficulty//////
-					if( diff === 3 ){
+					if( self.diff === 3 ){
 						var svg = d3.select( mol3d.container ).append( "svg" ).attr( "class", "Blocker3D" ).attr( "style", "width: 100%; height: 100%; position: absolute; left: 0px; top: 0px;");
-						svg.append( "polygon" ).attr( "points", "0,0 0,280 480,200 480,0" ).attr( "transform", "translate( 0, -280 )");
-						svg.append( "polygon" ).attr( "points", "0,480 0,280 480,200 480,480" ).attr( "transform", "translate( 0, 280 )");
-						d3.selectAll( ".Blocker3D > polygon" ).transition()
+						svg.append( "rect" ).attr( "x", 0 ).attr( "y", 0 ).attr( "width", "50%" ).attr( "height", "100%" ).attr( "transform", "translate( -240, 0 )");
+						svg.append( "rect" ).attr( "x", "50%" ).attr( "y", 0 ).attr( "width", "50%" ).attr( "height", "100%" ).attr( "transform", "translate( 240, 0 )");
+
+						d3.selectAll( ".Blocker3D > rect" ).transition()
 							.duration( 1000 )
 							.ease( d3.easeBounceOut )
-							.attr( "transform", "translate( 0,0 )")
-							.on( "end", () => svg.append( "text" ).attr( "x", 240 ).attr( "y", 240 ).attr( "text-anchor", "middle" ).text( "No 3D on this difficulty!" ) )
+							.attr( "transform", "translate( 0, 0 )")
+							.on( "end", () => svg.append( "text" ).attr( "x", 240 ).attr( "y", 215 ).attr( "text-anchor", "middle" ).text( "No 3D on this difficulty!" ) )
 					}
 				} )
 
@@ -367,7 +368,19 @@ $$$$
 			mol3d.container.removeEventListener( "mouseover", mouseover);
 			mol3d.container.removeEventListener( "mouseout", mouseout);
 
-			while( labels.length > 0 ){ labels.pop( 0 ).remove() }
+			//////Hide 3D View Blocker//////
+			d3.select( ".Blocker3D > :nth-child(1)" ).transition()
+				.duration( 1000 )
+				.attr( "transform", "scale( 0, 1 )" )
+			d3.select( ".Blocker3D > :nth-child(2)" ).transition()
+				.duration( 1000 )
+				.attr( "transform", "translate( 480, 0 ) scale( 0, 1 )" )
+				.on( "end", () => d3.select( ".Blocker3D" ).remove() )
+
+			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
+
+			d3.selectAll( "#CIPtoggles > label > span" ).style( "fill", null ).style( "background-color", null )
+			d3.selectAll( "#CIPtoggles > label > input" ).each( function(){ this.checked = false; } );
 
 			d3.transition()
 				.duration( 1500 )
@@ -415,6 +428,8 @@ $$$$
 				elFlash( bg, ( arr[i].checked === ( self.answer['CIPr/s'] === "r" ? false : true ) ) );
 			})
 		}
+
+		self.init()
 	}
 
 	function elFlash( el, correct ){
@@ -438,46 +453,81 @@ $$$$
 
 	}
 
-	function runNewman( diff ){
+	Newman = function( diff ){
+		var self = this;
+		self.diff = diff;
+		mol3d.interactions( true );
+		mol3d.autoRotate( false );
+		mol3d.highlightSync( true );
+		mol3d.highlight( true );
 
+		self.init = function(){
+
+		}
+
+		self.runGame = function(){
+
+		}
 	}
 
 	function dragLabel( el, evt ){
-		d3.selectAll( ".dd > text" ).each( function(){ this.setAttribute( "pointer-events", "none" ) } )
+		evt.stopPropagation();
 
 		var start = [ el.getAttribute( "x" ), el.getAttribute( "y" ) ];
-
+		var downPos = evt.type === "touchstart" ? [ evt.changedTouches[0].clientX, evt.changedTouches[0].clientY ] : [ evt.clientX, evt.clientY ];
 		var drag = ( evt ) => {
-				d3.select( el ).attr( "x", + el.getAttribute( "x" ) + evt.movementX );
-				d3.select( el ).attr( "y", + el.getAttribute( "y" ) + evt.movementY );
-			}
+				evt.preventDefault();
+				evt.stopPropagation();
+
+				var delta = [ downPos[0] - ( evt.type === "touchmove" ? evt.changedTouches[0].clientX : evt.clientX ), downPos[1] - ( evt.type === "touchmove" ? evt.changedTouches[0].clientY : evt.clientY ) ];
+				d3.select( el ).attr( "x", + start[0] - delta[0] );
+				d3.select( el ).attr( "y", + start[1] - delta[1] );
+		}
 		var drop = ( evt ) => {
+				evt.preventDefault();
+				evt.stopPropagation();
+
 				var svg = el.parentNode
-				if( ( evt.path[0].getAttribute( "id" ) || "" ).slice( -3 ) === "TAR" ){
-					d3.select( el ).attr( "x", +evt.path[0].getAttribute( "x" ) + 50 );
-					d3.select( el ).attr( "y", +evt.path[0].getAttribute( "y" ) + 39 );
+				var upPos = evt.type === "touchend" ? [ evt.changedTouches[0].clientX, evt.changedTouches[0].clientY ] : [ evt.clientX, evt.clientY ];
+				var hitNode = null;
+				d3.selectAll( "#CIPdragdrop > rect" ).each( function(){
+					var bBox = this.getBoundingClientRect();
+					if( upPos[0] > bBox.left && upPos[0] < bBox.right && upPos[1] < bBox.bottom && upPos[1] > bBox.top ){
+						hitNode = this;
+					}
+				})
+				if( hitNode ){
+					d3.select( el ).transition()
+						.duration( 500 )
+						.attr( "x", +hitNode.getAttribute( "x" ) + 50 )
+						.attr( "y", +hitNode.getAttribute( "y" ) + 39 )
 					d3.selectAll( "#" + svg.getAttribute( "id" ) + " > text" ).each( function( e ){
-						if( e === evt.path[0].getAttribute( "id" ).substr( 2, 1 ) ){
-							d3.select( this ).attr( "x", start[0] );
-							d3.select( this ).attr( "y", start[1] );
+						if( e === hitNode.getAttribute( "id" ).substr( 2, 1 ) ){
+							d3.select( this ).transition()
+								.duration( 500 )
+								.attr( "x", start[0] )
+								.attr( "y", start[1] )
 							d3.select( this ).datum( d3.select( el ).datum() || null )
 						}
 					});
 
-					d3.select( el ).datum( evt.path[0].getAttribute( "id" ).substr( 2, 1 ) )
+					d3.select( el ).datum( hitNode.getAttribute( "id" ).substr( 2, 1 ) );
 				} else{
 					d3.select( el ).attr( "x", start[0] );
 					d3.select( el ).attr( "y", start[1] );
 				}
+
 				window.removeEventListener( "mousemove", drag )
+				window.removeEventListener( "touchmove", drag )
 				window.removeEventListener( "mouseup", drop )
+				window.removeEventListener( "touchend", drop )
 
-				d3.selectAll( "#" + svg.getAttribute( "id" ) + " > text" ).each( function(){ this.setAttribute( "pointer-events", "all" ) } )
-
-			}
+		}
 
 		window.addEventListener( "mousemove", drag );
+		window.addEventListener( "touchmove", drag, {passive: false} );
 		window.addEventListener( "mouseup", drop );
+		window.addEventListener( "touchend", drop, {passive: false} );
 
 
 	}

@@ -34,7 +34,7 @@ body {
 }
 
 div{
-    overflow: overlay;
+    overflow: hidden;
 }
 
 .view2D, .view3D {
@@ -109,6 +109,7 @@ input:checked + .slider:before {
 	height: 240px;
     width: 100%;
     background: linear-gradient(-90deg, lightslategrey, #8ca1b5);
+    border-top: 6px double black;
 }
 
 #root > div{
@@ -211,7 +212,7 @@ div#controls {
     margin-top: 16px;
 }
 
-.Blocker3D > polygon {
+.Blocker3D > rect {
     fill: grey;
 }
 
