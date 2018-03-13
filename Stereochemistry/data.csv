@@ -1,4 +1,4 @@
-Data3D,Data2D,CIPLvl,CIPRoot,CIPRanks,CIPr/s,NmLvl,Nms/e,Nm1,Nm2,Nm3,Nm4,Nm5,Nm6
+Data3D,Data2D,CIPLvl,CIPRoot,CIPRanks,CIPr/s,NMRoot,NMLvl,NMs/e,NM1,NM2,NM3,NM4,NM5,NM6
 "C14H16O9
 APtclcactv02221806043D 0   0.00000     0.00000
  
@@ -169,7 +169,7 @@ APtclcactv02221806032D 0   0.00000     0.00000
  23 38  1  0  0  0  0
  24 39  1  0  0  0  0
 M  END
-$$$$",1,1,"2,0,29,30",r,,,,,,,,
+$$$$",1,1,"2,0,29,30",r,1,,,,,,,,
 "C3H7NO2
 APtclcactv02271810173D 0   0.00000     0.00000
  
@@ -230,4 +230,4 @@ APtclcactv02271810172D 0   0.00000     0.00000
   6 12  1  0  0  0  0
   6 13  1  0  0  0  0
 M  END
-$$$$",2,1,"5,2,0,9",r,,,,,,,,
+$$$$",2,1,"5,2,0,9",r,1,,,,,,,,

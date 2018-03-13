@@ -73,6 +73,65 @@ var Mol2D = function( container, dims, params ){
 					.attr( "transform", d3.event.transform )
 	})
 
+	self.stylesheet = `
+		.label{
+		    position: absolute;
+		    pointer-events: none;
+		    font-size: 24px;
+		    font-weight: bolder;
+		    font-family: sans-serif;
+		    background-color: #ffffff75;
+		    margin: 0px;
+		}
+
+		.bond > line, .bond_dbl > line, .bond_hash > line, .bond_trp > line {
+		    stroke: black;
+		    stroke-width: 1px;
+		}
+
+		.highlight {
+			stroke-width: 0;
+			stroke: black;
+		    fill: yellow;
+		    fill-opacity: 0;
+		}
+
+		.highlight_hover {
+			stroke-width: 0.5px;
+			stroke: black;
+		    fill: yellow;
+		    fill-opacity: 0.5;
+		}
+
+		.atomFocus {
+		    stroke-width: 0.5px;
+			stroke: black;
+		    fill: orange;
+		}
+
+		.wedge {
+		    fill: black;
+		}
+
+		.label_O{
+			fill: red;
+		}
+		.label_N{
+			fill: blue;
+		}
+
+		.atomind{
+			font-size: 8px;
+		}
+
+		#view2d {
+		    text-anchor: middle;
+		    font-family: sans-serif;
+		    font-size: 16px;
+		}
+	`
+	d3.select( "head" ).append( "style" ).html( self.stylesheet )
+
 	//////Get 2D Molecule from OCL//////
 	self.getFromSMILE = function( smile, addH ){
 
@@ -933,6 +992,7 @@ var Mol3D = function( container, params ){
 
 		self.camActive.updateProjectionMatrix();
 		self.renderer.setSize( elBox.width, elBox.height );
+		self.controls.screen = { left: elBox.left, top: elBox.top, width: elBox.width, height: elBox.height };
 		effect.render( self.scene, self.camActive );
 
 	}

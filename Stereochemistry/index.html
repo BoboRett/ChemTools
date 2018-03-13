@@ -8,13 +8,11 @@
 		<a href="http://www.leeds.ac.uk/"><img src="../unileeds.svg" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
 	</div>
 
-	<div class="page" style="overflow:hidden; height:677px;">
-		<div id="gameFrame" style="overflow:hidden">
-			<div class="view3D" style="width:1020px; float:left; height:431px;">
-			</div>
-			<div class="view2D" style="float:right; height:0px">
-			</div>
-			<div class="menu" id="root">
+	<div class="page">
+		<div id="gameFrame">
+			<div class="view3D" style="width:1020px; height:431px;"></div>
+			<div class="view2D" style="height:0px; "></div>
+			<div class="menu" id="root" style="top: 431px;">
 				<div style="left: 0px; top: 0px;">
 					<h1>Revision Type:</h1>
 					<button class="button" onclick="MenuView( 'CIP' )">Cahn - Ingold - Prelog</button>
@@ -34,7 +32,7 @@
 					<button class="button" onclick="nm = new Newman( 2 )">2D => Newman</button>
 				</div>
 			</div>
-			<div class="menu" id="CIPinputs">
+			<div class="menu" id="CIPinputs" style="top: 431px;">
 				<div class="head">
 					<h1>Cahn-Ingold-Prelog Rule</h1>
 				</div>
@@ -60,7 +58,39 @@
 					<button class="button" onclick="cip.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
-			<div class="menu" id="Nminputs"></div>
+			<div class="menu" id="NMinputs" style="top: 431px; left: 260px;height: 350px;width: 500px; border: 6px double black;">
+				<div class="head">
+					<h1>Newman Projection</h1>
+				</div>
+				<div class="inputs" style="width: 500px; height: 255px;">
+					<svg class="dd" id="NMdragdrop" viewBox="0,0,500,255">
+						<circle cx="250" cy="125" r="40" style="stroke:black; fill:none;"></circle>
+						<line x1="250" y1="125" x2="250" y2="25"></line>
+						<line x1="250" y1="125" x2="337" y2="175"></line>
+						<line x1="250" y1="125" x2="163" y2="175"></line>
+						<line x1="250" y1="165" x2="250" y2="225"></line>
+						<line x1="215" y1="105" x2="163" y2="75"></line>
+						<line x1="285" y1="105" x2="337" y2="75"></line>
+
+						<rect id="dd1_TAR" x="210" y="5" width="80" height="40"></rect>
+						<rect id="dd2_TAR" x="297" y="55" width="80" height="40"></rect>
+						<rect id="dd3_TAR" x="297" y="155" width="80" height="40"></rect>
+						<rect id="dd4_TAR" x="210" y="205" width="80" height="40"></rect>
+						<rect id="dd5_TAR" x="123" y="55" width="80" height="40"></rect>
+						<rect id="dd6_TAR" x="123" y="155" width="80" height="40"></rect>
+						<text id="dd1" x="50" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">1</text>
+						<text id="dd2" x="50" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">2</text>
+						<text id="dd3" x="50" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">3</text>
+						<text id="dd4" x="450" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">4</text>
+						<text id="dd5" x="450" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">5</text>
+						<text id="dd6" x="450" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">6</text>
+					</svg>
+				</div>
+				<div class="buttons">
+					<button class="button" onclick="nm.closeGame()" style="width:100px;float: right;">Back</button>
+					<button class="button" onclick="nm.submit()" style="width:100px;float: right;">Submit</button>
+				</div>
+			</div>
 
 		</div>
 	</div>
@@ -137,23 +167,11 @@ M  END
 $$$$
 	`
 
-	padset = function(){
-		var gameFrame = d3.select( "#gameFrame" ).node().getBoundingClientRect()
-		var viewer3D =  d3.select( ".view3D" ).node().getBoundingClientRect()
-		var viewer2D =  d3.select( ".view2D" ).node().getBoundingClientRect()
-
-	};
-	padset()
-	window.addEventListener( "resize", padset );
-
 	var mol3d = new Mol3D( d3.select( "#gameFrame > .view3D" ), {disableInteractions: true, showfGroups: false, highlight: false, autoRotate: true} );
-	var mol2d = new Mol2D( d3.select( "#gameFrame > .view2D"), [0,0,250,250]);
+	var mol2d = new Mol2D( d3.select( "#gameFrame > .view2D"), [0,0,250,225]);
 	var mouseover = function(){};
 	var mouseout = function(){};
 	var labels = [];
-
-	//mol3d.getFromSMILE( "C1=CC2=C(C=C1O)C(=CN2)CCN" );
-	//document.addEventListener( "ajaxComplete", ( ) => mol3d.draw() );
 
 	d3.csv( "data.csv", ( data ) => {d = data} )
 
@@ -236,16 +254,23 @@ $$$$
 					self.runGame( self.diff );
 				} )
 
+			d3.selectAll( "#gameFrame > .view3D, #gameFrame > .view2D" )
+				.transition()
+				.duration( 2000 )
+				.style( "width", "480px" )
+				.style( "height", "431px" )
+				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+
 			d3.select( "#gameFrame > #root" )
 				.transition()
 				.duration( 1500 )
-				.ease( d3.easeBackInOut )
-				.style( "top", "240px" )
+				.ease( d3.easePolyInOut )
+				.style( "top", "677px" )
 			d3.select( "#gameFrame > #CIPinputs" )
-			.transition()
-			.duration( 1500 )
-			.ease( d3.easeBackInOut )
-			.style( "top", "-240px")
+				.transition()
+				.duration( 1500 )
+				.ease( d3.easePolyInOut )
+				.style( "top", "184.5px")
 		};
 
 		self.runGame = function( ){
@@ -256,13 +281,6 @@ $$$$
 			mol3d.parse( self.answer.Data3D );
 			mol2d.draw();
 			mol3d.draw( true );
-
-			d3.selectAll( "#gameFrame > .view3D, #gameFrame > .view2D" )
-				.transition()
-				.duration( 2000 )
-				.style( "width", "480px" )
-				.style( "height", "431px" )
-				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
 
 			//////Create labels for adjacent atoms//////
 			mol3d.scene.getObjectByName( +self.answer.CIPRoot ).userData.source.bondedTo.forEach( function( el, i ){
@@ -378,8 +396,9 @@ $$$$
 				.on( "end", () => d3.select( ".Blocker3D" ).remove() )
 
 			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
+			d3.select( "#rootframe" ).html( "" );
 
-			d3.selectAll( "#CIPtoggles > label > span" ).style( "fill", null ).style( "background-color", null )
+			d3.selectAll( "#CIPtoggles > label > span" ).style( "fill", null ).style( "background-color", null );
 			d3.selectAll( "#CIPtoggles > label > input" ).each( function(){ this.checked = false; } );
 
 			d3.transition()
@@ -395,7 +414,6 @@ $$$$
 			d3.selectAll( ".view2D" )
 				.transition()
 				.duration( 1500 )
-				//.ease( d3.easeBackIn )
 				.style( "width", "0px" )
 				.style( "height", "0px" )
 			d3.select( ".view3D" )
@@ -403,17 +421,11 @@ $$$$
 				.duration( 1500 )
 				.style( "width", "1020px" )
 				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
-
-			d3.select( "#root" )
+			d3.selectAll( ".menu" )
 				.transition()
 				.duration( 1000 )
-				.ease( d3.easeBackInOut )
-				.style( "top", "0px" )
-			d3.selectAll( "#CIPinputs, #Nminputs" )
-				.transition()
-				.duration( 1000 )
-				.ease( d3.easeBackInOut )
-				.style( "top", "0px")
+				.ease( d3.easePolyInOut )
+				.style( "top", "431px" )
 			//////----------//////
 		}
 
@@ -446,7 +458,7 @@ $$$$
 				.on( "end", () => {
 					el.transition()
 						.duration( 800 )
-						.style( "fill", "lightgrey" )
+						.style( "fill", "white" )
 						.style( "background-color", "#5b7da0" )
 				})
 		}
@@ -462,12 +474,123 @@ $$$$
 		mol3d.highlight( true );
 
 		self.init = function(){
+			d3.transition()
+				.duration( 1500 )
+				.tween( null, function(){ return function( t ){mol3d.scene.traverse( obj => {obj instanceof THREE.Mesh && obj.scale.set( 1-t, 1-t, 1-t )} )} } )
+				.on( "end", () => {
+					mol3d.scene.remove( mol3d.molGroup );
+					self.runGame( self.diff );
+				} )
 
+			d3.selectAll( "#gameFrame > .view3D, #gameFrame > .view2D" )
+				.transition()
+				.duration( 2000 )
+				.style( "width", "480px" )
+				.style( "height", "431px" )
+				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+
+			d3.select( "#gameFrame > #root" )
+				.transition()
+				.duration( 1500 )
+				.ease( d3.easePolyInOut )
+				.style( "top", "677px" )
+			d3.select( "#gameFrame > #NMinputs" )
+				.transition()
+				.duration( 1500 )
+				.ease( d3.easePolyInOut )
+				.style( "top", "-171px")
 		}
 
 		self.runGame = function(){
+			self.answer = d.filter( el => +el.CIPLvl === ( self.diff === 1 ? 1 : 2 ) )[0];
+
+			mol2d.parse( self.answer.Data2D );
+			mol3d.parse( self.answer.Data3D );
+			mol2d.draw();
+			mol3d.draw( true );
+
+			//////Highlight svg atom//////
+			var rootAtom2D = d3.select( "#highlight_"+ self.answer.NMRoot );
+			rootAtom2D.node().parentNode.insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").node(), rootAtom2D.node().nextSibling );
+
+			//////Highlight 3D atom//////
+			var rootAtom3D =  mol3d.scene.getObjectByName( +self.answer.NMRoot );
+			rootAtom3D.geometry.scale( 1.5, 1.5, 1.5 );
+			rootAtom3D.material.color.set( new THREE.Color().setRGB( 1, 0.5, 0 ) );
+
+			mol3d.molGroup.traverse( obj => { if( obj instanceof THREE.Mesh && obj.userData.type !== "fGroup" ){
+					obj.scale.set( 0.1, 0.1, 0.1 );
+					obj.visible = true;
+				}
+			} );
+
+
+			var controlsStart = mol3d.controls.target;
+			d3.transition()
+				.duration( 2000 )
+				.tween( null, () => function( t ){
+					mol3d.molGroup.traverse( obj => obj.scale.set( t, t, t ) )
+					mol3d.controls.target.copy( new THREE.Vector3( ).copy( controlsStart ).lerp( new THREE.Vector3().copy( rootAtom3D.getWorldPosition() ), t ) );
+				} )
+				.on( "end", function(){
+				//////Hide 3D view on hardest difficulty//////
+					if( self.diff === 3 ){
+						var svg = d3.select( mol3d.container ).append( "svg" ).attr( "class", "Blocker3D" ).attr( "style", "width: 100%; height: 100%; position: absolute; left: 0px; top: 0px;");
+						svg.append( "rect" ).attr( "x", 0 ).attr( "y", 0 ).attr( "width", "50%" ).attr( "height", "100%" ).attr( "transform", "translate( -240, 0 )");
+						svg.append( "rect" ).attr( "x", "50%" ).attr( "y", 0 ).attr( "width", "50%" ).attr( "height", "100%" ).attr( "transform", "translate( 240, 0 )");
+
+						d3.selectAll( ".Blocker3D > rect" ).transition()
+							.duration( 1000 )
+							.ease( d3.easeBounceOut )
+							.attr( "transform", "translate( 0, 0 )")
+							.on( "end", () => svg.append( "text" ).attr( "x", 240 ).attr( "y", 215 ).attr( "text-anchor", "middle" ).text( "No 3D on this difficulty!" ) )
+					}
+				} )
+
 
 		}
+
+		self.closeGame = function(){
+			//////Hide 3D View Blocker//////
+			d3.select( ".Blocker3D > :nth-child(1)" ).transition()
+				.duration( 1000 )
+				.attr( "transform", "scale( 0, 1 )" )
+			d3.select( ".Blocker3D > :nth-child(2)" ).transition()
+				.duration( 1000 )
+				.attr( "transform", "translate( 480, 0 ) scale( 0, 1 )" )
+				.on( "end", () => d3.select( ".Blocker3D" ).remove() )
+
+			d3.select( "#rootframe" ).html( "" );
+
+			d3.transition()
+				.duration( 1500 )
+				.tween( null, function(){ return function( t ){ mol3d.controls.target.lerp( new THREE.Vector3( 0, 0, 0 ), t ) } })
+
+			mol3d.interactions( false );
+			mol3d.autoRotate( true );
+			mol3d.highlightSync( false );
+			mol3d.highlight( false );
+
+			//////FRAME REPOSITIONING//////
+			d3.selectAll( ".view2D" )
+				.transition()
+				.duration( 1500 )
+				.style( "width", "0px" )
+				.style( "height", "0px" )
+			d3.select( ".view3D" )
+				.transition()
+				.duration( 1500 )
+				.style( "width", "1020px" )
+				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+			d3.selectAll( ".menu" )
+				.transition()
+				.duration( 1000 )
+				.ease( d3.easePolyInOut )
+				.style( "top", "431px" )
+			//////----------//////
+		}
+
+		self.init()
 	}
 
 	function dragLabel( el, evt ){
@@ -490,7 +613,7 @@ $$$$
 				var svg = el.parentNode
 				var upPos = evt.type === "touchend" ? [ evt.changedTouches[0].clientX, evt.changedTouches[0].clientY ] : [ evt.clientX, evt.clientY ];
 				var hitNode = null;
-				d3.selectAll( "#CIPdragdrop > rect" ).each( function(){
+				d3.selectAll( "#" + el.parentNode.getAttribute( "id" ) + " > rect" ).each( function(){
 					var bBox = this.getBoundingClientRect();
 					if( upPos[0] > bBox.left && upPos[0] < bBox.right && upPos[1] < bBox.bottom && upPos[1] > bBox.top ){
 						hitNode = this;
@@ -499,8 +622,8 @@ $$$$
 				if( hitNode ){
 					d3.select( el ).transition()
 						.duration( 500 )
-						.attr( "x", +hitNode.getAttribute( "x" ) + 50 )
-						.attr( "y", +hitNode.getAttribute( "y" ) + 39 )
+						.attr( "x", +hitNode.getAttribute( "x" ) + hitNode.getBoundingClientRect().width/2 )
+						.attr( "y", +hitNode.getAttribute( "y" ) + hitNode.getBoundingClientRect().height/2 + 13 )
 					d3.selectAll( "#" + svg.getAttribute( "id" ) + " > text" ).each( function( e ){
 						if( e === hitNode.getAttribute( "id" ).substr( 2, 1 ) ){
 							d3.select( this ).transition()
