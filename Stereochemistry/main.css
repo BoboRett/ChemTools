@@ -39,14 +39,10 @@ div{
 
 .view2D {
     position:absolute;
-    right:15.5px;
-    top:83px;
 }
 
 .view3D {
     position:absolute;
-    left: 15.5px;
-    top: 83px;
 }
 
 .button {

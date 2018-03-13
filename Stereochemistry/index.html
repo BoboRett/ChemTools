@@ -108,6 +108,13 @@
 
 	<script>
 
+	function padset(){
+		console.log( "boop" )
+		d3.select( ".view2D" ).style( "left", ( d3.select( ".page" ).node().getBoundingClientRect().x + d3.select( ".page" ).node().getBoundingClientRect().width - d3.select( ".view2D" ).style( "width" ).slice( 0, 3 ) ) + "px" )
+	}
+	window.addEventListener( "resize", padset );
+	padset();
+
 	var intromolfile = `C10H12N2O
 APtclcactv03021811533D 0   0.00000     0.00000
 
@@ -259,7 +266,7 @@ $$$$
 				.duration( 2000 )
 				.style( "width", "480px" )
 				.style( "height", "431px" )
-				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+				.tween( null, function(){return function( t ){ padset(); mol3d.onWindowResize() } })
 
 			d3.select( "#gameFrame > #root" )
 				.transition()
@@ -420,7 +427,7 @@ $$$$
 				.transition()
 				.duration( 1500 )
 				.style( "width", "1020px" )
-				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+				.tween( null, function(){return function( t ){ padset(); mol3d.onWindowResize() } })
 			d3.selectAll( ".menu" )
 				.transition()
 				.duration( 1000 )
@@ -487,7 +494,7 @@ $$$$
 				.duration( 2000 )
 				.style( "width", "480px" )
 				.style( "height", "431px" )
-				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+				.tween( null, function(){return function( t ){ padset(); mol3d.onWindowResize() } })
 
 			d3.select( "#gameFrame > #root" )
 				.transition()
@@ -581,7 +588,7 @@ $$$$
 				.transition()
 				.duration( 1500 )
 				.style( "width", "1020px" )
-				.tween( null, function(){return function( t ){ mol3d.onWindowResize() } })
+				.tween( null, function(){return function( t ){ padset(); mol3d.onWindowResize() } })
 			d3.selectAll( ".menu" )
 				.transition()
 				.duration( 1000 )
