@@ -460,6 +460,7 @@ $$$$
 	Newman = function( diff ){
 		var self = this;
 		self.diff = diff;
+		self.labels = [];
 		mol3d.interactions( true );
 		mol3d.autoRotate( false );
 		mol3d.highlightSync( true );
@@ -469,20 +470,20 @@ $$$$
 
 			d3.select( "#NMinputs > .inputs").html(`
 				<svg class="dd" id="NMdragdrop" viewBox="0,0,440,255">
-					<circle cx="220" cy="125" r="40" style="stroke:black; fill:none;"></circle>
+					<circle cx="220" cy="125" r="40" style="stroke:black; fill:none;" back=false></circle>
 					<line x1="220" y1="125" x2="220" y2="25"></line>
+					<line x1="255" y1="105" x2="307" y2="75" back='false'></line>
 					<line x1="220" y1="125" x2="307" y2="175"></line>
+					<line x1="220" y1="165" x2="220" y2="225" back='false'></line>
 					<line x1="220" y1="125" x2="133" y2="175"></line>
-					<line x1="220" y1="165" x2="220" y2="225" back></line>
-					<line x1="255" y1="105" x2="307" y2="75" back></line>
-					<line x1="185" y1="105" x2="133" y2="75" back></line>
+					<line x1="185" y1="105" x2="133" y2="75" back='false'></line>
 
 					<rect id="dd1_TAR" x="180" y="5" width="80" height="40"></rect>
-					<rect id="dd4_TAR" x="180" y="205" width="80" height="40" back></rect>
-					<rect id="dd2_TAR" x="267" y="155" width="80" height="40"></rect>
-					<rect id="dd5_TAR" x="266" y="55" width="80" height="40" back></rect>
-					<rect id="dd3_TAR" x="93" y="155" width="80" height="40"></rect>
-					<rect id="dd6_TAR" x="93" y="55" width="80" height="40" back></rect>
+					<rect id="dd2_TAR" x="266" y="55" width="80" height="40"></rect>
+					<rect id="dd3_TAR" x="267" y="155" width="80" height="40"></rect>
+					<rect id="dd4_TAR" x="180" y="205" width="80" height="40"></rect>
+					<rect id="dd5_TAR" x="93" y="155" width="80" height="40"></rect>
+					<rect id="dd6_TAR" x="93" y="55" width="80" height="40"></rect>
 					<text id="dd1" x="40" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">1</text>
 					<text id="dd2" x="40" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">2</text>
 					<text id="dd3" x="40" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">3</text>
@@ -528,6 +529,36 @@ $$$$
 			mol2d.draw();
 			mol3d.draw( true );
 
+			//////Create labels for adjacent atoms//////
+			function addLabels( el, i ){
+				var label = d3.select( ".view3D" ).append( "p" )
+					.html( el.el.index )
+					.attr( "class", "label" )
+				self.labels.push( label );
+
+				d3.select( "#dd" + ( self.labels.length ) ).text( el.el.element + "-" + el.el.index );
+				d3.select( "#atomind_" + el.el.index ).attr( "display", null );
+			}
+
+			mol3d.scene.getObjectByName( +self.answer.NMRoot ).userData.source.bondedTo.filter( el => el.el.index !== +self.answer.NMTarget  ).forEach( (el, i) => addLabels( el, i ) );
+			mol3d.scene.getObjectByName( +self.answer.NMTarget ).userData.source.bondedTo.filter( el => el.el.index !== +self.answer.NMRoot  ).forEach( (el, i) => addLabels( el, i ) );
+
+			//////Attach labels to atoms in 3d//////
+			mol3d.frameFunctions.labelPos = {
+				enabled: true,
+				fn: function(){
+						var widthHalf = mol3d.container.getBoundingClientRect().width/2;
+						var heightHalf = mol3d.container.getBoundingClientRect().height/2;
+						for( label of self.labels ){
+							var vector = new THREE.Vector3().setFromMatrixPosition( mol3d.scene.getObjectByName( +label.html() ).matrixWorld );
+							vector.project( mol3d.camActive );
+
+							label.style("right", ( - ( vector.x * widthHalf ) + widthHalf ) + "px" )
+							label.style("bottom", ( ( vector.y * heightHalf ) + heightHalf ) + "px" )
+						}
+					}
+			};
+
 			//////Highlight svg atom//////
 			var rootAtom2D = d3.select( "#highlight_"+ self.answer.NMRoot );
 			rootAtom2D.node().parentNode.insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").node(), rootAtom2D.node().nextSibling );
@@ -542,7 +573,6 @@ $$$$
 					obj.visible = true;
 				}
 			} );
-
 
 			var controlsStart = mol3d.controls.target;
 			d3.transition()
@@ -579,6 +609,7 @@ $$$$
 				.attr( "transform", "translate( 480, 0 ) scale( 0, 1 )" )
 				.on( "end", () => d3.select( ".Blocker3D" ).remove() )
 
+			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
 			d3.select( "#rootframe" ).html( "" );
 
 			d3.transition()
@@ -610,41 +641,63 @@ $$$$
 		}
 
 		self.submit = function(){
-			var ranks = [];
+			var ranks = [ 0, 0, 0, 0, 0, 0 ];
 			d3.selectAll( "#NMdragdrop > text" ).each( function( rank, i ){
-				ranks.push( rank )
+				ranks[rank - 1] = d3.select( this ).html().split("-")[1]
 				//var bg = d3.select( "#dd" + rank + "_TAR")
 				//elFlash( bg, ( self.answer.NMranks.split( "," )[ rank - 1 ] === this.innerHTML.split( "-" )[1] ) )
 			} )
 			console.log( ranks )
+			console.log( ranks.join("") )
+			console.log( self.answer.NMOrder.replace( /\,/g, "").repeat( 2 ).indexOf( ranks.join("") ) !== -1 )
 		}
 
 		self.orient = function( eclipse ){
-			var centre = d3.select( "#NMdragdrop > circle" )
-			d3.selectAll( "#NMdragdrop > text" ).each( function ( d ){
-				if( [ 4, 5, 6 ].indexOf( +d ) !==-1 ){
+			var centre = d3.select( "#NMdragdrop > circle" );
+			d3.selectAll( "#NMdragdrop > [back]" ).attr( "back", eclipse ? "true" : "false" )
+			var angleOffset = - Math.PI/3.5
+			var positions = eclipse ?
+				[
+					[ 100 * Math.sin( 0 ), -100 * Math.cos( 0 ), -35, 0 ],
+					[ 100 * Math.sin( angleOffset + Math.PI/3 ), -100 * Math.cos( angleOffset + Math.PI/3 ), 35, 0 ],
+					[ 100 * Math.sin( Math.PI/3 * 2 ), -100 * Math.cos( Math.PI/3 * 2 ), 30, -15 ],
+					[ 100 * Math.sin( angleOffset + Math.PI/3 * 3 ), -100 * Math.cos( angleOffset + Math.PI/3 * 3 ), -20, 15 ],
+					[ 100 * Math.sin( Math.PI/3 * 4 ), -100 * Math.cos( Math.PI/3 * 4 ), 20, 15 ],
+					[ 100 * Math.sin( angleOffset + Math.PI/3 * 5 ), -100 * Math.cos( angleOffset + Math.PI/3 * 5 ), -25, -15 ]
+				] :
+				[
+					[ 100 * Math.sin( 0 ), -100 * Math.cos( 0 ), 0, 0 ],
+					[ 100 * Math.sin( Math.PI/3 ), -100 * Math.cos( Math.PI/3 ), 0, 0 ],
+					[ 100 * Math.sin( Math.PI/3 * 2 ), -100 * Math.cos( Math.PI/3 * 2 ), 0, 0 ],
+					[ 100 * Math.sin( Math.PI/3 * 3 ), -100 * Math.cos( Math.PI/3 * 3 ), 0, 0 ],
+					[ 100 * Math.sin( Math.PI/3 * 4 ), -100 * Math.cos( Math.PI/3 * 4 ), 0, 0 ],
+					[ 100 * Math.sin( Math.PI/3 * 5 ), -100 * Math.cos( Math.PI/3 * 5 ), 0, 0 ]
+				]
+
+			d3.selectAll( "#NMdragdrop > text" ).each( function ( d, i ){
+				if( d ){
 					d3.select( this ).transition()
-						.duration( 1000 )
+						.duration( 200 )
 						.ease( d3.easeBackInOut )
-						.attr( "x", +centre.attr( "cx" ) + 100 * Math.sin( ( eclipse ? Math.PI/6 : 0 ) + 2*Math.PI/3 * (d-4) ) )
-						.attr( "y", +centre.attr( "cy" ) + 100 * Math.cos( ( eclipse ? Math.PI/6 : 0 ) + 2*Math.PI/3 * (d-4) ) + 13 )
+						.attr( "x", +centre.attr( "cx" ) + positions[d-1][0] + positions[d-1][2] )
+						.attr( "y", +centre.attr( "cy" ) + positions[d-1][1] + 13 + positions[d-1][3] )
 				}
 			})
-			d3.selectAll( "#NMdragdrop > line[back]" ).each( function( d, i ){
+			d3.selectAll( "#NMdragdrop > line" ).each( function( d, i ){
 				d3.select( this ).transition()
-					.duration( 1000 )
+					.duration( 200 )
 					.ease( d3.easeBackInOut )
-					.attr( "x1", +centre.attr( "cx" ) + centre.attr( "r" ) * Math.sin( ( eclipse ? Math.PI/6 : 0 ) + 2*Math.PI/3 * i ) )
-					.attr( "x2", +centre.attr( "cx" ) + 100 * Math.sin( ( eclipse ? Math.PI/6 : 0 ) + 2*Math.PI/3 * i ) )
-					.attr( "y1", +centre.attr( "cy" ) + centre.attr( "r" ) * Math.cos( ( eclipse ? Math.PI/6 : 0 ) + 2*Math.PI/3 * i ) )
-					.attr( "y2", +centre.attr( "cy" ) + 100 * Math.cos( ( eclipse ? Math.PI/6 : 0 ) + 2*Math.PI/3 * i ) )
+					.attr( "x1", +centre.attr( "cx" ) + ( i%2 !== 0 ? positions[i][0]*0.4 : 0 ) )
+					.attr( "x2", +centre.attr( "cx" ) + positions[i][0] )
+					.attr( "y1", +centre.attr( "cy" ) + ( i%2 !== 0 ? positions[i][1]*0.4 : 0 ) )
+					.attr( "y2", +centre.attr( "cy" ) + positions[i][1] )
 			});
-			d3.selectAll( "#NMdragdrop > rect[back]" ).each( function( d, i){
+			d3.selectAll( "#NMdragdrop > rect" ).each( function( d, i ){
 				d3.select( this ).transition()
-					.duration( 1000 )
+					.duration( 200 )
 					.ease( d3.easeBackInOut )
-					.attr( "x", +centre.attr( "cx" ) + 100 * Math.sin( ( eclipse ? Math.PI/6 : 0 ) + 2*Math.PI/3 * i ) - 40 )
-					.attr( "y", +centre.attr( "cy" ) + 100 * Math.cos( ( eclipse ? Math.PI/6 : 0 ) + 2*Math.PI/3 * i ) - 20 )
+					.attr( "x", +centre.attr( "cx" ) + positions[i][0] - 40 + positions[i][2] )
+					.attr( "y", +centre.attr( "cy" ) + positions[i][1] - 20 + positions[i][3] )
 			});
 
 		}
@@ -669,7 +722,7 @@ $$$$
 				evt.preventDefault();
 				evt.stopPropagation();
 
-				var svg = el.parentNode
+				var svg = el.parentNode;
 				var upPos = evt.type === "touchend" ? [ evt.changedTouches[0].clientX, evt.changedTouches[0].clientY ] : [ evt.clientX, evt.clientY ];
 				var hitNode = null;
 				d3.selectAll( "#" + el.parentNode.getAttribute( "id" ) + " > rect" ).each( function(){
@@ -684,7 +737,7 @@ $$$$
 						.attr( "x", +hitNode.getAttribute( "x" ) + hitNode.getBoundingClientRect().width/2 )
 						.attr( "y", +hitNode.getAttribute( "y" ) + hitNode.getBoundingClientRect().height/2 + 13 )
 					d3.selectAll( "#" + svg.getAttribute( "id" ) + " > text" ).each( function( e ){
-						if( e === hitNode.getAttribute( "id" ).substr( 2, 1 ) ){
+						if( e === hitNode.getAttribute( "id" ).substr( 2, 1 ) && el !== this ){
 							d3.select( this ).transition()
 								.duration( 500 )
 								.attr( "x", start[0] )

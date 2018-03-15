@@ -141,8 +141,7 @@ h1{
 }
 
 .dd > rect {
-    fill: white;
-    fill-opacity: 0.7;
+    fill: lightgray;
 }
 
 .dd > defs > mask > text {
@@ -151,9 +150,14 @@ h1{
     font-family: "Verdana";
 }
 
-.dd > line {
+.dd > line, .dd > circle {
     stroke: black;
     stroke-width: 2px;
+}
+
+.dd > [back = 'true'] {
+    stroke-dasharray: 1px;
+    stroke-width: 1px;
 }
 
 div#controls {

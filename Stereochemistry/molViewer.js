@@ -363,6 +363,10 @@ var Mol2D = function( container, dims, params ){
 		});
 
 	}
+
+	self.showLabels = function( show ){
+		d3.selectAll( ".atomind" ).attr( "display", show ? null : "none" );
+	}
 }
 
 var Mol3D = function( container, params ){
