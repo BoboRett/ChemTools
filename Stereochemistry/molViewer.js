@@ -74,16 +74,6 @@ var Mol2D = function( container, dims, params ){
 	})
 
 	self.stylesheet = `
-		.label{
-		    position: absolute;
-		    pointer-events: none;
-		    font-size: 24px;
-		    font-weight: bolder;
-		    font-family: sans-serif;
-		    background-color: #ffffff75;
-		    margin: 0px;
-		}
-
 		.bond > line, .bond_dbl > line, .bond_hash > line, .bond_trp > line {
 		    stroke: black;
 		    stroke-width: 1px;
@@ -148,6 +138,7 @@ var Mol2D = function( container, dims, params ){
 	//////Parse 2D data into object//////
 	self.parse = function( data ){
 		var mol2d = {};
+		self.molfile = data;
 		const [numatoms,numbonds] = data.split( "\n" )[3].match( /.{1,3}/g ).slice( 0, 2 ).map( el => parseInt( el ) );
 
 		mol2d.atoms = data.split( "\n" )
@@ -156,7 +147,7 @@ var Mol2D = function( container, dims, params ){
 							const tmp = el.match( /\S+/g );
 							return {
 								index: i,
-								pos:[parseFloat( tmp[0] ) * 40, parseFloat( tmp[1] ) * 40],
+								pos:[parseFloat( tmp[0] ) * 40, -parseFloat( tmp[1] ) * 40],
 								element: tmp[3]
 							}
 						});
@@ -250,7 +241,7 @@ var Mol2D = function( container, dims, params ){
 
 		multiBonds();
 
-		//////FIT self.svg TO SCREEN//////
+		//////FIT SVG TO SCREEN//////
 		const rootBox = root.node().getBBox()
 		const viewBox = self.svg.node().viewBox.baseVal
 		const zoom = rootBox.width > rootBox.height ? viewBox.width/rootBox.width : viewBox.height/rootBox.height
@@ -285,20 +276,22 @@ var Mol2D = function( container, dims, params ){
 								var tmp = parent.attr( "class", "bond_wedge" ).append( "polygon" )
 									.attr( "id", line.attr( "id" ) )
 									.attr( "points", coords[0] + "," + coords[2] + " " +
-										 ( coords[1] + 5*Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) + "," + ( coords[3] + 5*Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) + " " +
-										 ( coords[1] - 5*Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) + "," + ( coords[3] - 5*Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) );
+										 ( coords[1] + 3*Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) + "," + ( coords[3] + 3*Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) + " " +
+										 ( coords[1] - 3*Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) + "," + ( coords[3] - 3*Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) );
 								line.remove()
 								break;
 
 							case 6: //hash bond
 
 								var tmp = parent.attr( "class", "bond_hash" );
-								for( var i = 1; i < 15; i++ ){
+								var point = [0, 0];
+								for( var i = 1; Math.hypot( ...point ) < length ; i++ ){
+									point = [i * 3 * Math.cos( theta ), i * 3 * Math.sin( theta )];
 									tmp.append( "line" ).attr( "class", "bond" )
-										.attr( "x1", ( coords[0] + i/15 * length*Math.cos( theta ) + i/3 * Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) )
-										.attr( "x2", ( coords[0] + i/15 * length*Math.cos( theta ) - i/3 * Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) )
-										.attr( "y1", ( coords[2] + i/15 * length*Math.sin( theta ) + i/3 * Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) )
-										.attr( "y2", ( coords[2] + i/15 * length*Math.sin( theta ) - i/3 * Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) );
+										.attr( "x1", ( coords[0] + point[0] + Math.hypot( ...point )/length * 3*Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) )
+										.attr( "x2", ( coords[0] + point[0] - Math.hypot( ...point )/length * 3*Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) )
+										.attr( "y1", ( coords[2] + point[1] + Math.hypot( ...point )/length * 3*Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) )
+										.attr( "y2", ( coords[2] + point[1] - Math.hypot( ...point )/length * 3*Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) );
 								};
 								line.remove()
 								break;
@@ -371,8 +364,8 @@ var Mol2D = function( container, dims, params ){
 
 var Mol3D = function( container, params ){
 
-	params = params || {}
-	var self = this
+	params = params || {};
+	var self = this;
 
 	self.container = container.node();
 	self.molecule;
@@ -382,6 +375,18 @@ var Mol3D = function( container, params ){
 	var ajaxRunning;
 	self.animID;
 
+	self.stylesheet = `
+		.label{
+			position: absolute;
+			pointer-events: none;
+			font-size: 24px;
+			font-weight: bolder;
+			font-family: sans-serif;
+			background-color: #ffffff75;
+			margin: 0px;
+		}
+	`
+	d3.select( "head" ).append( "style" ).html( self.stylesheet )
 
 	var material, mesh, hydrogens;
 	var	intersected;
@@ -661,6 +666,7 @@ var Mol3D = function( container, params ){
 	self.parse = function( data ){
 
 		var mol3d = {}
+		self.molfile = data;
 		const [numatoms, numbonds] = data.split( "\n" )[3].match( /.{1,3}/g ).slice( 0, 2 ).map( el => parseInt( el ) );
 
 		mol3d.atoms = data.split( "\n" )

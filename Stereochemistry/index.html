@@ -26,10 +26,11 @@
 					<button class="button" onclick="cip = new CIP( 3 )">Hard</button>
 				</div>
 				<div style="left: 2040px; top: -480px;">
-					<h1>Mode:</h1>
+					<h1>Difficulty:</h1>
 					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 164px;">Back</button>
-					<button class="button" onclick="nm = new Newman( 1 )">Newman => 2D</button>
-					<button class="button" onclick="nm = new Newman( 2 )">2D => Newman</button>
+					<button class="button" onclick="nm = new Newman( 1 )">Easy</button><br>
+					<button class="button" onclick="nm = new Newman( 2 )">Medium</button><br>
+					<button class="button" onclick="nm = new Newman( 3 )">Hard</button>
 				</div>
 			</div>
 			<div class="menu" id="CIPinputs" style="top: 431px;">
@@ -156,7 +157,6 @@ $$$$
 	var mol2d = new Mol2D( d3.select( "#gameFrame > .view2D"), [0,0,250,225] );
 	var mouseover = function(){};
 	var mouseout = function(){};
-	var labels = [];
 
 	d3.csv( "data.csv", ( data ) => {d = data} )
 
@@ -257,8 +257,8 @@ $$$$
 		};
 
 		self.runGame = function( ){
-
-			self.answer = d.filter( el => +el.CIPLvl === ( self.diff === 1 ? 1 : 2 ) )[0];
+			var filtered = self.diff === 3 ? d : d.filter( el => +el.CIPLvl === ( self.diff === 1 ? 1 : 2 ) )
+			self.answer = filtered[Math.floor( Math.random() * filtered.length)];
 
 			mol2d.parse( self.answer.Data2D );
 			mol3d.parse( self.answer.Data3D );
@@ -281,7 +281,7 @@ $$$$
 					.attr( "class", "label" )
 				self.labels.push( label );
 
-				d3.select( "#dd" + ( i + 1 ) ).text( el.el.element + "-" + el.el.index );
+				d3.select( "#CIPdragdrop > #dd" + ( i + 1 ) ).text( el.el.element + "-" + el.el.index );
 				d3.select( "#atomind_" + el.el.index ).attr( "display", null );
 			});
 
@@ -355,7 +355,8 @@ $$$$
 				.duration( 2000 )
 				.tween( null, () => function( t ){
 					mol3d.molGroup.traverse( obj => obj.scale.set( t, t, t ) )
-					mol3d.controls.target.copy( new THREE.Vector3( ).copy( controlsStart ).lerp( new THREE.Vector3().copy( rootAtom3D.getWorldPosition() ), t ) );
+					mol3d.controls.target.copy( new THREE.Vector3( ).copy( controlsStart ).lerp( new THREE.Vector3( ).copy( rootAtom3D.getWorldPosition() ), t ) );
+					mol3d.camActive.up.copy( new THREE.Vector3( ).copy( mol3d.camActive.up ).lerp( new THREE.Vector3( 0, 1, 0 ), t ) )
 				} )
 				.on( "end", function(){
 				//////Hide 3D view on hardest difficulty//////
@@ -422,14 +423,18 @@ $$$$
 		}
 
 		self.submit = function(){
+			var correct = true;
+
 			d3.selectAll( "#CIPdragdrop > text" ).each( function( rank, i ){
 				var bg = d3.select( "#dd" + rank + "_TAR")
+				correct = correct ? self.answer.CIPRanks.split( "," )[ rank - 1 ] === this.innerHTML.split( "-" )[1] : false
 				elFlash( bg, ( self.answer.CIPRanks.split( "," )[ rank - 1 ] === this.innerHTML.split( "-" )[1] ) )
 			} )
 
 			d3.selectAll( "#CIPtoggles > label > input" ).each( ( d, i, arr ) => {
 				var bg = d3.select( arr[i].nextElementSibling )
-				elFlash( bg, ( arr[i].checked === ( self.answer['CIPr/s'] === "r" ? false : true ) ) );
+				correct = correct ? arr[i].checked === ( self.answer['CIPr/s'] === "r" ? false : true ) : false
+				elFlash( bg, correct );
 			})
 		}
 
@@ -522,7 +527,8 @@ $$$$
 		}
 
 		self.runGame = function(){
-			self.answer = d.filter( el => +el.CIPLvl === ( self.diff === 1 ? 1 : 2 ) )[0];
+			var filtered = self.diff === 3 ? d : d.filter( el => +el.NMLvl === ( self.diff === 1 ? 1 : 2 ) )
+			self.answer = filtered[Math.floor( Math.random() * filtered.length)];
 
 			mol2d.parse( self.answer.Data2D );
 			mol3d.parse( self.answer.Data3D );
@@ -536,7 +542,7 @@ $$$$
 					.attr( "class", "label" )
 				self.labels.push( label );
 
-				d3.select( "#dd" + ( self.labels.length ) ).text( el.el.element + "-" + el.el.index );
+				d3.select( "#NMdragdrop > #dd" + ( self.labels.length ) ).text( el.el.element + "-" + el.el.index );
 				d3.select( "#atomind_" + el.el.index ).attr( "display", null );
 			}
 
