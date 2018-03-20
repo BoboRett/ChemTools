@@ -285,13 +285,13 @@ var Mol2D = function( container, dims, params ){
 
 								var tmp = parent.attr( "class", "bond_hash" );
 								var point = [0, 0];
-								for( var i = 1; Math.hypot( ...point ) < length ; i++ ){
-									point = [i * 3 * Math.cos( theta ), i * 3 * Math.sin( theta )];
+								for( var i = 0; Math.hypot( ...point ) < length ; i++ ){
 									tmp.append( "line" ).attr( "class", "bond" )
 										.attr( "x1", ( coords[0] + point[0] + Math.hypot( ...point )/length * 3*Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) )
 										.attr( "x2", ( coords[0] + point[0] - Math.hypot( ...point )/length * 3*Math.cos( theta + Math.PI/2 ) ).toFixed( 2 ) )
 										.attr( "y1", ( coords[2] + point[1] + Math.hypot( ...point )/length * 3*Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) )
 										.attr( "y2", ( coords[2] + point[1] - Math.hypot( ...point )/length * 3*Math.sin( theta + Math.PI/2 ) ).toFixed( 2 ) );
+									point = [( i + 1 ) * 3 * Math.cos( theta ), ( i + 1 ) * 3 * Math.sin( theta )];
 								};
 								line.remove()
 								break;
@@ -359,6 +359,10 @@ var Mol2D = function( container, dims, params ){
 
 	self.showLabels = function( show ){
 		d3.selectAll( ".atomind" ).attr( "display", show ? null : "none" );
+	}
+
+	self.onWindowResize = function(){
+		self.svg.node().viewBox.baseVal.height = self.svg.node().viewBox.baseVal.width / ( self.container.style( "width" ).slice( 0, 3 ) / self.container.style( "height" ).slice( 0, 3 ) )
 	}
 }
 

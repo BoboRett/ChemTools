@@ -100,7 +100,6 @@ input:checked + .slider {
 input:checked + .slider:before {
     transform: translateX(192px);
 }
-/* ---------------- */
 
 .menu {
 	position: relative;
@@ -155,11 +154,6 @@ h1{
     stroke-width: 2px;
 }
 
-.dd > [back = 'true'] {
-    stroke-dasharray: 1px;
-    stroke-width: 1px;
-}
-
 div#controls {
     margin-top: 16px;
 }
@@ -173,4 +167,10 @@ div#controls {
     font-size: 24px;
     font-family: "Verdana";
     baseline-shift: -6px;
+}
+
+.eye > * {
+    stroke: black;
+    stroke-width: 2px;
+    stroke-linecap: round;
 }
