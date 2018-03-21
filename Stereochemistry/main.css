@@ -174,3 +174,10 @@ div#controls {
     stroke-width: 2px;
     stroke-linecap: round;
 }
+
+.resultRight {
+    font-family: "Verdana";
+    float: right;
+    font-size: 22px;
+    line-height: 13px;
+}

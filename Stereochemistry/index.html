@@ -197,8 +197,7 @@ $$$$
 		mol3d.highlightSync( true );
 		mol3d.highlight( true );
 
-		self.init = function(){
-
+		self.reset = function(){
 			//////Reset game to original state//////
 			mol3d.container.removeEventListener( "mouseover", self.mouseover);
 			mol3d.container.removeEventListener( "mouseout", self.mouseout);
@@ -206,7 +205,8 @@ $$$$
 			d3.select( "#rootframe" ).html( "" );
 			d3.selectAll( "#CIPtoggles > label > span" ).style( "fill", null ).style( "background-color", null );
 			d3.selectAll( "#CIPtoggles > label > input" ).each( function(){ this.checked = false; } );
-			d3.select( "#CIPSubmit" ).attr( "onclick", "cip.submit()" ).html( "Submit" );
+			d3.select( "#CIPSubmit" ).attr( "onclick", "cip.submit()" ).html( "Submit" ).style( "background-color", null );
+			d3.select( ".resultRight" ).remove()
 
 			d3.select( "#CIPrank" ).html(
 				`<svg class="dd" id="CIPdragdrop" viewBox="0,0,600,120">
@@ -238,6 +238,11 @@ $$$$
 					<text id="dd4" x="485" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
 				</svg>`
 			);
+		}
+
+		self.init = function(){
+
+			self.reset();
 
 			//////Frame positioning//////
 			d3.transition()
@@ -386,8 +391,8 @@ $$$$
 		}
 
 		self.closeGame = function(){
-			mol3d.container.removeEventListener( "mouseover", self.mouseover);
-			mol3d.container.removeEventListener( "mouseout", self.mouseout);
+
+			self.reset()
 
 			//////Hide 3D View Blocker//////
 			d3.select( ".Blocker3D > :nth-child(1)" ).transition()
@@ -397,12 +402,6 @@ $$$$
 				.duration( 1000 )
 				.attr( "transform", "translate( 480, 0 ) scale( 0, 1 )" )
 				.on( "end", () => d3.select( ".Blocker3D" ).remove() )
-
-			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
-			d3.select( "#rootframe" ).html( "" );
-
-			d3.selectAll( "#CIPtoggles > label > span" ).style( "fill", null ).style( "background-color", null );
-			d3.selectAll( "#CIPtoggles > label > input" ).each( function(){ this.checked = false; } );
 
 			d3.transition()
 				.duration( 1500 )
@@ -452,12 +451,14 @@ $$$$
 					.delay( 300 )
 					.duration( 300 )
 					.style( "transform", "scale( 1.5 )" )
+					.style( "background-color", "#4caf50" )
 					.on( "end", function(){
 						this.innerHTML = "Next";
 						this.setAttribute( "onclick", "cip.init()" )
 					} )
 					.transition()
 						.style( "transform", "scale( 1 )")
+				d3.select( "#CIPinputs > .buttons" ).append( "p" ).attr( "class", "resultRight" ).html( "That's right!" )
 			}
 
 		}
@@ -495,11 +496,12 @@ $$$$
 		mol3d.highlightSync( true );
 		mol3d.highlight( true );
 
-		self.init = function(){
-
+		self.reset = function(){
+			//////Reset game to original state//////
 			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
 			d3.select( "#NMinputs > .buttons > input" ).node().checked = false;
 			d3.select( "#rootframe" ).html( "" );
+			d3.select( "#NMResult" ).remove();
 
 			d3.select( "#NMinputs > .inputs").html(`
 				<svg class="dd" id="NMdragdrop" viewBox="0,0,440,255">
@@ -526,7 +528,13 @@ $$$$
 				</svg>
 				`
 			)
-			d3.select( "#NMSubmit" ).attr( "onclick", "nm.submit()" ).html( "Submit" )
+			d3.select( "#NMSubmit" ).attr( "onclick", "nm.submit()" ).html( "Submit" ).style( "background-color", null );
+			d3.select( ".resultRight" ).remove()
+		}
+
+		self.init = function(){
+
+			self.reset();
 
 			d3.transition()
 				.duration( 1500 )
@@ -666,9 +674,7 @@ $$$$
 				.attr( "transform", "translate( 480, 0 ) scale( 0, 1 )" )
 				.on( "end", () => d3.select( ".Blocker3D" ).remove() )
 
-			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
-			d3.select( "#NMinputs > .buttons > input" ).node().checked = false;
-			d3.select( "#rootframe" ).html( "" );
+			self.reset();
 
 			d3.transition()
 				.duration( 1500 )
@@ -719,12 +725,14 @@ $$$$
 					.delay( 300 )
 					.duration( 300 )
 					.style( "transform", "scale( 1.5 )" )
+					.style( "background-color", "#4caf50")
 					.on( "end", function(){
 						this.innerHTML = "Next";
 						this.setAttribute( "onclick", "nm.init()" )
 					} )
 					.transition()
 						.style( "transform", "scale( 1 )")
+				d3.select( "#NMinputs > .buttons" ).append( "p" ).attr( "class", "resultRight" ).html( "That's right!" )
 			}
 
 		}

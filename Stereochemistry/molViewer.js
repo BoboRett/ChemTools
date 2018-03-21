@@ -58,7 +58,16 @@ var Mol2D = function( container, dims, params ){
 	self.container = container;
 	self.molecule = {};
 	self.molfile = "";
-	self.svg = self.container.append( "svg" ).attr( "viewBox", dims.join( "," ) ).attr( "id", "view2d" );
+
+	var el = self.container.node()
+	while( el !== document ){
+
+		if( el.tagName === "svg" ){
+			break
+		}
+		el = el.parentNode;
+	}
+	self.svg = el.tagName === "svg" ? d3.select( el ) : self.container.append( "svg" ).attr( "viewBox", dims.join( "," ) ).attr( "id", "view2d" );
 
 	var showIndices = params.showIndices !== undefined ? params.showIndices : false;
 	var root = self.svg.append( "g" ).attr( "id", "rootframe" );
