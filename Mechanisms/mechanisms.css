@@ -1,0 +1,97 @@
+::-webkit-scrollbar {
+	display:none;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    margin: -8px;
+    background-color: #3e4649;
+    display: block;
+    width: 100%;
+    z-index: 10;
+    border-bottom: 7px solid #212121;
+}
+
+body {
+    background-color: #4a5f6f;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.page {
+    width: 80%;
+    margin: auto;
+    min-width: 400px;
+	max-width: 933px;
+    background-color: #d1e3ff;
+    box-shadow: 0px 0px 21px 19px #d1e3ff;
+}
+
+#container {
+	width: 45vw;
+	height: 60vw;
+	max-width: 933px;
+	max-height: 700px;
+}
+
+.button > text {
+	font-size:8.4px;
+	fill:black;
+	font-family:Verdana;
+	text-anchor:middle;
+	pointer-events:none;
+}
+
+.button > rect {
+	fill: #e69633;
+	stroke: #86581f;
+	stroke-width: 1;
+}
+
+.arrow > path {
+	stroke:black;
+}
+
+g > text {
+    text-anchor: middle;
+	pointer-events: none;
+    font-family: sans-serif;
+    font-size: 16px;
+}
+
+#view2d {
+	max-width: 500px;
+}
+
+.atom_off>circle:hover, .atom_on>circle:hover, .highlight:hover {
+	stroke: black;
+	stroke-width: 0.4px;
+	fill: yellow;
+	fill-opacity:0.5;
+}
+
+.arrow>path {
+	stroke: black;
+	stroke-width : 1px;
+	pointer-events: none;
+}
+
+.charge > text{
+	text-anchor: middle;
+	pointer-events: none;
+	font-family: sans-serif;
+	font-size: 8px;
+	alignment-baseline: middle;
+}
+
+.charge > circle{
+	fill: none;
+	stroke: black;
+	stroke-width: 0.5px;
+}

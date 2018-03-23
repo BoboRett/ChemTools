@@ -59,24 +59,18 @@ var Mol2D = function( container, dims, params ){
 	self.molecule = {};
 	self.molfile = "";
 
-	var el = self.container.node()
-	while( el !== document ){
+	self.zoomable = params.hasOwnProperty( "zoomable" ) ? params.zoomable : true;
 
-		if( el.tagName === "svg" ){
-			break
-		}
-		el = el.parentNode;
-	}
-	self.svg = el.tagName === "svg" ? d3.select( el ) : self.container.append( "svg" ).attr( "viewBox", dims.join( "," ) ).attr( "id", "view2d" );
+	self.svg = self.container.append( "svg" ).attr( "viewBox", dims.join( "," ) ).attr( "id", "view2d" );
 
 	var showIndices = params.showIndices !== undefined ? params.showIndices : false;
-	var root = self.svg.append( "g" ).attr( "id", "rootframe" );
+	self.root = self.svg.append( "g" ).attr( "id", "rootframe" );
 
 	var zoomFunc = d3.zoom().on( "zoom", function(){
-				var screenScale = root.node().getBoundingClientRect().width / self.svg.node().viewBox.baseVal.width;
-				var d = root.datum();
+				var screenScale = self.root.node().getBoundingClientRect().width / self.svg.node().viewBox.baseVal.width;
+				var d = self.root.datum();
 
-				root.transition()
+				self.root.transition()
 					.duration( 300 )
 					.ease( d3.easeCircleOut )
 					.attr( "transform", d3.event.transform )
@@ -86,6 +80,7 @@ var Mol2D = function( container, dims, params ){
 		.bond > line, .bond_dbl > line, .bond_hash > line, .bond_trp > line {
 		    stroke: black;
 		    stroke-width: 1px;
+			pointer-events: none;
 		}
 
 		.highlight {
@@ -139,7 +134,6 @@ var Mol2D = function( container, dims, params ){
 		data = molecule.toMolfile();
 		var mol = self.parse( data );
 
-		self.molfile = mol;
 		return mol
 
 	};
@@ -157,7 +151,8 @@ var Mol2D = function( container, dims, params ){
 							return {
 								index: i,
 								pos:[parseFloat( tmp[0] ) * 40, -parseFloat( tmp[1] ) * 40],
-								element: tmp[3]
+								element: tmp[3],
+								charge: 0
 							}
 						});
 		mol2d.bonds = data.split( "\n" )
@@ -173,6 +168,17 @@ var Mol2D = function( container, dims, params ){
 							}
 						});
 
+		//////CHARGES//////
+		data.split( "\n" ).map( function( el, i ){
+			const tmp = el.match( /\S+/g )
+			if( tmp !== null ){
+				if( tmp[1] === "CHG" ){
+					mol2d.atoms[ +tmp[3] - 1 ].charge = +tmp[4]
+				}
+			}
+		})
+
+		//////ATTACH BONDS TO ATOMS//////
 		mol2d.atoms.forEach( function( atom, i ){
 			atom.bondedTo = []
 			mol2d.bonds
@@ -193,34 +199,44 @@ var Mol2D = function( container, dims, params ){
 
 	//////Draw 2D Molecule//////
 	self.draw = function( ){
-		const atoms = self.molecule.atoms
+		const atoms = self.molecule.atoms;
 		const bonds = self.molecule.bonds;
-		root.attr( "transform", null ) ;
-		root.html( "" );
+		self.root.attr( "transform", null ) ;
+		self.root.html( "" );
 
 		//////ATOMS//////
-		const atomsroot = root.append( "g" ).attr( "class", "atoms" )
+		const atomsroot = self.root.append( "g" ).attr( "class", "atoms" )
 		atoms.map( function( atom, i ){
 
-			const tmp = atomsroot.append( "g" ).attr( "class", "atom_" + atom.element ).attr( "id", i );
+			const tmp = atomsroot.append( "g" ).attr( "class", "atom_" + atom.element ).attr( "id", i ).datum( atom );
+			atom.element != "H" && tmp.append( "g" ).attr( "class", "hydrogens" );
+
 			tmp.append( "circle" ).attr( "class", "highlight" ).attr( "id", "highlight_" + i ).attr( "cx", atom.pos[0] ).attr( "cy", atom.pos[1] ).attr( "r", 12 );
 
-			const txt = TextGen( tmp, "label_" + atom.element, "label_" + i, atom.pos[0], atom.pos[1] + 6, atom.element != "C" ? atom.element : "" , [], [] );
+			const txt = TextGen( tmp, "label_" + atom.element, "label_" + i, atom.pos[0], atom.pos[1] + 6, atom.element !== "C" || atom.charge ? atom.element : "" , [], [] );
 
-			const ind = TextGen( tmp, "atomind", "atomind_" + i, atom.pos[0] - txt.node().getBBox().width/2 - i.toString().split("").length * 2 , atom.pos[1] -3, i, [], [] );
+			const ind = TextGen( tmp, "atomind", "atomind_" + i, atom.pos[0] - txt.node().getBBox().width/2 - i.toString().split("").length * 2 , atom.pos[1] - 5, i, [], [] );
+
 			ind.attr( "display", showIndices ? null : "none" );
 
-			atom.element != "H" && tmp.append( "g" ).attr( "class", "hydrogens" );
+			if( atom.charge ){
+				const chg = tmp.append( "g" ).attr( "class", "charge" );
+				const chgTxt = TextGen( chg, "atomcharge", "atomchg_" + i, atom.pos[0] + txt.node().getBBox().width/2 + atom.charge.toString().length * 2 - 2, atom.pos[1] - 8, atom.charge === -1 ? "-" : ( atom.charge === 1 ? "+" : atom.charge ), [], [] );
+				chg.append( "circle" ).attr( "cx", chgTxt.attr( "x" ) ).attr( "cy", chgTxt.attr( "y") ).attr( "r", chgTxt.node().getBBox().width/2 + 1 ).lower()
+
+			}
+
+
 
 		})
 
 		//////BONDS//////
-		const bondsroot = root.append( "g" ).attr( "class", "bonds" );
+		const bondsroot = self.root.append( "g" ).attr( "class", "bonds" ).lower();
 		const labelOffset = 8;
 
 		bonds.map( function( bond, j ){
 
-			const tmp = bondsroot.append( "g" ).attr( "class", "bond_" + bond.type );
+			const tmp = bondsroot.append( "g" ).attr( "class", "bond_" + bond.type ).datum( bond );
 			const theta = Math.atan2( bond.end.pos[1] - bond.start.pos[1], bond.end.pos[0] - bond.start.pos[0] );
 			const length = Math.hypot( bond.end.pos[0] - bond.start.pos[0], bond.end.pos[1] - bond.start.pos[1] );
 
@@ -233,16 +249,16 @@ var Mol2D = function( container, dims, params ){
 				.attr( "id", "highlight_" + bond.start.index + "_" + bond.end.index );
 
 			var bondline = LineGen( tmp, "bondline", "",
-				bond.start.pos[0] + ( bond.start.element === "C" ? 0 : labelOffset * Math.cos( theta ) ),
-				bond.end.pos[0] - ( bond.end.element === "C" ? 0 : labelOffset * Math.cos( theta ) ),
-				bond.start.pos[1] + ( bond.start.element === "C" ? 0 : labelOffset * Math.sin( theta ) ),
-				bond.end.pos[1] - ( bond.end.element === "C" ? 0 : labelOffset * Math.sin( theta ) ),
+				bond.start.pos[0] + ( bond.start.element !== "C" || bond.start.charge ? labelOffset * Math.cos( theta ) : 0 ),
+				bond.end.pos[0] - ( bond.end.element !== "C" || bond.end.charge ? labelOffset * Math.cos( theta ) : 0 ),
+				bond.start.pos[1] + ( bond.start.element !== "C" || bond.start.charge ? labelOffset * Math.sin( theta ) : 0 ),
+				bond.end.pos[1] - ( bond.end.element !== "C" || bond.end.charge ? labelOffset * Math.sin( theta ) : 0 ),
 				[],[]);
 
 			if( bond.start.element === "H" || bond.end.element === "H" ){
 
-				document.getElementById( bond.start.element === "H" ? bond.end.index : bond.start.index ).getElementsByClassName("hydrogens")[0].appendChild( tmp.node() )
-				document.getElementById( bond.start.element === "H" ? bond.end.index : bond.start.index ).getElementsByClassName("hydrogens")[0].appendChild( document.getElementById( ( bond.start.element === "H" ? bond.start.index : bond.end.index ) ) )
+				self.svg.node().getElementById( bond.start.element === "H" ? bond.end.index : bond.start.index ).getElementsByClassName("hydrogens")[0].appendChild( tmp.node() )
+				self.svg.node().getElementById( bond.start.element === "H" ? bond.end.index : bond.start.index ).getElementsByClassName("hydrogens")[0].appendChild( self.svg.node().getElementById( ( bond.start.element === "H" ? bond.start.index : bond.end.index ) ) )
 
 			}
 
@@ -250,14 +266,8 @@ var Mol2D = function( container, dims, params ){
 
 		multiBonds();
 
-		//////FIT SVG TO SCREEN//////
-		const rootBox = root.node().getBBox()
-		const viewBox = self.svg.node().viewBox.baseVal
-		const zoom = rootBox.width > rootBox.height ? viewBox.width/rootBox.width : viewBox.height/rootBox.height
-
-		self.svg
-			.call( zoomFunc )
-			.call( zoomFunc.transform, d3.zoomIdentity.translate( viewBox.width/2 + ( - rootBox.x - rootBox.width/2 )*zoom, viewBox.height/2 + ( - rootBox.y - rootBox.height/2 )*zoom ).scale( zoom ) )
+		self.zoomable && self.svg.call( zoomFunc );
+		self.fitToScreen();
 
 		//////CONVERT BONDS//////
 		function multiBonds(){
@@ -354,6 +364,17 @@ var Mol2D = function( container, dims, params ){
 			})
 
 		}
+
+		return self.root
+	}
+
+	self.fitToScreen = function(){
+		//////FIT SVG TO SCREEN//////
+		const rootBox = self.root.node().getBBox()
+		const viewBox = self.svg.node().viewBox.baseVal
+		const zoom = rootBox.width > rootBox.height ? viewBox.width/rootBox.width : viewBox.height/rootBox.height
+
+		self.svg.call( zoomFunc.transform, d3.zoomIdentity.translate( viewBox.width/2 + ( - rootBox.x - rootBox.width/2 )*zoom, viewBox.height/2 + ( - rootBox.y - rootBox.height/2 )*zoom ).scale( zoom ) )
 	}
 
 	self.showH = function( showH ){
@@ -870,7 +891,7 @@ var Mol3D = function( container, params ){
 
 				self.molGroup.add( mesh );
 
-				////// attach bond to root atom
+				////// attach bond to self.root atom
 				//THREE.SceneUtils.attach( mesh, self.scene, self.scene.getObjectByName( el.start.index ) )
 				////// attach target atom to bond
 				//THREE.SceneUtils.attach( self.scene.getObjectByName( el.end.index ), self.scene, mesh )

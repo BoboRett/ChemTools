@@ -59,19 +59,18 @@
 					<button class="button" id="CIPSubmit" onclick="cip.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
-			<div class="menu" id="NMinputs" style="top: 431px;left: 290px;height: 350px;width: 440px;border: 6px double black;">
+			<div class="menu" id="NMinputs" style="top: 431px;left: 280px;height: 350px;width: 480px;border: 6px double black;">
 				<div class="head">
 					<h1>Newman Projection</h1>
 				</div>
-				<div class="inputs" style="width: 440px; height: 255px;">
+				<div class="inputs" style="width: 480px; height: 255px;">
 				</div>
 				<div class="buttons">
-					<input type="checkbox" onchange="nm.orient( this.checked )"></input>
+					<label style="position: absolute; top: 40px;"><input type="checkbox" onchange="nm.orient( this.checked )"/>Staggered/Eclipse</label>
 					<button class="button" onclick="nm.closeGame()" style="width:100px;float: right;">Back</button>
 					<button class="button" id="NMSubmit" onclick="nm.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
-
 		</div>
 	</div>
 
@@ -318,7 +317,7 @@ $$$$
 
 			//////Highlight svg atom//////
 			var rootAtom2D = d3.select( "#highlight_"+ self.answer.CIPRoot );
-			rootAtom2D.node().parentNode.insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").node(), rootAtom2D.node().nextSibling );
+			mol2d.root.node().insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").attr( "id", null ).node(), mol2d.root.node().childNodes[0] );
 
 			//////Highlight 3D atom//////
 			var rootAtom3D =  mol3d.scene.getObjectByName( +self.answer.CIPRoot );
@@ -499,34 +498,33 @@ $$$$
 		self.reset = function(){
 			//////Reset game to original state//////
 			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
-			d3.select( "#NMinputs > .buttons > input" ).node().checked = false;
+			d3.select( "#NMinputs > .buttons > label > input" ).node().checked = false;
 			d3.select( "#rootframe" ).html( "" );
 			d3.select( "#NMResult" ).remove();
 
 			d3.select( "#NMinputs > .inputs").html(`
-				<svg class="dd" id="NMdragdrop" viewBox="0,0,440,255">
-					<circle cx="220" cy="125" r="50" style="stroke:black; fill:none;" back=false></circle>
-					<line x1="220" y1="125" x2="220" y2="25"></line>
-					<line x1="220" y1="125" x2="307" y2="175"></line>
-					<line x1="220" y1="125" x2="133" y2="175"></line>
-					<line x1="263" y1="100" x2="307" y2="75" back='false'></line>
-					<line x1="220" y1="175" x2="220" y2="225" back='false'></line>
-					<line x1="177" y1="100" x2="133" y2="75" back='false'></line>
+				<svg class="dd" id="NMdragdrop" viewBox="0,0,480,255">
+					<circle cx="240" cy="125" r="50" style="stroke:black; fill:none;" back=false></circle>
+					<line x1="240" y1="125" x2="240" y2="25"></line>
+					<line x1="240" y1="125" x2="327" y2="175"></line>
+					<line x1="240" y1="125" x2="153" y2="175"></line>
+					<line x1="283" y1="100" x2="327" y2="75" back='false'></line>
+					<line x1="240" y1="175" x2="240" y2="225" back='false'></line>
+					<line x1="197" y1="100" x2="153" y2="75" back='false'></line>
 
-					<rect id="dd1_TAR" x="180" y="5" width="80" height="40"></rect>
-					<rect id="dd2_TAR" x="267" y="155" width="80" height="40"></rect>
-					<rect id="dd3_TAR" x="93" y="155" width="80" height="40"></rect>
-					<rect id="dd4_TAR" x="266" y="55" width="80" height="40"></rect>
-					<rect id="dd5_TAR" x="180" y="205" width="80" height="40"></rect>
-					<rect id="dd6_TAR" x="93" y="55" width="80" height="40"></rect>
-					<text id="dd1" x="40" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">1</text>
-					<text id="dd2" x="40" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">2</text>
-					<text id="dd3" x="40" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">3</text>
-					<text id="dd4" x="400" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">4</text>
-					<text id="dd5" x="400" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">5</text>
-					<text id="dd6" x="400" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">6</text>
-				</svg>
-				`
+					<rect id="dd1_TAR" x="200" y="5" width="80" height="40"></rect>
+					<rect id="dd2_TAR" x="287" y="155" width="80" height="40"></rect>
+					<rect id="dd3_TAR" x="113" y="155" width="80" height="40"></rect>
+					<rect id="dd4_TAR" x="286" y="55" width="80" height="40"></rect>
+					<rect id="dd5_TAR" x="200" y="205" width="80" height="40"></rect>
+					<rect id="dd6_TAR" x="113" y="55" width="80" height="40"></rect>
+					<text id="dd1" x="50" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">1</text>
+					<text id="dd2" x="50" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">2</text>
+					<text id="dd3" x="50" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">3</text>
+					<text id="dd4" x="430" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">4</text>
+					<text id="dd5" x="430" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">5</text>
+					<text id="dd6" x="430" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">6</text>
+				</svg>`
 			)
 			d3.select( "#NMSubmit" ).attr( "onclick", "nm.submit()" ).html( "Submit" ).style( "background-color", null );
 			d3.select( ".resultRight" ).remove()
@@ -581,6 +579,7 @@ $$$$
 
 				d3.select( "#NMdragdrop > #dd" + ( self.labels.length ) ).text( el.el.element + "-" + el.el.index );
 				d3.select( "#atomind_" + el.el.index ).attr( "display", null );
+
 			}
 
 			mol3d.scene.getObjectByName( +self.answer.NMRoot ).userData.source.bondedTo.filter( el => el.el.index !== +self.answer.NMTarget  ).forEach( (el, i) => addLabels( el, i ) );
@@ -602,11 +601,29 @@ $$$$
 					}
 			};
 
+			//////Give 2 answers on lowest difficulty//////
+			if( self.diff === 1 ){
+				d3.selectAll( "#NMdragdrop > text" ).each( function(){
+					if( this.innerHTML.split( "-" )[1] === self.answer.NMOrder[0] ){
+						var tarNode = d3.select( "#NMdragdrop > #dd1_TAR" ).node()
+					} else if( this.innerHTML.split( "-" )[1] === self.answer.NMOrder.split( "," )[3] ){
+						var tarNode = d3.select( "#NMdragdrop > #dd5_TAR" ).node()
+					}
+					if( tarNode ){
+						d3.select( this )
+							.attr( "x", +tarNode.getAttribute( "x" ) + tarNode.getBoundingClientRect().width/2 )
+							.attr( "y", +tarNode.getAttribute( "y" ) + tarNode.getBoundingClientRect().height/2 + 13 )
+							.datum( tarNode.getAttribute( "id" ).substr( 2, 1 ) )
+					}
+				})
+
+			}
+
 			//////Highlight svg atom//////
 			var rootAtom2D = d3.select( "#highlight_"+ self.answer.NMRoot );
 			var tarAtom2D = d3.select( "#highlight_"+ self.answer.NMTarget );
-			rootAtom2D.node().parentNode.insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").node(), rootAtom2D.node().nextSibling );
-			tarAtom2D.node().parentNode.insertBefore( d3.select( tarAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").node(), tarAtom2D.node().nextSibling );
+			mol2d.root.node().insertBefore( d3.select( rootAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").attr( "id", null ).node(), mol2d.root.node().childNodes[0] );
+			mol2d.root.node().insertBefore( d3.select( tarAtom2D.node().cloneNode() ).attr( "r", 8 ).attr( "class", "atomFocus").attr( "id", null ).node(), mol2d.root.node().childNodes[0] );
 
 			//////Highlight 3D atom//////
 			var rootAtom3D =  mol3d.scene.getObjectByName( +self.answer.NMRoot );
@@ -695,6 +712,7 @@ $$$$
 				.transition()
 				.duration( 1500 )
 				.style( "width", "1020px" )
+				.style( "height", "431px" )
 				.tween( null, function(){return function( t ){ padset(); mol3d.onWindowResize() } })
 			d3.selectAll( ".menu" )
 				.transition()
