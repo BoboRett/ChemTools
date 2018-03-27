@@ -67,13 +67,10 @@ var Mol2D = function( container, dims, params ){
 	self.root = self.svg.append( "g" ).attr( "id", "rootframe" );
 
 	var zoomFunc = d3.zoom().on( "zoom", function(){
-				var screenScale = self.root.node().getBoundingClientRect().width / self.svg.node().viewBox.baseVal.width;
-				var d = self.root.datum();
-
-				self.root.transition()
-					.duration( 300 )
-					.ease( d3.easeCircleOut )
-					.attr( "transform", d3.event.transform )
+		self.root.transition()
+			.duration( 300 )
+			.ease( d3.easeCircleOut )
+			.attr( "transform", d3.event.transform )
 	})
 
 	self.stylesheet = `
@@ -124,13 +121,13 @@ var Mol2D = function( container, dims, params ){
 		    font-size: 16px;
 		}
 	`
-	d3.select( "head" ).append( "style" ).html( self.stylesheet )
+	d3.select( "#molViewerCSS" ).empty() && d3.select( "head" ).append( "style" ).attr( "id", "molViewerCSS" ).html( self.stylesheet )
 
 	//////Get 2D Molecule from OCL//////
-	self.getFromSMILE = function( smile, addH ){
+	self.getFromSMILE = function( smile ){
 
 		var molecule = OCL.Molecule.fromSmiles( smile );
-		addH && molecule.addImplicitHydrogens();
+		molecule.addImplicitHydrogens();
 		data = molecule.toMolfile();
 		var mol = self.parse( data );
 
@@ -211,7 +208,7 @@ var Mol2D = function( container, dims, params ){
 			const tmp = atomsroot.append( "g" ).attr( "class", "atom_" + atom.element ).attr( "id", i ).datum( atom );
 			atom.element != "H" && tmp.append( "g" ).attr( "class", "hydrogens" );
 
-			tmp.append( "circle" ).attr( "class", "highlight" ).attr( "id", "highlight_" + i ).attr( "cx", atom.pos[0] ).attr( "cy", atom.pos[1] ).attr( "r", 12 );
+			const highlight = tmp.append( "circle" ).attr( "class", "highlight" ).attr( "id", "highlight_" + i ).attr( "cx", atom.pos[0] ).attr( "cy", atom.pos[1] ).attr( "r", 12 );
 
 			const txt = TextGen( tmp, "label_" + atom.element, "label_" + i, atom.pos[0], atom.pos[1] + 6, atom.element !== "C" || atom.charge ? atom.element : "" , [], [] );
 
@@ -226,7 +223,8 @@ var Mol2D = function( container, dims, params ){
 
 			}
 
-
+			atom.HTML = tmp.node();
+			atom.highlight = highlight.node()
 
 		})
 
@@ -240,7 +238,7 @@ var Mol2D = function( container, dims, params ){
 			const theta = Math.atan2( bond.end.pos[1] - bond.start.pos[1], bond.end.pos[0] - bond.start.pos[0] );
 			const length = Math.hypot( bond.end.pos[0] - bond.start.pos[0], bond.end.pos[1] - bond.start.pos[1] );
 
-			tmp.append( "rect" )
+			const highlight = tmp.append( "rect" )
 				.attr( "x", -labelOffset ).attr( "y", -7.5 )
 				.attr( "rx", 7.5 ).attr( "ry", 7.5 )
 				.attr( "width", length + 2*labelOffset ).attr( "height", 15)
@@ -262,12 +260,15 @@ var Mol2D = function( container, dims, params ){
 
 			}
 
+			bond.HTML = tmp.node();
+			bond.highlight = highlight.node();
+
 		});
 
 		multiBonds();
 
 		self.zoomable && self.svg.call( zoomFunc );
-		self.fitToScreen();
+		self.zoomable && self.fitToScreen();
 
 		//////CONVERT BONDS//////
 		function multiBonds(){
@@ -479,7 +480,6 @@ var Mol3D = function( container, params ){
 
 						case "atom":
 						case "bond":
-
 							self.hovered = highlighted.name.toString().includes("_") ?
 								d3.select( "#highlight_" + highlighted.name + ", #highlight_" + highlighted.name.toString().split("").reverse().join("") ) :
 								d3.select( "#highlight_" + highlighted.name )
@@ -805,6 +805,8 @@ var Mol3D = function( container, params ){
 				mesh.userData.type = "atom";
 				mesh.userData.source = el;
 
+				el.HTML = mesh;
+
 				self.molGroup.add( mesh );
 
 			});
@@ -887,7 +889,7 @@ var Mol3D = function( container, params ){
 
 				mesh.position.set( ...el.start.pos );
 
-
+				el.HTML = mesh;
 
 				self.molGroup.add( mesh );
 

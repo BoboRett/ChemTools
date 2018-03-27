@@ -9,7 +9,11 @@
 	</div>
 
 	<div class="page">
- 		<div id="container" style="width: 45vw; height: 60vw;">
+ 		<div id="container" style="width: 45vw; height: 60vw; float:left;"></div>
+		<div id="mechanism" style="width: 32vw; height: 60vw; float:right;">
+			<h1>Mechanism</h1>
+			<p id="steps"></p>
+			<input type="checkbox" onchange="toggleZoom( this.checked )"></input>
 		</div>
 		<div>
 			<label class="switch">
@@ -22,11 +26,9 @@
 
 	<script src="https://d3js.org/d3.v4.min.js"></script>
 	<script src="https://www.lactame.com/lib/openchemlib/5.4.0/openchemlib-minimal.js"></script>
-	<!-- <script src="openchemlib-core.js"></script> -->
 	<script src="../Stereochemistry/molViewer.js"></script>
 	<script src="mechanisms.js?v=6"></script>
 
-	<!-- <script src="cube.js?v=6"></script> -->
 
 	<script>
 		function toggleHydrogens(el){
