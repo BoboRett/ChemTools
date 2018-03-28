@@ -58,6 +58,7 @@ var Mol2D = function( container, dims, params ){
 	self.container = container;
 	self.molecule = {};
 	self.molfile = "";
+	self.SMILE = "";
 
 	self.zoomable = params.hasOwnProperty( "zoomable" ) ? params.zoomable : true;
 
@@ -125,7 +126,7 @@ var Mol2D = function( container, dims, params ){
 
 	//////Get 2D Molecule from OCL//////
 	self.getFromSMILE = function( smile ){
-
+		self.SMILE = smile;
 		var molecule = OCL.Molecule.fromSmiles( smile );
 		molecule.addImplicitHydrogens();
 		data = molecule.toMolfile();

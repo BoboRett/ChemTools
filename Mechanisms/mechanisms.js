@@ -65,7 +65,7 @@ function toggleZoom( checked ){
 periodicTable = [["?",[0]],["H",[1]],
 	["He",[0]],["Li",[1]],["Be",[2]],["B",[3]],["C",[4]],["N",[3]],["O",[2]],["F",[1]],["Ne",[0]],["Na",[1]],["Mg",[2]],["Al",[3]],["Si",[4]],["P",[3,5]],["S",[2,4,6]],["Cl",[1,3,5,7]],["Ar",[0]],["K",[1]],["Ca",[2]],["Sc",[0]],["Ti",[0]],["V",[0]],["Cr",[0]],["Mn",[0]],["Fe",[0]],["Co",[0]],["Ni",[0]],["Cu",[0]],["Zn",[0]],["Ga",[2,3]],["Ge",[2,4]],["As",[3,5]],["Se",[2,4,6]],["Br",[1,3,5,7]],["Kr",[0,2]],["Rb",[1,2,3,4]],["Sr",[2]],["Y",[0]],["Zr",[0]],["Nb",[0]],["Mo",[0]],["Tc",[0]],["Ru",[0]],["Rh",[0]],["Pd",[0]],["Ag",[0]],["Cd",[0]],["In",[1,2,3]],["Sn",[2,4]],["Sb",[3,5]],["Te",[2,4,6]],["I",[1,3,5,7]],["Xe",[0,2,4,6]],["Cs",[1]],["Ba",[2]],["La",[0]],["Ce",[0]],["Pr",[0]],["Nd",[0]],["Pm",[0]],["Sm",[0]],["Eu",[0]],["Gd",[0]],["Tb",[0]],["Dy",[0]],["Ho",[0]],["Er",[0]],["Tm",[0]],["Yb",[0]],["Lu",[0]],["Hf",[0]],["Ta",[0]],["W",[0]],["Re",[0]],["Os",[0]],["Ir",[0]],["Pt",[0]],["Au",[0]],["Hg",[0]],["Tl",[0]],["Pb",[0]],["Bi",[0]],["Po",[0]],["At",[0]],["Rn",[0]],["Fr",[0]],["Ra",[0]],["Ac",[0]],["Th",[0]],["Pa",[0]],["U",[0]],["Np",[0]],["Pu",[0]],["Am",[0]],["Cm",[0]],["Bk",[0]],["Cf",[0]],["Es",[0]],["Fm",[0]],["Md",[0]],["No",[0]],["Lr",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["R4",[0]],["R5",[0]],["R6",[0]],["R7",[0]],["R8",[0]],["R9",[0]],["R10",[0]],["R11",[0]],["R12",[0]],["R13",[0]],["R14",[0]],["R15",[0]],["R16",[0]],["R1",[0]],["R2",[0]],["R3",[0]],["A",[0]],["A1",[0]],["A2",[0]],["A3",[0]],["??",[0]],["??",[0]],["D",[0]],["T",[0]],["X",[0]],["R",[0]],["H2",[0]],["H+",[0]],["Nnn",[0]],["HYD",[0]],["Pol",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["??",[0]],["Ala",[2]],["Arg",[2]],["Asn",[2]],["Asp",[2]],["Cys",[3]],["Gln",[2]],["Glu",[2]],["Gly",[2]],["His",[2]],["Ile",[2]],["Leu",[2]],["Lys",[2]],["Met",[2]],["Phe",[2]],["Pro",[2]],["Ser",[2]],["Thr",[2]],["Trp",[2]],["Tyr",[2]],["Val",[2]]]
 
-var string = "CC(=O)C.[C-]#N" //"CC(C)(O1)C[C@@H](O)[C@@]1(O2)[C@@H](C)[C@@H]3CC=C4[C@]3(C2)C(=O)C[C@H]5[C@H]4CC[C@@H](C6)[C@]5(C)Cc(n7)c6nc(C[C@@]89(C))c7C[C@@H]8CC[C@@H]%10[C@@H]9C[C@@H](O)[C@@]%11(C)C%10=C[C@H](O%12)[C@]%11(O)[C@H](C)[C@]%12(O%13)[C@H](O)C[C@@]%13(C)CO.[Br-]"//"N[C@H](C)C(=O)O"//"CCO[C+3](\C=C(/C)OC)C(=O)[Pb]CC=C=O"//"C[C@H](N)C(O)=O"//"CC1CCC/C(C)=C1/C=C/C(C)=C/C=C/C(C)=C/C=C/C=C(C)/C=C/C=C(C)/C=C/C2=C(C)/CCCC2(C)C"//"CC1=CN(C)=CC=C1"//
+var smile = "CC(=O)C.[C-]#N" //"CC(C)(O1)C[C@@H](O)[C@@]1(O2)[C@@H](C)[C@@H]3CC=C4[C@]3(C2)C(=O)C[C@H]5[C@H]4CC[C@@H](C6)[C@]5(C)Cc(n7)c6nc(C[C@@]89(C))c7C[C@@H]8CC[C@@H]%10[C@@H]9C[C@@H](O)[C@@]%11(C)C%10=C[C@H](O%12)[C@]%11(O)[C@H](C)[C@]%12(O%13)[C@H](O)C[C@@]%13(C)CO.[Br-]"//"N[C@H](C)C(=O)O"//"CCO[C+3](\C=C(/C)OC)C(=O)[Pb]CC=C=O"//"C[C@H](N)C(O)=O"//"CC1CCC/C(C)=C1/C=C/C(C)=C/C=C/C(C)=C/C=C/C=C(C)/C=C/C=C(C)/C=C/C2=C(C)/CCCC2(C)C"//"CC1=CN(C)=CC=C1"//
 
 
 function genHead(arrow){
@@ -88,15 +88,15 @@ function handleMouse(){
 	switch( d3.event.button ){
 		case 0:
 			var downEvt = d3.event;
-			var down = d3.mouse( d3.select( "#mol" + activeLevel ).node() );
-			var frm = d3.mouse( d3.select( "#mol" + activeLevel ).node() );
-			var to = d3.mouse( d3.select( "#mol" + activeLevel ).node() );
+			var down = d3.mouse( d3.select( "[id='" + activeLevel + "']" ).node() );
+			var frm = d3.mouse( d3.select( "[id='" + activeLevel + "']" ).node() );
+			var to = d3.mouse( d3.select( "[id='" + activeLevel + "']" ).node() );
 			var root = arrows.append( "g" ).attr( "class", "arrow" ).attr( "id", num );
 			var arrow = root.append( "path" ).attr( "d", "M"+ down[0] + "," + down[1] ).attr( "fill", "none" )
 			num = num + 1
 			d3.select( window )
 				.on("mousemove", function(){
-					to = d3.mouse( d3.select( "#mol" + activeLevel ).node() )
+					to = d3.mouse( d3.select( "[id='" + activeLevel + "']" ).node() )
 					if(Math.abs(down[0] - to[0]) > 1 || Math.abs(down[1] - to[1]) > 1){
 						down = to
 						arrow.attr("d",arrow.attr("d") + ",L" + to[0] + "," + to[1])
@@ -121,7 +121,7 @@ function handleMouse(){
 						var cf = Math.hypot( linemid.x - pathmid.x, linemid.y - pathmid.y ); //curve factor
 						var normangle = Math.atan2( pathmid.y - linemid.y, pathmid.x - linemid.x )
 						var arrowmid = {x: linemid.x + 2*cf*Math.cos( normangle ), y: linemid.y + 2*cf*Math.sin( normangle )};
-						arrow.attr("d","M" + frm[0] + "," + frm[1] + "Q" + arrowmid.x + "," + arrowmid.y + "," + to[0] + "," + to[1]).datum( { cf:cf, start: d3.select( downEvt.target.parentNode ).datum(), end: d3.select( d3.event.target.parentNode ).datum () } );
+						arrow.attr("d","M" + frm[0] + "," + frm[1] + "Q" + arrowmid.x + "," + arrowmid.y + "," + to[0] + "," + to[1]).datum( { cf:cf, start: d3.select( downEvt.target.parentNode ).datum(), end: d3.select( d3.event.target.parentNode ).datum() } );
 						genHead(arrow);
 						processStep( arrow );
 					}
@@ -133,18 +133,44 @@ function handleMouse(){
 
 function processStep( arrow ){
 	console.log( "from: ", arrow.datum().start, " to: ", arrow.datum().end )
+	result = new OCL.Molecule.fromSmiles( smile )
+
 	if( arrow.datum().start.hasOwnProperty( "claimed" ) ){
 		var string = arrow.datum().start.type.slice(0,1) + " BOND " + arrow.datum().start.start.element + "-" + arrow.datum().start.end.element + " breaks, donating electrons to " + arrow.datum().end.element + arrow.datum().end.index
+		result.setBondType( arrow.datum().start.index, arrow.datum().start.type.split( "_" )[0] - 1 )
+		result.setAtomCharge( arrow.datum().end.index, arrow.datum().end.charge - 1 )
+		result.setAtomCharge( arrow.datum().start.start === arrow.datum().end ? arrow.datum().start.end.index : arrow.datum().start.start.index, arrow.datum().end.charge + 1 )
 	} else{
 		var string = "ATOM" + " " + arrow.datum().start.element + arrow.datum().start.index + " donates electrons to " + "ATOM" + " " +  arrow.datum().end.element + arrow.datum().end.index
+		result.addBond( arrow.datum().start.index, arrow.datum().end.index )
+		result.setAtomCharge( arrow.datum().start.index, arrow.datum().start.charge + 1 )
+		result.setAtomCharge( arrow.datum().end.index, arrow.datum().end.charge - 1 )
 	}
 
-	d3.select( "#steps" ).append( "p" ).html( string ).on( "mouseover", () => hoverfn( true ) ).on ( "mouseout", () => hoverfn( false ) )
+	d3.select( "#steps" ).append( "p" ).html( string ).on( "mouseover", function(){hoverfn( this, true )} ).on ( "mouseout", function(){hoverfn( this, false )} ).attr( "level", activeLevel )
 
-	function hoverfn( on ){
-		d3.select( arrow.datum().start.highlight ).attr( "class", ( on ? "highlight_hover" : "highlight" ) )
-		d3.select( arrow.datum().end.highlight ).attr( "class", ( on ? "highlight_hover" : "highlight" ) )
+	function hoverfn( el, on ){
+		//d3.select( arrow.datum().start.highlight ).attr( "class", ( on ? "highlight_hover" : "highlight" ) )
+		//d3.select( arrow.datum().end.highlight ).attr( "class", ( on ? "highlight_hover" : "highlight" ) )
+
+		d3.select( "#mol" + activeLevel ).attr( "display", ( on ? "none" : "all" ) )
+		d3.select( "#mol" + d3.select( el ).attr( "level" )  ).attr( "display", ( on ? "all" : "none" ) )
+		fitToScreen( root );
 	}
+
+	function findBond( start, end ){
+		for( bond of d3.select( "#mol" + activeLevel ).datum().molecule.bonds ){
+			if( ( bond.start === start && bond.end === end ) || ( bond.start === end && bond.end === start ) ){
+				console.log( "boop" )
+			}
+		}
+	}
+	console.log( result.toMolfile() )
+	smile = result.toSmiles()
+	d3.select( "#mol" + activeLevel ).attr( "display", "none" )
+	activeLevel++
+
+	drawMolecule( smile, activeLevel, [[0, 0, 0]])
 
 }
 
@@ -153,37 +179,32 @@ function fitToScreen( svg ){
 	const viewBox = d3.select( "#view2d" ).node().viewBox.baseVal
 	const zoom = rootBox.width > rootBox.height ? viewBox.width/rootBox.width : viewBox.height/rootBox.height
 
-	svg.call(
-		d3.zoom().on( "zoom", function(){
-			d3.select( this ).attr( "transform", d3.event.transform )
-		}).transform,
+	d3.select( svg.node().parentNode ).call(
+		zoomFunc.transform,
 		d3.zoomIdentity.translate( viewBox.width/2 + ( - rootBox.x - rootBox.width/2 )*zoom, viewBox.height/2 + ( - rootBox.y - rootBox.height/2 )*zoom ).scale( zoom )
 	)
 }
 
 function drawMolecule( string, level, offset ){
-	var tmp = root.append( "g" ).attr( "id", level )
-	arrows = tmp.append( "g" ).attr( "id", "arrowgroup" ).raise()
-	var i = 0
-	for( mol of string.split( "." ) ){
-		molSVG = new Mol2D( d3.select( "body" ), [0, 0, 3, 4], {zoomable:false} );
-		molSVG.getFromSMILE( mol, false );
-		var el = molSVG.draw().attr( "id", "mol" + level );
-		tmp.node().appendChild( el.node() );
-		molSVG.svg.remove();
 
-		i++;
-	}
-	fitToScreen( tmp );
+	molSVG = new Mol2D( d3.select( "body" ), [0, 0, 3, 4], {zoomable:false} );
+	molSVG.getFromSMILE( string );
+	console.log( string )
+	var el = molSVG.draw().attr( "id", "mol" + level ).datum( molSVG );//.attr( "transform", "translate(" + offset[i][0] + "," + offset[i][1] + ")" );
+	molSVG.showH( false );
+	arrows = el.append( "g" ).attr( "id", "arrowgroup" ).raise()
+	root.node().appendChild( el.node() );
+	molSVG.svg.remove();
+
+	fitToScreen( root );
+	toggleZoom( false );
 
 	num = 0
 
 }
 
-var root = d3.select( "#container" ).append( "svg" ).attr( "viewBox", "0,0,300,400" ).attr( "id", "view2d" ).append( "g" ).attr( "id", "rootframe" ).attr( "transform", "translate(0,0)scale(1)" );
+var root = d3.select( "#container" ).append( "svg" ).attr( "viewBox", "0,0,3,4" ).attr( "id", "view2d" ).append( "g" ).attr( "id", "rootframe" ).attr( "transform", "translate(0,0)scale(1)" );
 d3.select( "#view2d" ).call( zoomFunc )
 var activeLevel = 0
 
-drawMolecule( string, activeLevel, [[0, 0, 1], [0, 80, 0.2]] );
-
-toggleZoom( false );
+drawMolecule( smile, activeLevel, [[0, 0], [0, 80]] );
