@@ -134,17 +134,36 @@ function handleMouse(){
 function processStep( arrow ){
 	console.log( "from: ", arrow.datum().start, " to: ", arrow.datum().end )
 	result = new OCL.Molecule.fromSmiles( smile )
+	result.addImplicitHydrogens()
 
-	if( arrow.datum().start.hasOwnProperty( "claimed" ) ){
+	if( arrow.datum().end.hasOwnProperty( "claimed" ) ){ //////TO BOND//////
+		console.log( "Invalid Action" )
+		return false
+	}
+	else if( arrow.datum().start.hasOwnProperty( "claimed" ) ){ //////BOND TO ATOM//////
 		var string = arrow.datum().start.type.slice(0,1) + " BOND " + arrow.datum().start.start.element + "-" + arrow.datum().start.end.element + " breaks, donating electrons to " + arrow.datum().end.element + arrow.datum().end.index
 		result.setBondType( arrow.datum().start.index, arrow.datum().start.type.split( "_" )[0] - 1 )
-		result.setAtomCharge( arrow.datum().end.index, arrow.datum().end.charge - 1 )
-		result.setAtomCharge( arrow.datum().start.start === arrow.datum().end ? arrow.datum().start.end.index : arrow.datum().start.start.index, arrow.datum().end.charge + 1 )
-	} else{
-		var string = "ATOM" + " " + arrow.datum().start.element + arrow.datum().start.index + " donates electrons to " + "ATOM" + " " +  arrow.datum().end.element + arrow.datum().end.index
-		result.addBond( arrow.datum().start.index, arrow.datum().end.index )
-		result.setAtomCharge( arrow.datum().start.index, arrow.datum().start.charge + 1 )
-		result.setAtomCharge( arrow.datum().end.index, arrow.datum().end.charge - 1 )
+	} else{ //////ATOM TO ATOM//////
+		var string = "ATOM " + arrow.datum().start.element + arrow.datum().start.index + " donates electrons to ATOM " + arrow.datum().end.element + arrow.datum().end.index
+
+		var bond = findBond( arrow.datum().start, arrow.datum().end )
+		console.log( bond )
+		if( bond ){
+			var type = +bond.type.split("_")[0] + 1;
+			if( type > 3 ){
+				console.log( "Invalid Action" )
+				return false
+			} else{
+				type = type === 1 ? 1 : ( type === 2 ? 2 : 4 )
+				result.setBondType( bond.index, type )
+			}
+		} else{
+			result.addBond( arrow.datum().start.index, arrow.datum().end.index )
+		}
+	}
+	for( var i = 0; i < result.a.d; i++ ){
+		result.setAtomCharge( i, 0 )
+		result.setAtomCharge( i, -result.getLowestFreeValence( i ) )
 	}
 
 	d3.select( "#steps" ).append( "p" ).html( string ).on( "mouseover", function(){hoverfn( this, true )} ).on ( "mouseout", function(){hoverfn( this, false )} ).attr( "level", activeLevel )
@@ -161,20 +180,22 @@ function processStep( arrow ){
 	function findBond( start, end ){
 		for( bond of d3.select( "#mol" + activeLevel ).datum().molecule.bonds ){
 			if( ( bond.start === start && bond.end === end ) || ( bond.start === end && bond.end === start ) ){
-				console.log( "boop" )
+				return bond
 			}
 		}
 	}
-	console.log( result.toMolfile() )
+
 	smile = result.toSmiles()
 	d3.select( "#mol" + activeLevel ).attr( "display", "none" )
 	activeLevel++
 
-	drawMolecule( smile, activeLevel, [[0, 0, 0]])
+	drawMolecule( smile, activeLevel )
+	//newMoleculeLayer( drawMolecule( smile, activeLevel ) )
 
 }
 
 function fitToScreen( svg ){
+
 	const rootBox = svg.node().getBBox()
 	const viewBox = d3.select( "#view2d" ).node().viewBox.baseVal
 	const zoom = rootBox.width > rootBox.height ? viewBox.width/rootBox.width : viewBox.height/rootBox.height
@@ -183,14 +204,14 @@ function fitToScreen( svg ){
 		zoomFunc.transform,
 		d3.zoomIdentity.translate( viewBox.width/2 + ( - rootBox.x - rootBox.width/2 )*zoom, viewBox.height/2 + ( - rootBox.y - rootBox.height/2 )*zoom ).scale( zoom )
 	)
+
 }
 
-function drawMolecule( string, level, offset ){
+function drawMolecule( string, level ){
 
 	molSVG = new Mol2D( d3.select( "body" ), [0, 0, 3, 4], {zoomable:false} );
-	molSVG.getFromSMILE( string );
-	console.log( string )
-	var el = molSVG.draw().attr( "id", "mol" + level ).datum( molSVG );//.attr( "transform", "translate(" + offset[i][0] + "," + offset[i][1] + ")" );
+	molSVG.getFromSMILE( string, true );
+	var el = molSVG.draw().attr( "id", "mol" + level ).datum( molSVG );
 	molSVG.showH( false );
 	arrows = el.append( "g" ).attr( "id", "arrowgroup" ).raise()
 	root.node().appendChild( el.node() );
@@ -200,6 +221,41 @@ function drawMolecule( string, level, offset ){
 	toggleZoom( false );
 
 	num = 0
+
+	return el
+
+}
+
+function newMoleculeLayer( newSVG ){
+
+	var oldSVG = d3.select( "#mol" + ( activeLevel - 1 ) );
+	console.log( oldSVG.datum(), newSVG.datum() )
+
+	for( atom of newSVG.datum().molecule.atoms ){
+		console.log( atom );
+		d3.select( "#" + newSVG.attr( "id" ) + " > .atoms > [id='" + atom.index + "']" )
+			.attr( "transform", "translate(" + ( atom.pos[0] - oldSVG.datum().molecule.atoms[atom.index].pos[0] ) + "," + ( atom.pos[1] - oldSVG.datum().molecule.atoms[atom.index].pos[1] ) + ")" )
+			.transition()
+			.duration( 1000 )
+			.attr( "transform", "translate( 0, 0 )" )
+	}
+
+	for( bond of newSVG.datum().molecule.bonds ){
+		console.log( bond )
+		d3.selectAll( "#" + newSVG.attr( "id" ) + " > .bonds > :nth-child(" + bond.index + ") > line" )
+			.attr( "x1", oldSVG.datum().molecule.bonds[bond.index].start.pos[0])
+			.attr( "x2", oldSVG.datum().molecule.bonds[bond.index].end.pos[0])
+			.attr( "y1", oldSVG.datum().molecule.bonds[bond.index].start.pos[1])
+			.attr( "y2", oldSVG.datum().molecule.bonds[bond.index].end.pos[1])
+			.transition()
+			.duration( 1000 )
+			.attr( "x1", newSVG.datum().molecule.bonds[bond.index].start.pos[0])
+			.attr( "x2", newSVG.datum().molecule.bonds[bond.index].end.pos[0])
+			.attr( "y1", newSVG.datum().molecule.bonds[bond.index].start.pos[1])
+			.attr( "y2", newSVG.datum().molecule.bonds[bond.index].end.pos[1])
+
+
+	}
 
 }
 

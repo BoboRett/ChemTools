@@ -5,7 +5,7 @@
 	<div class="header">
 		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Stereochemistry</p>
 
-		<a href="http://www.leeds.ac.uk/"><img src="../unileeds.svg" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
+		<a href="http://www.leeds.ac.uk/"><img src="../unileeds.svg" alt="University of Leeds" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
 	</div>
 
 	<div class="page">
@@ -200,6 +200,7 @@ $$$$
 			//////Reset game to original state//////
 			mol3d.container.removeEventListener( "mouseover", self.mouseover);
 			mol3d.container.removeEventListener( "mouseout", self.mouseout);
+			mol2d.svg && mol2d.svg.remove();
 			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() };
 			d3.select( "#rootframe" ).html( "" );
 			d3.selectAll( "#CIPtoggles > label > span" ).style( "fill", null ).style( "background-color", null );
@@ -277,16 +278,10 @@ $$$$
 			mol2d.parse( self.answer.Data2D );
 			mol3d.parse( self.answer.Data3D );
 
-			d3.select( "#view2d" ).attr( "transform", "scale( 0 )" )
-			mol2d.draw();
-			mol3d.draw( true );
-
 			d3.select( "#view2d" )
-				.transition()
-				.delay( 500 )
-				.duration( 1000 )
-				.ease( d3.easeBackOut )
-				.attr( "transform", "scale( 1 )" )
+			mol2d.draw();
+			mol2d.onWindowResize();
+			mol3d.draw( true );
 
 			//////Create labels for adjacent atoms//////
 			mol3d.scene.getObjectByName( +self.answer.CIPRoot ).userData.source.bondedTo.forEach( function( el, i ){
@@ -497,6 +492,8 @@ $$$$
 
 		self.reset = function(){
 			//////Reset game to original state//////
+			mol2d.svg && mol2d.svg.remove();
+
 			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
 			d3.select( "#NMinputs > .buttons > label > input" ).node().checked = false;
 			d3.select( "#rootframe" ).html( "" );
@@ -518,12 +515,12 @@ $$$$
 					<rect id="dd4_TAR" x="286" y="55" width="80" height="40"></rect>
 					<rect id="dd5_TAR" x="200" y="205" width="80" height="40"></rect>
 					<rect id="dd6_TAR" x="113" y="55" width="80" height="40"></rect>
-					<text id="dd1" x="50" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">1</text>
-					<text id="dd2" x="50" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">2</text>
-					<text id="dd3" x="50" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">3</text>
-					<text id="dd4" x="430" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">4</text>
-					<text id="dd5" x="430" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">5</text>
-					<text id="dd6" x="430" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )">6</text>
+					<text id="dd1" x="50" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd2" x="50" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd3" x="50" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd4" x="430" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd5" x="430" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd6" x="430" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
 				</svg>`
 			)
 			d3.select( "#NMSubmit" ).attr( "onclick", "nm.submit()" ).html( "Submit" ).style( "background-color", null );
@@ -544,7 +541,6 @@ $$$$
 						.style( "width", "480px" )
 						.style( "height", "321px" )
 					padset();
-					mol2d.onWindowResize();
 					mol3d.onWindowResize();
 					self.runGame( self.diff );
 				} )
@@ -567,8 +563,11 @@ $$$$
 
 			mol2d.parse( self.answer.Data2D );
 			mol3d.parse( self.answer.Data3D );
-			mol2d.draw();
 			mol3d.draw( true );
+			mol2d.draw();
+			mol2d.onWindowResize();
+			mol2d.fitToScreen();
+
 
 			//////Create labels for adjacent atoms//////
 			function addLabels( el, i ){

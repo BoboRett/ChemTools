@@ -62,10 +62,10 @@ var Mol2D = function( container, dims, params ){
 
 	self.zoomable = params.hasOwnProperty( "zoomable" ) ? params.zoomable : true;
 
-	self.svg = self.container.append( "svg" ).attr( "viewBox", dims.join( "," ) ).attr( "id", "view2d" );
+
 
 	var showIndices = params.showIndices !== undefined ? params.showIndices : false;
-	self.root = self.svg.append( "g" ).attr( "id", "rootframe" );
+
 
 	var zoomFunc = d3.zoom().on( "zoom", function(){
 		self.root.transition()
@@ -75,23 +75,30 @@ var Mol2D = function( container, dims, params ){
 	})
 
 	self.stylesheet = `
+		#view2d {
+			text-anchor: middle;
+			font-family: sans-serif;
+			font-size: 16px;
+		}
+
 		.bond > line, .bond_dbl > line, .bond_hash > line, .bond_trp > line {
 		    stroke: black;
 		    stroke-width: 1px;
 			pointer-events: none;
 		}
 
-		.highlight {
-			stroke-width: 0;
+		.highlight, .highlight_hover {
 			stroke: black;
 		    fill: yellow;
+		}
+
+		.highlight {
+			stroke-width: 0;
 		    fill-opacity: 0;
 		}
 
 		.highlight_hover {
 			stroke-width: 0.5px;
-			stroke: black;
-		    fill: yellow;
 		    fill-opacity: 0.5;
 		}
 
@@ -112,23 +119,37 @@ var Mol2D = function( container, dims, params ){
 			fill: blue;
 		}
 
-		.atomind{
+		.atomind > text {
 			font-size: 8px;
 		}
 
-		#view2d {
-		    text-anchor: middle;
-		    font-family: sans-serif;
-		    font-size: 16px;
+		.atomind > rect{
+			fill: white;
+			fill-opacity: 0.7;
+		}
+
+		.charge > text{
+			text-anchor: middle;
+			pointer-events: none;
+			font-family: sans-serif;
+			font-size: 8px;
+			alignment-baseline: middle;
+		}
+
+		.charge > circle{
+			fill: white;
+			fill-opacity: 0.7;
+			stroke: black;
+			stroke-width: 0.5px;
 		}
 	`
 	d3.select( "#molViewerCSS" ).empty() && d3.select( "head" ).append( "style" ).attr( "id", "molViewerCSS" ).html( self.stylesheet )
 
 	//////Get 2D Molecule from OCL//////
-	self.getFromSMILE = function( smile ){
+	self.getFromSMILE = function( smile, addH ){
 		self.SMILE = smile;
 		var molecule = OCL.Molecule.fromSmiles( smile );
-		molecule.addImplicitHydrogens();
+		addH && molecule.addImplicitHydrogens();
 		data = molecule.toMolfile();
 		var mol = self.parse( data );
 
@@ -171,7 +192,9 @@ var Mol2D = function( container, dims, params ){
 			const tmp = el.match( /\S+/g )
 			if( tmp !== null ){
 				if( tmp[1] === "CHG" ){
-					mol2d.atoms[ +tmp[3] - 1 ].charge = +tmp[4]
+					for( var i = 3; i < tmp.length; i = i + 2 ){
+						mol2d.atoms[ +tmp[i] - 1 ].charge = +tmp[i + 1]
+					}
 				}
 			}
 		})
@@ -199,6 +222,9 @@ var Mol2D = function( container, dims, params ){
 	self.draw = function( ){
 		const atoms = self.molecule.atoms;
 		const bonds = self.molecule.bonds;
+
+		self.svg = self.container.append( "svg" ).attr( "viewBox", dims.join( "," ) ).attr( "id", "view2d" );
+		self.root = self.svg.append( "g" ).attr( "id", "rootframe" );
 		self.root.attr( "transform", null ) ;
 		self.root.html( "" );
 
@@ -208,19 +234,17 @@ var Mol2D = function( container, dims, params ){
 
 			const tmp = atomsroot.append( "g" ).attr( "class", "atom_" + atom.element ).attr( "id", i ).datum( atom );
 			atom.element != "H" && tmp.append( "g" ).attr( "class", "hydrogens" );
-
 			const highlight = tmp.append( "circle" ).attr( "class", "highlight" ).attr( "id", "highlight_" + i ).attr( "cx", atom.pos[0] ).attr( "cy", atom.pos[1] ).attr( "r", 12 );
-
 			const txt = TextGen( tmp, "label_" + atom.element, "label_" + i, atom.pos[0], atom.pos[1] + 6, atom.element !== "C" || atom.charge ? atom.element : "" , [], [] );
-
-			const ind = TextGen( tmp, "atomind", "atomind_" + i, atom.pos[0] - txt.node().getBBox().width/2 - i.toString().split("").length * 2 , atom.pos[1] - 5, i, [], [] );
-
+			const ind = tmp.append( "g" ).attr( "class", "atomind" ).attr( "id", "atomind_" + i );
+			const indBBox = TextGen( ind, null, null, atom.pos[0] - txt.node().getBBox().width/2 - i.toString().split("").length * 2 , atom.pos[1] - 5, i, [], [] ).node().getBBox();
+			ind.append( "rect" ).attr( "x", indBBox.x ).attr( "width", indBBox.width ).attr( "y", indBBox.y ).attr( "height", indBBox.height ).lower();
 			ind.attr( "display", showIndices ? null : "none" );
 
 			if( atom.charge ){
 				const chg = tmp.append( "g" ).attr( "class", "charge" );
 				const chgTxt = TextGen( chg, "atomcharge", "atomchg_" + i, atom.pos[0] + txt.node().getBBox().width/2 + atom.charge.toString().length * 2 - 2, atom.pos[1] - 8, atom.charge === -1 ? "-" : ( atom.charge === 1 ? "+" : atom.charge ), [], [] );
-				chg.append( "circle" ).attr( "cx", chgTxt.attr( "x" ) ).attr( "cy", chgTxt.attr( "y") ).attr( "r", chgTxt.node().getBBox().width/2 + 1 ).lower()
+				chg.append( "circle" ).attr( "cx", chgTxt.attr( "x" ) ).attr( "cy", chgTxt.attr( "y") ).attr( "r", chgTxt.node().getBBox().width/2 + 1 ).lower();
 
 			}
 
@@ -394,7 +418,12 @@ var Mol2D = function( container, dims, params ){
 	}
 
 	self.onWindowResize = function(){
-		self.svg.node().viewBox.baseVal.height = self.svg.node().viewBox.baseVal.width / ( self.container.style( "width" ).slice( 0, 3 ) / self.container.style( "height" ).slice( 0, 3 ) )
+		if( self.svg ){
+			self.svg.node().viewBox.baseVal.height = self.svg.node().viewBox.baseVal.width / ( self.container.style( "width" ).slice( 0, 3 ) / self.container.style( "height" ).slice( 0, 3 ) );
+		} else{
+			console.warn( "No SVG Element to resize. Call .draw() first!" );
+		}
+
 	}
 }
 
