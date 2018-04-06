@@ -425,6 +425,7 @@ var Mol2D = function( container, dims, params ){
 		}
 
 	}
+
 }
 
 var Mol3D = function( container, params ){

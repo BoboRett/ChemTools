@@ -283,12 +283,29 @@ $$$$
 			mol2d.onWindowResize();
 			mol3d.draw( true );
 
+			//////Hide standard Hydrogens//////
+			mol2d.molecule.atoms.map( el => {
+				if( el.element === "H" ){
+					var grp = d3.select( "[id='" + el.index + "']")
+					if( grp.node().parentNode.parentNode.getAttribute( "class" ).split( "_" )[1] === "C" && grp.node().previousSibling.getAttribute( "class" ) === "bond" ){
+						grp.attr( "display", "none" )
+						d3.select( grp.node().previousSibling ).attr( "display", "none" )
+					}
+				}
+			})
+
 			//////Create labels for adjacent atoms//////
 			mol3d.scene.getObjectByName( +self.answer.CIPRoot ).userData.source.bondedTo.forEach( function( el, i ){
 				var label = d3.select( ".view3D" ).append( "p" )
 					.html( el.el.index )
 					.attr( "class", "label" )
 				self.labels.push( label );
+
+				var grp = d3.select( "[id='" + el.el.index + "']")
+				if( grp.attr( "class" ).split( "_" )[1] === "H" ){
+					grp.attr( "display", null )
+					grp.node().previousSibling.setAttribute( "display", null )
+				}
 
 				d3.select( "#CIPdragdrop > #dd" + ( i + 1 ) ).text( el.el.element + "-" + el.el.index );
 				d3.select( "#atomind_" + el.el.index ).attr( "display", null );
@@ -568,6 +585,16 @@ $$$$
 			mol2d.onWindowResize();
 			mol2d.fitToScreen();
 
+			//////Hide standard Hydrogens//////
+			mol2d.molecule.atoms.map( el => {
+				if( el.element === "H" ){
+					var grp = d3.select( "[id='" + el.index + "']")
+					if( grp.node().parentNode.parentNode.getAttribute( "class" ).split( "_" )[1] === "C" && grp.node().previousSibling.getAttribute( "class" ) === "bond" ){
+						grp.attr( "display", "none" )
+						d3.select( grp.node().previousSibling ).attr( "display", "none" )
+					}
+				}
+			})
 
 			//////Create labels for adjacent atoms//////
 			function addLabels( el, i ){
@@ -575,6 +602,12 @@ $$$$
 					.html( el.el.index )
 					.attr( "class", "label" )
 				self.labels.push( label );
+
+				var grp = d3.select( "[id='" + el.el.index + "']")
+				if( grp.attr( "class" ).split( "_" )[1] === "H" ){
+					grp.attr( "display", null )
+					grp.node().previousSibling.setAttribute( "display", null )
+				}
 
 				d3.select( "#NMdragdrop > #dd" + ( self.labels.length ) ).text( el.el.element + "-" + el.el.index );
 				d3.select( "#atomind_" + el.el.index ).attr( "display", null );
