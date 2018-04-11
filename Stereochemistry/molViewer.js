@@ -79,6 +79,7 @@ var Mol2D = function( container, dims, params ){
 			text-anchor: middle;
 			font-family: sans-serif;
 			font-size: 16px;
+			cursor: all-scroll;
 		}
 
 		.bond > line, .bond_dbl > line, .bond_hash > line, .bond_trp > line {
@@ -143,7 +144,7 @@ var Mol2D = function( container, dims, params ){
 			stroke-width: 0.5px;
 		}
 	`
-	d3.select( "#molViewerCSS" ).empty() && d3.select( "head" ).append( "style" ).attr( "id", "molViewerCSS" ).html( self.stylesheet )
+	d3.select( "#molViewer2DCSS" ).empty() && d3.select( "head" ).append( "style" ).attr( "id", "molViewer2DCSS" ).html( self.stylesheet )
 
 	//////Get 2D Molecule from OCL//////
 	self.getFromSMILE = function( smile, addH ){
@@ -442,6 +443,11 @@ var Mol3D = function( container, params ){
 	self.animID;
 
 	self.stylesheet = `
+		.view3D {
+			text-anchor: middle;
+			font-family: sans-serif;
+			font-size: 16px;
+		}
 		.label{
 			position: absolute;
 			pointer-events: none;
@@ -452,7 +458,7 @@ var Mol3D = function( container, params ){
 			margin: 0px;
 		}
 	`
-	d3.select( "head" ).append( "style" ).html( self.stylesheet )
+	d3.select( "#molViewer3DCSS" ).empty() && d3.select( "head" ).append( "style" ).attr( "id", "molViewer3DCSS" ).html( self.stylesheet )
 
 	var material, mesh, hydrogens;
 	var	intersected;
@@ -1116,9 +1122,11 @@ var Mol3D = function( container, params ){
 		if( on ){
 			disableInteractions = false;
 			!self.controls.registered && self.controls.register();
+			d3.select( self.container ).style( "cursor", "all-scroll" );
 		} else{
 			disableInteractions = true;
 			self.controls.dispose();
+			d3.select( self.container ).style( "cursor", null );
 		}
 	}
 

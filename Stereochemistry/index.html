@@ -20,14 +20,14 @@
 				</div>
 				<div style="left: 1020px; top: -240px;">
 					<h1>Difficulty:</h1>
-					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 164px;">Back</button>
+					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 179px;">Back</button>
 					<button class="button" onclick="cip = new CIP( 1 )">Easy</button><br>
 					<button class="button" onclick="cip = new CIP( 2 )">Medium</button><br>
 					<button class="button" onclick="cip = new CIP( 3 )">Hard</button>
 				</div>
 				<div style="left: 2040px; top: -480px;">
 					<h1>Difficulty:</h1>
-					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 164px;">Back</button>
+					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 179px;">Back</button>
 					<button class="button" onclick="nm = new Newman( 1 )">Easy</button><br>
 					<button class="button" onclick="nm = new Newman( 2 )">Medium</button><br>
 					<button class="button" onclick="nm = new Newman( 3 )">Hard</button>
@@ -59,7 +59,7 @@
 					<button class="button" id="CIPSubmit" onclick="cip.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
-			<div class="menu" id="NMinputs" style="top: 431px;left: 280px;height: 350px;width: 480px;border: 6px double black;">
+			<div class="menu" id="NMinputs" style="top: 431px;left: 280px;height: 350px;width: 480px;border: 6px solid #3e546b;">
 				<div class="head">
 					<h1>Newman Projection</h1>
 				</div>
@@ -296,10 +296,12 @@ $$$$
 
 			//////Create labels for adjacent atoms//////
 			mol3d.scene.getObjectByName( +self.answer.CIPRoot ).userData.source.bondedTo.forEach( function( el, i ){
-				var label = d3.select( ".view3D" ).append( "p" )
-					.html( el.el.index )
-					.attr( "class", "label" )
-				self.labels.push( label );
+				if( self.diff !== 3 ){
+					var label = d3.select( ".view3D" ).append( "p" )
+						.html( el.el.index )
+						.attr( "class", "label" )
+					self.labels.push( label )
+				}
 
 				var grp = d3.select( "[id='" + el.el.index + "']")
 				if( grp.attr( "class" ).split( "_" )[1] === "H" ){
@@ -386,7 +388,8 @@ $$$$
 				} )
 				.on( "end", function(){
 				//////Hide 3D view on hardest difficulty//////
-					if( self.diff === 3 ){
+					if( self.diff === 3 && d3.select( ".Blocker3D" ).empty() ){
+						mol3d.mouse = new THREE.Vector2(1,1)
 						var svg = d3.select( mol3d.container ).append( "svg" ).attr( "class", "Blocker3D" ).attr( "style", "width: 100%; height: 100%; position: absolute; left: 0px; top: 0px;");
 						svg.append( "rect" ).attr( "x", 0 ).attr( "y", 0 ).attr( "width", "50%" ).attr( "height", "100%" ).attr( "transform", "translate( -240, 0 )");
 						svg.append( "rect" ).attr( "x", "50%" ).attr( "y", 0 ).attr( "width", "50%" ).attr( "height", "100%" ).attr( "transform", "translate( 240, 0 )");
@@ -660,6 +663,13 @@ $$$$
 			//////Highlight 3D atom//////
 			var rootAtom3D =  mol3d.scene.getObjectByName( +self.answer.NMRoot );
 			var tarAtom3D =  mol3d.scene.getObjectByName( +self.answer.NMTarget );
+			var tarBond3D = mol3d.scene.traverse( obj => {
+				if( obj.userData.type === "bond" ){
+					if( obj.userData.source.start === mol3d.molecule.atoms[+self.answer.NMRoot] && obj.userData.source.end === mol3d.molecule.atoms[+self.answer.NMTarget] ){
+						obj.material.color.set( new THREE.Color().setRGB( 1, 0.5, 0 ) );
+					}
+				}
+			})
 			rootAtom3D.geometry.scale( 1.5, 1.5, 1.5 );
 			rootAtom3D.material.color.set( new THREE.Color().setRGB( 1, 0.5, 0 ) );
 			tarAtom3D.geometry.scale( 1.5, 1.5, 1.5 );

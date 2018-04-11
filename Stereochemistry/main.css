@@ -56,6 +56,8 @@ div{
     font-size: 16px;
     width: 45%;
     margin: 5px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.3);
+    border-bottom: 5px solid #3e546b;
 }
 
 .switch {
@@ -78,6 +80,7 @@ div{
   background-color: #5b7da0;
   -webkit-transition: .4s;
   transition: .4s;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
 }
 
 .slider:before {
@@ -105,7 +108,7 @@ input:checked + .slider:before {
 	height: 240px;
 	width: 100%;
 	background: linear-gradient(-90deg, lightslategrey, #8ca1b5);
-	border-top: 6px double black;
+    border-top: 6px solid #3e546b;
 }
 
 #root > div{
@@ -136,6 +139,7 @@ h1{
     text-anchor: middle;
     font-size: 38px;
     font-family: "Verdana";
+    cursor: -webkit-grab;
 }
 
 .dd > rect {
