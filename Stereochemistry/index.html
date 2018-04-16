@@ -15,22 +15,22 @@
 			<div class="menu" id="root" style="top: 431px;">
 				<div style="left: 0px; top: 0px;">
 					<h1>Revision Type:</h1>
-					<button class="button" onclick="MenuView( 'CIP' )">Cahn - Ingold - Prelog</button>
-					<button class="button" onclick="MenuView( 'Newman' )" style="float:right;">Newman Projections</button>
+					<button class="button" onclick="MenuView( 'CIP' )" style="height: 53px;">Cahn - Ingold - Prelog</button>
+					<button class="button" onclick="MenuView( 'Newman' )" style="height: 53px;float:right;">Newman Projections</button>
 				</div>
 				<div style="left: 1020px; top: -240px;">
 					<h1>Difficulty:</h1>
 					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 179px;">Back</button>
-					<button class="button" onclick="cip = new CIP( 1 )">Easy</button><br>
-					<button class="button" onclick="cip = new CIP( 2 )">Medium</button><br>
-					<button class="button" onclick="cip = new CIP( 3 )">Hard</button>
+					<button class="button" onclick="cip = new CIP( 1 )" style="height: 53px;">Easy</button><br>
+					<button class="button" onclick="cip = new CIP( 2 )" style="height: 53px;">Medium</button><br>
+					<button class="button" onclick="cip = new CIP( 3 )" style="height: 53px;">Hard</button>
 				</div>
 				<div style="left: 2040px; top: -480px;">
 					<h1>Difficulty:</h1>
 					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 179px;">Back</button>
-					<button class="button" onclick="nm = new Newman( 1 )">Easy</button><br>
-					<button class="button" onclick="nm = new Newman( 2 )">Medium</button><br>
-					<button class="button" onclick="nm = new Newman( 3 )">Hard</button>
+					<button class="button" onclick="nm = new Newman( 1 )" style="height: 53px;">Easy</button><br>
+					<button class="button" onclick="nm = new Newman( 2 )" style="height: 53px;">Medium</button><br>
+					<button class="button" onclick="nm = new Newman( 3 )" style="height: 53px;">Hard</button>
 				</div>
 			</div>
 			<div class="menu" id="CIPinputs" style="top: 431px;">
@@ -56,7 +56,8 @@
 				</div>
 				<div class="buttons">
 					<button class="button" onclick="cip.closeGame()" style="width:100px;float: right;">Back</button>
-					<button class="button" id="CIPSubmit" onclick="cip.submit()" style="width:100px;float: right;">Submit</button>
+					<button class="button" onclick="cip.init()" style="width:100px;float: right;">Skip</button>
+					<button class="button" onclick="cip.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
 			<div class="menu" id="NMinputs" style="top: 431px;left: 280px;height: 350px;width: 480px;border: 6px solid #3e546b;">
@@ -68,7 +69,8 @@
 				<div class="buttons">
 					<label style="position: absolute; top: 40px;"><input type="checkbox" onchange="nm.orient( this.checked )"/>Staggered/Eclipse</label>
 					<button class="button" onclick="nm.closeGame()" style="width:100px;float: right;">Back</button>
-					<button class="button" id="NMSubmit" onclick="nm.submit()" style="width:100px;float: right;">Submit</button>
+					<button class="button" onclick="nm.init()" style="width:100px;float: right;">Skip</button>
+					<button class="button" onclick="nm.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
 		</div>
@@ -88,7 +90,7 @@
 	<script>
 
 	function padset(){
-		d3.select( ".view2D" ).style( "left", ( d3.select( ".page" ).node().getBoundingClientRect().x + d3.select( ".page" ).node().getBoundingClientRect().width - d3.select( ".view2D" ).style( "width" ).slice( 0, 3 ) ) + "px" )
+		d3.select( ".view2D" ).style( "left", ( d3.select( ".page" ).node().getBoundingClientRect().left + d3.select( ".page" ).node().getBoundingClientRect().width - d3.select( ".view2D" ).style( "width" ).slice( 0, 3 ) ) + "px" )
 	}
 	window.addEventListener( "resize", padset );
 	padset();
@@ -205,7 +207,7 @@ $$$$
 			d3.select( "#rootframe" ).html( "" );
 			d3.selectAll( "#CIPtoggles > label > span" ).style( "fill", null ).style( "background-color", null );
 			d3.selectAll( "#CIPtoggles > label > input" ).each( function(){ this.checked = false; } );
-			d3.select( "#CIPSubmit" ).attr( "onclick", "cip.submit()" ).html( "Submit" ).style( "background-color", null );
+			d3.select( "#CIPinputs > .buttons > :nth-child(2)" ).html( "Skip" ).style( "background-color", null );
 			d3.select( ".resultRight" ).remove()
 
 			d3.select( "#CIPrank" ).html(
@@ -232,12 +234,14 @@ $$$$
 					<rect id="dd2_TAR" x="185" y="5" width="100" height="50" mask="url('#second')"></rect>
 					<rect id="dd3_TAR" x="310" y="5" width="100" height="50" mask="url('#third')"></rect>
 					<rect id="dd4_TAR" x="435" y="5" width="100" height="50" mask="url('#fourth')"></rect>
-					<text id="dd1" x="110" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
-					<text id="dd2" x="235" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
-					<text id="dd3" x="360" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
-					<text id="dd4" x="485" y="100" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd1" x="110" y="100"></text>
+					<text id="dd2" x="235" y="100"></text>
+					<text id="dd4" x="485" y="100"></text>
+					<text id="dd3" x="360" y="100"></text>
 				</svg>`
 			);
+
+			d3.selectAll( "#CIPdragdrop > text" ).on( "mousedown touchstart", function(){dragLabel( this )} );
 		}
 
 		self.init = function(){
@@ -461,7 +465,7 @@ $$$$
 			})
 
 			if( correct ){
-				d3.select( "#CIPSubmit" ).transition()
+				d3.select( "#CIPinputs > .buttons > :nth-child(2)" ).transition()
 					.delay( 300 )
 					.duration( 300 )
 					.style( "transform", "scale( 1.5 )" )
@@ -472,7 +476,7 @@ $$$$
 					} )
 					.transition()
 						.style( "transform", "scale( 1 )")
-				d3.select( "#CIPinputs > .buttons" ).append( "p" ).attr( "class", "resultRight" ).html( "That's right!" )
+				d3.select( "#CIPinputs > .buttons > p" ).empty() && d3.select( "#CIPinputs > .buttons" ).append( "p" ).attr( "class", "resultRight" ).html( "That's right!" )
 			}
 
 		}
@@ -535,15 +539,17 @@ $$$$
 					<rect id="dd4_TAR" x="286" y="55" width="80" height="40"></rect>
 					<rect id="dd5_TAR" x="200" y="205" width="80" height="40"></rect>
 					<rect id="dd6_TAR" x="113" y="55" width="80" height="40"></rect>
-					<text id="dd1" x="50" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
-					<text id="dd2" x="50" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
-					<text id="dd3" x="50" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
-					<text id="dd4" x="430" y="75" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
-					<text id="dd5" x="430" y="150" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
-					<text id="dd6" x="430" y="225" onmousedown="dragLabel( this, event )" ontouchstart="dragLabel( this, event )"></text>
+					<text id="dd1" x="50" y="75"></text>
+					<text id="dd2" x="50" y="150"></text>
+					<text id="dd3" x="50" y="225"></text>
+					<text id="dd4" x="430" y="75"></text>
+					<text id="dd5" x="430" y="150"></text>
+					<text id="dd6" x="430" y="225"></text>
 				</svg>`
 			)
-			d3.select( "#NMSubmit" ).attr( "onclick", "nm.submit()" ).html( "Submit" ).style( "background-color", null );
+
+			d3.selectAll( "#NMdragdrop > text" ).on( "mousedown touchstart", function(){dragLabel( this )} );
+			d3.select( "#NMinputs > .buttons > :nth-child(3)" ).html( "Skip" ).style( "background-color", null );
 			d3.select( ".resultRight" ).remove()
 		}
 
@@ -781,7 +787,7 @@ $$$$
 			elFlash( d3.selectAll( "#NMdragdrop > rect" ), correct )
 
 			if( correct ){
-				d3.select( "#NMSubmit" ).transition()
+				d3.select( "#NMinputs > .buttons > :nth-child(3)" ).transition()
 					.delay( 300 )
 					.duration( 300 )
 					.style( "transform", "scale( 1.5 )" )
@@ -792,7 +798,7 @@ $$$$
 					} )
 					.transition()
 						.style( "transform", "scale( 1 )")
-				d3.select( "#NMinputs > .buttons" ).append( "p" ).attr( "class", "resultRight" ).html( "That's right!" )
+				d3.select( "#NMinputs > .buttons > p" ).empty() && d3.select( "#NMinputs > .buttons" ).append( "p" ).attr( "class", "resultRight" ).html( "That's right!" )
 			}
 
 		}
@@ -850,7 +856,8 @@ $$$$
 		self.init()
 	}
 
-	function dragLabel( el, evt ){
+	function dragLabel( el ){
+		evt = d3.event;
 		evt.stopPropagation();
 
 		var start = [ el.getAttribute( "x" ), el.getAttribute( "y" ) ];

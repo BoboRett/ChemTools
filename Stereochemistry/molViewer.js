@@ -420,7 +420,7 @@ var Mol2D = function( container, dims, params ){
 
 	self.onWindowResize = function(){
 		if( self.svg ){
-			self.svg.node().viewBox.baseVal.height = self.svg.node().viewBox.baseVal.width / ( self.container.style( "width" ).slice( 0, 3 ) / self.container.style( "height" ).slice( 0, 3 ) );
+			self.svg.node().viewBox.baseVal.height = self.svg.node().viewBox.baseVal.width / ( self.container.style( "width" ).slice( 0, -2 ) / self.container.style( "height" ).slice( 0, -2 ) );
 		} else{
 			console.warn( "No SVG Element to resize. Call .draw() first!" );
 		}
@@ -447,15 +447,6 @@ var Mol3D = function( container, params ){
 			text-anchor: middle;
 			font-family: sans-serif;
 			font-size: 16px;
-		}
-		.label{
-			position: absolute;
-			pointer-events: none;
-			font-size: 24px;
-			font-weight: bolder;
-			font-family: sans-serif;
-			background-color: #ffffff75;
-			margin: 0px;
 		}
 	`
 	d3.select( "#molViewer3DCSS" ).empty() && d3.select( "head" ).append( "style" ).attr( "id", "molViewer3DCSS" ).html( self.stylesheet )
@@ -1030,10 +1021,10 @@ var Mol3D = function( container, params ){
 	//////Handle Drag Event//////
 	self.onMouseMove = function( evt ){
 
-		event.preventDefault();
+		evt.preventDefault();
 		elBox = self.renderer.domElement.getBoundingClientRect()
-		self.mouse.x = (event.clientX-elBox.x) / elBox.width * 2 - 1;
-		self.mouse.y = 1 - ((event.clientY-elBox.y) / elBox.height * 2);
+		self.mouse.x = (evt.clientX-elBox.left) / elBox.width * 2 - 1;
+		self.mouse.y = 1 - ((evt.clientY-elBox.top) / elBox.height * 2);
 
 	}
 
