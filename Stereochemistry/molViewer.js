@@ -406,7 +406,7 @@ var Mol2D = function( container, dims, params ){
 
 	self.showH = function( showH ){
 
-		d3.selectAll( ".hydrogens" ).each( function(){
+		d3.selectAll( ".hydrogens, .hydrogens > *" ).each( function(){
 
 			d3.select(this).attr("display",	showH ? "all" : "none" );
 

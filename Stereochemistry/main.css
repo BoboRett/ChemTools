@@ -120,6 +120,13 @@ div{
 
 .switch input {display:none;}
 
+#molName {
+	position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 24px;
+}
+
 .slider {
   position: absolute;
   cursor: pointer;

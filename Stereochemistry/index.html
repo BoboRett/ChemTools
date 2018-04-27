@@ -209,6 +209,7 @@ $$$$
 			d3.selectAll( "#CIPtoggles > label > input" ).each( function(){ this.checked = false; } );
 			d3.select( "#CIPinputs > .buttons > :nth-child(2)" ).html( "Skip" ).style( "background-color", null );
 			d3.select( ".resultRight" ).remove()
+			d3.select( "#molName" ).remove()
 
 			d3.select( "#CIPrank" ).html(
 				`<svg class="dd" id="CIPdragdrop" viewBox="0,0,600,120">
@@ -297,6 +298,9 @@ $$$$
 					}
 				}
 			})
+
+			//////Add molecule name//////
+			d3.select( mol3d.container ).append( "p" ).attr( "id", "molName" ).text( self.answer.Name )
 
 			//////Create labels for adjacent atoms//////
 			mol3d.scene.getObjectByName( +self.answer.CIPRoot ).userData.source.bondedTo.forEach( function( el, i ){
@@ -522,6 +526,7 @@ $$$$
 			d3.select( "#NMinputs > .buttons > label > input" ).node().checked = false;
 			d3.select( "#rootframe" ).html( "" );
 			d3.select( "#NMResult" ).remove();
+			d3.select( "#molName" ).remove();
 
 			d3.select( "#NMinputs > .inputs").html(`
 				<svg class="dd" id="NMdragdrop" viewBox="0,0,480,255">
@@ -604,6 +609,9 @@ $$$$
 					}
 				}
 			})
+
+			//////Add molecule name//////
+			d3.select( mol3d.container ).append( "p" ).attr( "id", "molName" ).text( self.answer.Name )
 
 			//////Create labels for adjacent atoms//////
 			function addLabels( el, i ){
@@ -689,9 +697,9 @@ $$$$
 
 			//////Draw eye on 2D view//////
 			var eye = d3.select( mol2d.svg.node().childNodes[0] ).append( "g" ).attr( "class", "eye" ).html(`
-				<line x1=0 x2=10 y1=0 y2=10></line>
-				<line x1=0 x2=10 y1=0 y2=-10></line>
-				<path d="M 6 -6 Q 10 0 6 6"></path>
+				<line x1=-30 x2=-20 y1=0 y2=10></line>
+				<line x1=-30 x2=-20 y1=0 y2=-10></line>
+				<path d="M -24 -6 Q -20 0 -24 6"></path>
 				`)
 
 			var rootLoc =  mol2d.molecule.atoms[ +self.answer.NMRoot ].pos;
@@ -701,7 +709,7 @@ $$$$
 
 
 			eye.attr("transform", "translate(" + ( rootLoc[0] - bondVec[0] ) + "," + ( rootLoc[1] - bondVec[1] ) + ")rotate(" + ( Math.atan2( bondVec[1], bondVec[0] ) * 180/Math.PI ) + ")" )
-			eye.append( "line" ).attr( "x1", 8 ).attr( "x2", Math.hypot( ...bondVec ) ).attr( "y1", 0 ).attr( "y2", 0 ).style( "stroke-dasharray", "5px");
+			eye.append( "line" ).attr( "x1", -22 ).attr( "x2", Math.hypot( ...bondVec ) - 0 ).attr( "y1", 0 ).attr( "y2", 0 ).style( "stroke-dasharray", "5px").attr( "opacity", 0.3);
 
 			//////Focus camera on root atom//////
 			var controlsStart = mol3d.controls.target;
