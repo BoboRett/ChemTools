@@ -95,6 +95,18 @@ div{
     position:absolute;
 }
 
+.help {
+	position:absolute;
+	right: 0px;
+	text-align: right;
+	-webkit-transition: .4s;
+    transition: .4s;
+	background-color: #5b7da0;
+	color: white;
+	width: 50px;
+	height: 50px;
+}
+
 .button {
     background-color: #5b7da0;
     border: none;
@@ -168,12 +180,12 @@ input:checked + .slider:before {
     border-top: 6px solid #3e546b;
 }
 
-#root > div{
+#root > div {
     position: relative;
     height: 240px;
 }
 
-h1{
+h1 {
 	margin: 3px;
 	text-align: center;
 	font-family: "Bookman Old Style";
@@ -181,7 +193,7 @@ h1{
 	font-weight: bold;
 }
 
-.switch > h2{
+.switch > h2 {
     font-family: "Bookman Old Style";
     margin: 0px;
     font-size: 18px;
@@ -220,6 +232,14 @@ div#controls {
     margin-top: 16px;
 }
 
+div#NewmanModel {
+    position: absolute;
+    top: 83px;
+    left: 330px;
+    width: 480px;
+    height: 321px;
+}
+
 .Blocker3D > rect {
     fill: grey;
 }
@@ -245,7 +265,7 @@ div#controls {
     margin: 1em 0 1em 0;
 }
 
-.label{
+.label {
     position: absolute;
     pointer-events: none;
     font-size: 24px;

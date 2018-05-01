@@ -10,8 +10,10 @@
 
 	<div class="page">
 		<div id="gameFrame">
+			<div class="help" style="display:none"><p>?</p></div>
 			<div class="view3D" style="width:1020px; height:431px;"></div>
 			<div class="view2D" style="height:0px; "></div>
+
 			<div class="menu" id="root" style="top: 431px;">
 				<div style="left: 0px; top: 0px;">
 					<h1>Revision Type:</h1>
@@ -28,9 +30,8 @@
 				<div style="left: 2040px; top: -480px;">
 					<h1>Difficulty:</h1>
 					<button class="button" onclick="MenuView( 'root' )" style="width:100px;float: left;height: 179px;">Back</button>
-					<button class="button" onclick="nm = new Newman( 1 )" style="height: 53px;">Easy</button><br>
-					<button class="button" onclick="nm = new Newman( 2 )" style="height: 53px;">Medium</button><br>
-					<button class="button" onclick="nm = new Newman( 3 )" style="height: 53px;">Hard</button>
+					<button class="button" onclick="nm = new Newman( 1 )" style="height: 53px;">3D/2D to Newman</button><br>
+					<button class="button" onclick="nm = new Newman( 2 )" style="height: 53px;">Newman to 2D</button><br>
 				</div>
 			</div>
 			<div class="menu" id="CIPinputs" style="top: 431px;">
@@ -60,11 +61,11 @@
 					<button class="button" onclick="cip.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
 			</div>
-			<div class="menu" id="NMinputs" style="top: 431px;left: 280px;height: 350px;width: 480px;border: 6px solid #3e546b;">
+			<div class="menu" id="NMinputs" style="top: 431px;left: 235px;height: 350px;width: 550px;border: 6px solid #3e546b;">
 				<div class="head">
 					<h1>Newman Projection</h1>
 				</div>
-				<div class="inputs" style="width: 480px; height: 255px;">
+				<div class="inputs" style="width: 550px; height: 255px;">
 				</div>
 				<div class="buttons">
 					<label style="position: absolute; top: 40px;"><input type="checkbox" onchange="nm.orient( this.checked )"/>Staggered/Eclipse</label>
@@ -91,6 +92,7 @@
 
 	function padset(){
 		d3.select( ".view2D" ).style( "left", ( d3.select( ".page" ).node().getBoundingClientRect().left + d3.select( ".page" ).node().getBoundingClientRect().width - d3.select( ".view2D" ).style( "width" ).slice( 0, 3 ) ) + "px" )
+		d3.select( "#NewmanModel" ).style( "left", ( d3.select( ".page" ).node().getBoundingClientRect().left + d3.select( ".page" ).node().getBoundingClientRect().width/2 - 235 + "px" ) );
 	}
 	window.addEventListener( "resize", padset );
 	padset();
@@ -248,6 +250,20 @@ $$$$
 		self.init = function(){
 
 			self.reset();
+			d3.select( ".help" )
+				.style( "display", null )
+				.on( "mouseover", function(){
+					d3.select( this )
+						.html( "Your job is to rank the atoms surrounding the target atom (highlighted in orange). From there, you can find the handedness of the molecule.")
+						.style( "width", "200px")
+						.style( "height", "200px")
+						.on( "mouseout", function(){
+							d3.select( this )
+								.html( "?" )
+								.style( "width", "50px")
+								.style( "height", "50px")
+						});
+				});
 
 			//////Frame positioning//////
 			d3.transition()
@@ -509,9 +525,9 @@ $$$$
 
 	}
 
-	Newman = function( diff ){
+	Newman = function( mode ){
 		var self = this;
-		self.diff = diff;
+		self.mode = mode;
 		self.labels = [];
 		mol3d.interactions( true );
 		mol3d.autoRotate( false );
@@ -521,37 +537,107 @@ $$$$
 		self.reset = function(){
 			//////Reset game to original state//////
 			mol2d.svg && mol2d.svg.remove();
+			d3.select( "#NewmanModel" ).remove();
 
 			while( self.labels.length > 0 ){ self.labels.pop( 0 ).remove() }
 			d3.select( "#NMinputs > .buttons > label > input" ).node().checked = false;
 			d3.select( "#rootframe" ).html( "" );
 			d3.select( "#NMResult" ).remove();
-			d3.select( "#molName" ).remove();
 
-			d3.select( "#NMinputs > .inputs").html(`
-				<svg class="dd" id="NMdragdrop" viewBox="0,0,480,255">
-					<circle cx="240" cy="125" r="50" style="stroke:black; fill:none;" back=false></circle>
-					<line x1="240" y1="125" x2="240" y2="25"></line>
-					<line x1="240" y1="125" x2="327" y2="175"></line>
-					<line x1="240" y1="125" x2="153" y2="175"></line>
-					<line x1="283" y1="100" x2="327" y2="75" back='false'></line>
-					<line x1="240" y1="175" x2="240" y2="225" back='false'></line>
-					<line x1="197" y1="100" x2="153" y2="75" back='false'></line>
+			if( self.mode === 1 ){
+				d3.select( "#NMinputs > .inputs").html(`
+					<svg class="dd" id="NMdragdrop" viewBox="0,0,550,255">
+						<circle cx="275" cy="125" r="50" style="stroke:black; fill:none;" back=false></circle>
+						<line x1="275" y1="125" x2="275" y2="25"></line>
+						<line x1="275" y1="125" x2="362" y2="175"></line>
+						<line x1="275" y1="125" x2="188" y2="175"></line>
+						<line x1="318" y1="100" x2="362" y2="75" back='false'></line>
+						<line x1="275" y1="175" x2="275" y2="225" back='false'></line>
+						<line x1="232" y1="100" x2="188" y2="75" back='false'></line>
 
-					<rect id="dd1_TAR" x="200" y="5" width="80" height="40"></rect>
-					<rect id="dd2_TAR" x="287" y="155" width="80" height="40"></rect>
-					<rect id="dd3_TAR" x="113" y="155" width="80" height="40"></rect>
-					<rect id="dd4_TAR" x="286" y="55" width="80" height="40"></rect>
-					<rect id="dd5_TAR" x="200" y="205" width="80" height="40"></rect>
-					<rect id="dd6_TAR" x="113" y="55" width="80" height="40"></rect>
-					<text id="dd1" x="50" y="75"></text>
-					<text id="dd2" x="50" y="150"></text>
-					<text id="dd3" x="50" y="225"></text>
-					<text id="dd4" x="430" y="75"></text>
-					<text id="dd5" x="430" y="150"></text>
-					<text id="dd6" x="430" y="225"></text>
-				</svg>`
-			)
+						<rect id="dd1_TAR" x="235" y="5" width="80" height="40"></rect>
+						<rect id="dd2_TAR" x="322" y="155" width="80" height="40"></rect>
+						<rect id="dd3_TAR" x="148" y="155" width="80" height="40"></rect>
+						<rect id="dd4_TAR" x="321" y="55" width="80" height="40"></rect>
+						<rect id="dd5_TAR" x="235" y="205" width="80" height="40"></rect>
+						<rect id="dd6_TAR" x="148" y="55" width="80" height="40"></rect>
+						<text id="dd1" x="85" y="75"></text>
+						<text id="dd2" x="85" y="150"></text>
+						<text id="dd3" x="85" y="225"></text>
+						<text id="dd4" x="465" y="75"></text>
+						<text id="dd5" x="465" y="150"></text>
+						<text id="dd6" x="465" y="225"></text>
+					</svg>`
+				)
+			} else{
+				d3.select( "#NMinputs > .inputs").html(`
+					<svg class="dd" id="NMdragdrop" viewBox="0 0 550 255">
+						<g id="rootframe" transform="translate(-15,-30)scale(2)rotate(30)">
+							<g class="bond_wedge" display="null"><rect x="-8" y="-7.5" rx="7.5" ry="7.5" width="40.798761581982276" height="15" transform="translate(183.92399999999998,-10)rotate(-30.001651972785513)" class="highlight" id="highlight_1_0"></rect>
+								<polygon id="" points="183.92399999999998,-10 199.97,-15.80 196.97,-21.00"></polygon>
+							</g>
+							<g class="bond_wedge" display="null">
+								<rect x="-8" y="-7.5" rx="7.5" ry="7.5" width="40.798761581982276" height="15" transform="translate(149.284,10)rotate(30.001651972785513)" class="highlight" id="highlight_4_5"></rect>
+								<polygon id="" points="149.284,10 162.33,21.00 165.33,15.80"></polygon>
+							</g>
+							<g class="bond">
+								<line id="" x1="183.92399999999998" x2="218.56400000000002" y1="-10" y2="10"></line>
+							</g>
+							<g class="bond_hash">
+								<line class="bond" x1="183.92" x2="183.92" y1="-10.00" y2="-10.00"></line>
+								<line class="bond" x1="184.21" x2="183.64" y1="-13.00" y2="-13.00"></line>
+								<line class="bond" x1="184.49" x2="183.36" y1="-16.00" y2="-16.00"></line>
+								<line class="bond" x1="184.77" x2="183.08" y1="-19.00" y2="-19.00"></line>
+								<line class="bond" x1="185.05" x2="182.80" y1="-22.00" y2="-22.00"></line>
+								<line class="bond" x1="185.33" x2="182.52" y1="-25.00" y2="-25.00"></line>
+								<line class="bond" x1="185.61" x2="182.24" y1="-28.00" y2="-28.00"></line>
+								<line class="bond" x1="185.89" x2="181.96" y1="-31.00" y2="-31.00"></line>
+								<line class="bond" x1="186.17" x2="181.67" y1="-34.00" y2="-34.00"></line>
+								<line class="bond" x1="186.46" x2="181.39" y1="-37.00" y2="-37.00"></line>
+								<line class="bond" x1="186.74" x2="181.11" y1="-40.00" y2="-40.00"></line>
+							</g>
+							<g class="bond">
+								<line id="" x1="183.92399999999998" x2="149.284" y1="-10" y2="10"></line>
+							</g>
+							<g class="bond_hash">
+								<line class="bond" x1="149.28" x2="149.28" y1="10.00" y2="10.00"></line>
+								<line class="bond" x1="149.00" x2="149.57" y1="13.00" y2="13.00"></line>
+								<line class="bond" x1="148.72" x2="149.85" y1="16.00" y2="16.00"></line>
+								<line class="bond" x1="148.44" x2="150.13" y1="19.00" y2="19.00"></line>
+								<line class="bond" x1="148.16" x2="150.41" y1="22.00" y2="22.00"></line>
+								<line class="bond" x1="147.88" x2="150.69" y1="25.00" y2="25.00"></line>
+								<line class="bond" x1="147.60" x2="150.97" y1="28.00" y2="28.00"></line>
+								<line class="bond" x1="147.32" x2="151.25" y1="31.00" y2="31.00"></line>
+								<line class="bond" x1="147.03" x2="151.53" y1="34.00" y2="34.00"></line>
+								<line class="bond" x1="146.75" x2="151.82" y1="37.00" y2="37.00"></line>
+								<line class="bond" x1="146.47" x2="152.10" y1="40.00" y2="40.00"></line>
+							</g>
+							<g class="bond">
+								<line id="" x1="149.284" x2="114.64" y1="10" y2="-10"></line>
+							</g>
+						</g>
+						<g class="eye" transform="translate(170,137)scale(2)">
+							<line x1="-30" x2="-20" y1="0" y2="10"></line>
+							<line x1="-30" x2="-20" y1="0" y2="-10"></line>
+							<path d="M -24 -6 Q -20 0 -24 6"></path>
+							<line x1="-22" x2="30" y1="0" y2="0" opacity="0.3" style="stroke-dasharray: 5px;"></line>
+						</g>
+						<rect id="dd1_TAR" x="105" y="40" width="80" height="40"></rect>
+						<rect id="dd2_TAR" x="235" y="180" width="80" height="40"></rect>
+						<rect id="dd3_TAR" x="135" y="200" width="80" height="40"></rect>
+						<rect id="dd4_TAR" x="355" y="116" width="80" height="40"></rect>
+						<rect id="dd5_TAR" x="355" y="190" width="80" height="40"></rect>
+						<rect id="dd6_TAR" x="345" y="40" width="80" height="40"></rect>
+						<text id="dd1" x="70" y="75"></text>
+						<text id="dd2" x="70" y="150"></text>
+						<text id="dd3" x="70" y="225"></text>
+						<text id="dd4" x="480" y="75"></text>
+						<text id="dd5" x="480" y="150"></text>
+						<text id="dd6" x="480" y="225"></text>
+					</svg>
+					`
+				)
+			}
 
 			d3.selectAll( "#NMdragdrop > text" ).on( "mousedown touchstart", function(){dragLabel( this )} );
 			d3.select( "#NMinputs > .buttons > :nth-child(3)" ).html( "Skip" ).style( "background-color", null );
@@ -573,7 +659,12 @@ $$$$
 						.style( "height", "321px" )
 					padset();
 					mol3d.onWindowResize();
-					self.runGame( self.diff );
+					if( self.mode === 1 ){
+						self.runGame1()
+					} else{
+						self.runGame2()
+					}
+
 				} )
 
 			d3.select( "#gameFrame > #root" )
@@ -588,8 +679,8 @@ $$$$
 				.style( "top", "-171px")
 		}
 
-		self.runGame = function(){
-			var filtered = self.diff === 3 ? d : d.filter( el => +el.NMLvl === ( self.diff === 1 ? 1 : 2 ) )
+		self.runGame1 = function(){
+			var filtered = self.mode === 3 ? d : d.filter( el => +el.NMLvl === 1 )
 			self.answer = filtered[Math.floor( Math.random() * filtered.length )];
 
 			mol2d.parse( self.answer.Data2D );
@@ -609,9 +700,6 @@ $$$$
 					}
 				}
 			})
-
-			//////Add molecule name//////
-			d3.select( mol3d.container ).append( "p" ).attr( "id", "molName" ).text( self.answer.Name )
 
 			//////Create labels for adjacent atoms//////
 			function addLabels( el, i ){
@@ -651,7 +739,7 @@ $$$$
 			};
 
 			//////Give 2 answers on lowest difficulty//////
-			if( self.diff === 1 ){
+			if( self.mode === 1 ){
 				d3.selectAll( "#NMdragdrop > text" ).each( function(){
 					if( this.innerHTML.split( "-" )[1] === self.answer.NMOrder[0] ){
 						var tarNode = d3.select( "#NMdragdrop > #dd1_TAR" ).node()
@@ -719,21 +807,56 @@ $$$$
 					mol3d.molGroup.traverse( obj => obj.scale.set( t, t, t ) )
 					mol3d.controls.target.copy( new THREE.Vector3( ).copy( controlsStart ).lerp( new THREE.Vector3().copy( rootAtom3D.getWorldPosition() ), t ) );
 				} )
-				.on( "end", function(){
-				//////Hide 3D view on hardest difficulty//////
-					if( self.diff === 3 ){
-						var svg = d3.select( mol3d.container ).append( "svg" ).attr( "class", "Blocker3D" ).attr( "style", "width: 100%; height: 100%; position: absolute; left: 0px; top: 0px;");
-						svg.append( "rect" ).attr( "x", 0 ).attr( "y", 0 ).attr( "width", "50%" ).attr( "height", "100%" ).attr( "transform", "translate( -240, 0 )");
-						svg.append( "rect" ).attr( "x", "50%" ).attr( "y", 0 ).attr( "width", "50%" ).attr( "height", "100%" ).attr( "transform", "translate( 240, 0 )");
 
-						d3.selectAll( ".Blocker3D > rect" ).transition()
-							.duration( 1000 )
-							.ease( d3.easeBounceOut )
-							.attr( "transform", "translate( 0, 0 )")
-							.on( "end", () => svg.append( "text" ).attr( "x", 240 ).attr( "y", 215 ).attr( "text-anchor", "middle" ).text( "No 3D on this difficulty!" ) )
-					}
-				} )
 
+		}
+
+		self.runGame2 = function(){
+
+			function shuffle(array) {
+			  var currentIndex = array.length, temporaryValue, randomIndex;
+			  while (0 !== currentIndex) {
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex -= 1;
+				temporaryValue = array[currentIndex];
+				array[currentIndex] = array[randomIndex];
+				array[randomIndex] = temporaryValue;
+			  }
+			  return array;
+			}
+
+			groups = ["Me","Et","NH2","OH","H","Cl"];
+			self.answer = { NMOrder:shuffle( [0,1,2,3,4,5] ).join( "," ) }
+
+			d3.select( "#gameFrame" ).append( "div" ).attr( "id", "NewmanModel" ).html(`
+				<svg viewBox="0,0,480,321">
+					<g class="dd" transform="translate(0,40)scale(1)">
+						<circle cx="240" cy="125" r="50" style="stroke:black; fill:none;" back=false></circle>
+						<line x1="240" y1="125" x2="240" y2="25"></line>
+						<line x1="240" y1="125" x2="327" y2="175"></line>
+						<line x1="240" y1="125" x2="153" y2="175"></line>
+						<line x1="283" y1="100" x2="327" y2="75" back='false'></line>
+						<line x1="240" y1="175" x2="240" y2="225" back='false'></line>
+						<line x1="197" y1="100" x2="153" y2="75" back='false'></line>
+
+						<text id="model1" x="240" y="5" style="cursor: unset"></text>
+						<text id="model2" x="367" y="85" style="cursor: unset"></text>
+						<text id="model3" x="367" y="195" style="cursor: unset"></text>
+						<text id="model4" x="240" y="265" style="cursor: unset"></text>
+						<text id="model5" x="113" y="195" style="cursor: unset"></text>
+						<text id="model6" x="100" y="85" style="cursor: unset"></text
+					</g>
+				</svg>`
+			)
+			padset();
+
+			self.answer.NMOrder.split( "," ).forEach(function( atom, i ){
+				d3.select( "#dd" + ( i + 1 ) ).text( groups[atom] )
+			})
+			groups = shuffle( groups );
+			self.answer.NMOrder.split( "," ).forEach(function( atom, i ){
+				d3.select( "#model" + ( i + 1 ) ).text( groups[atom] )
+			})
 
 		}
 
@@ -782,15 +905,17 @@ $$$$
 			var ranks = ["a","a","a","a","a","a"];
 
 			d3.selectAll( "#NMdragdrop > text" ).each( function( rank, i ){
-				ranks[rank-1] = d3.select( this ).html().split("-")[1]
+				console.log( rank )
+				ranks[rank-1] = ( self.mode === 1 ? this.innerHTML.split("-")[1] : groups.indexOf( this.innerHTML ).toString() )
 			} )
-
+			console.log(ranks);
 			var ranksFront = ranks.slice( 0, 3 );
 			var ranksBack = ranks.slice( 3, 6 );
-			var answerFront = self.answer.NMOrder.split(",").filter( (el, i ) => [0,2,4].indexOf( i ) !== -1 ).join("");
-			var answerBack = self.answer.NMOrder.split(",").filter( (el, i ) => [1,3,5].indexOf( i ) !== -1 ).join("");
+			var answerFront = self.answer.NMOrder.split(",").filter( ( el, i ) => [0,2,4].indexOf( i ) !== -1 ).join("");
+			var answerBack = self.answer.NMOrder.split(",").filter( ( el, i ) => [1,3,5].indexOf( i ) !== -1 ).join("");
 
 			var correct = answerFront.repeat( 2 ).indexOf( ranksFront.join("") ) !== -1 && answerBack.repeat( 2 ).indexOf( ranksBack.join("") ) !== -1 && self.answer.NMOrder.replace( /\,/g, "" ).repeat( 2 ).indexOf( ranksFront[0] + ranksBack[0] ) !== -1
+			console.log(ranksFront, ranksBack, answerFront, answerBack);
 
 			elFlash( d3.selectAll( "#NMdragdrop > rect" ), correct )
 
