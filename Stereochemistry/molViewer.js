@@ -265,18 +265,18 @@ var Mol2D = function( container, dims, params ){
 			const length = Math.hypot( bond.end.pos[0] - bond.start.pos[0], bond.end.pos[1] - bond.start.pos[1] );
 
 			const highlight = tmp.append( "rect" )
-				.attr( "x", -labelOffset ).attr( "y", -7.5 )
+				.attr( "x", -8 ).attr( "y", -7.5 )
 				.attr( "rx", 7.5 ).attr( "ry", 7.5 )
-				.attr( "width", length + 2*labelOffset ).attr( "height", 15)
+				.attr( "width", length + 2*8 ).attr( "height", 15)
 				.attr("transform", "translate(" + bond.start.pos[0] + "," + bond.start.pos[1] + ")rotate(" + theta*180/Math.PI + ")" )
 				.attr( "class", "highlight" )
 				.attr( "id", "highlight_" + bond.start.index + "_" + bond.end.index );
 
 			var bondline = LineGen( tmp, "bondline", "",
-				bond.start.pos[0] + ( bond.start.element !== "C" || bond.start.charge ? labelOffset * Math.cos( theta ) : 0 ),
-				bond.end.pos[0] - ( bond.end.element !== "C" || bond.end.charge ? labelOffset * Math.cos( theta ) : 0 ),
-				bond.start.pos[1] + ( bond.start.element !== "C" || bond.start.charge ? labelOffset * Math.sin( theta ) : 0 ),
-				bond.end.pos[1] - ( bond.end.element !== "C" || bond.end.charge ? labelOffset * Math.sin( theta ) : 0 ),
+				bond.start.pos[0] + ( bond.start.element !== "C" || bond.start.charge ? bond.start.element.length * 8 * Math.cos( theta ) : 0 ),
+				bond.end.pos[0] - ( bond.end.element !== "C" || bond.end.charge ? bond.end.element.length * 8 * Math.cos( theta ) : 0 ),
+				bond.start.pos[1] + ( bond.start.element !== "C" || bond.start.charge ? bond.start.element.length * 8 * Math.sin( theta ) : 0 ),
+				bond.end.pos[1] - ( bond.end.element !== "C" || bond.end.charge ? bond.end.element.length * 8 * Math.sin( theta ) : 0 ),
 				[],[]);
 
 			if( bond.start.element === "H" || bond.end.element === "H" ){
@@ -399,7 +399,7 @@ var Mol2D = function( container, dims, params ){
 		//////FIT SVG TO SCREEN//////
 		const rootBox = self.root.node().getBBox()
 		const viewBox = self.svg.node().viewBox.baseVal
-		const zoom = rootBox.width > rootBox.height ? viewBox.width/rootBox.width : viewBox.height/rootBox.height
+		const zoom = viewBox.width/rootBox.width < viewBox.height/rootBox.height ? viewBox.width/rootBox.width : viewBox.height/rootBox.height
 
 		self.svg.call( zoomFunc.transform, d3.zoomIdentity.translate( viewBox.width/2 + ( - rootBox.x - rootBox.width/2 )*zoom, viewBox.height/2 + ( - rootBox.y - rootBox.height/2 )*zoom ).scale( zoom ) )
 	}

@@ -85,10 +85,12 @@ body {
 div{
     overflow: hidden;
     display: block;
+	position:relative;
 }
 
 .view2D {
     position:absolute;
+	right:0px;
 }
 
 .view3D {
@@ -103,8 +105,10 @@ div{
     transition: .4s;
 	background-color: #5b7da0;
 	color: white;
-	width: 50px;
-	height: 50px;
+	width: 10px;
+	height: 15px;
+	z-index:2;
+	padding:10px;
 }
 
 .button {
@@ -223,7 +227,7 @@ h1 {
     font-family: "Verdana";
 }
 
-.dd > line, .dd > circle {
+.dd > line, .dd > circle, .dd > g {
     stroke: black;
     stroke-width: 2px;
 }
@@ -234,8 +238,8 @@ div#controls {
 
 div#NewmanModel {
     position: absolute;
-    top: 83px;
-    left: 330px;
+	left:27%;
+    top: 0px;
     width: 480px;
     height: 321px;
 }
@@ -253,7 +257,7 @@ div#NewmanModel {
 
 .eye > * {
     stroke: black;
-    stroke-width: 2px;
+    stroke-width: 4px;
     stroke-linecap: round;
 }
 
