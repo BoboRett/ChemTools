@@ -45,10 +45,10 @@
 				</div>
 			</div>
 			<div class="menu" id="CIPinputs" style="top: 431px;">
-				<div class="head">
+				<div class="head" style="padding: 5px 0px 10px 0px;">
 					<h1>Cahn-Ingold-Prelog Rule</h1>
 				</div>
-				<div class="inputs">
+				<div class="inputs" style="height:125px;">
 					<div id="CIPrank" style="float: left; width: 600px; height: 120px;"></div>
 					<div id="CIPtoggles" style="float: right;width: 420px;">
 						<label class="switch">
@@ -66,7 +66,7 @@
 					</div>
 				</div>
 				<div class="buttons">
-					<button class="button" onclick="cip.closeGame()" style="width:100px;float: right;">Back</button>
+					<button class="button" onclick="cip.closeGame()" style="width:100px;float: right;margin-right: 15px;">Back</button>
 					<button class="button" onclick="cip.init()" style="width:100px;float: right;">Skip</button>
 					<button class="button" onclick="cip.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
@@ -79,7 +79,7 @@
 				</div>
 				<div class="buttons">
 					<!-- <label style="position: absolute; top: 40px;"><input type="checkbox" onchange="nm.orient( this.checked )"/>Staggered/Eclipse</label> -->
-					<button class="button" onclick="nm.closeGame()" style="width:100px;float: right;">Back</button>
+					<button class="button" onclick="nm.closeGame()" style="width:100px;float: right;margin-right: 10px;">Back</button>
 					<button class="button" onclick="nm.init( true )" style="width:100px;float: right;">Skip</button>
 					<button class="button" onclick="nm.submit()" style="width:100px;float: right;">Submit</button>
 				</div>
@@ -90,7 +90,6 @@
 	<script src="https://d3js.org/d3.v4.min.js"></script>
 	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 	<script src="https://www.lactame.com/lib/openchemlib/5.4.0/openchemlib-minimal.js"></script>
-
 	<script src="three.min.js"></script>
 	<script src="stats.min.js"></script>
 	<script src="Detector.js"></script>
@@ -100,65 +99,64 @@
 
 	<script>
 
-
 	var intromolfile = `C10H12N2O
-APtclcactv03021811533D 0   0.00000     0.00000
+		APtclcactv03021811533D 0   0.00000     0.00000
 
- 25 26  0  0  0  0  0  0  0  0999 V2000
-   -2.9412    0.0426    0.2708 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -2.3564   -1.2023    0.3322 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.9908   -1.3410    0.1065 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.2173   -0.2031   -0.1836 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.8213    1.0549   -0.2437 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -2.1779    1.1716   -0.0163 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -2.7714    2.3937   -0.0736 O   0  0  0  0  0  0  0  0  0  0  0  0
-    1.1554   -0.6813   -0.3648 C   0  0  0  0  0  0  0  0  0  0  0  0
-    1.1354   -2.0113   -0.1836 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.1378   -2.4245    0.0989 N   0  0  0  0  0  0  0  0  0  0  0  0
-    2.3616    0.1603   -0.6930 C   0  0  0  0  0  0  0  0  0  0  0  0
-    2.9483    0.7359    0.5975 C   0  0  0  0  0  0  0  0  0  0  0  0
-    4.1241    1.5564    0.2775 N   0  0  0  0  0  0  0  0  0  0  0  0
-   -4.0026    0.1441    0.4424 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -2.9577   -2.0710    0.5560 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.2304    1.9311   -0.4661 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -3.0553    2.5240   -0.9887 H   0  0  0  0  0  0  0  0  0  0  0  0
-    1.9968   -2.6593   -0.2512 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.4011   -3.3424    0.2690 H   0  0  0  0  0  0  0  0  0  0  0  0
-    3.1109   -0.4565   -1.1893 H   0  0  0  0  0  0  0  0  0  0  0  0
-    2.0669    0.9758   -1.3535 H   0  0  0  0  0  0  0  0  0  0  0  0
-    2.1991    1.3527    1.0937 H   0  0  0  0  0  0  0  0  0  0  0  0
-    3.2431   -0.0795    1.2580 H   0  0  0  0  0  0  0  0  0  0  0  0
-    4.4758    1.9131    1.1534 H   0  0  0  0  0  0  0  0  0  0  0  0
-    4.8267    0.9281   -0.0827 H   0  0  0  0  0  0  0  0  0  0  0  0
-  1  2  2  0  0  0  0
-  2  3  1  0  0  0  0
-  3  4  2  0  0  0  0
-  4  5  1  0  0  0  0
-  5  6  2  0  0  0  0
-  1  6  1  0  0  0  0
-  6  7  1  0  0  0  0
-  4  8  1  0  0  0  0
-  8  9  2  0  0  0  0
-  9 10  1  0  0  0  0
-  3 10  1  0  0  0  0
-  8 11  1  0  0  0  0
- 11 12  1  0  0  0  0
- 12 13  1  0  0  0  0
-  1 14  1  0  0  0  0
-  2 15  1  0  0  0  0
-  5 16  1  0  0  0  0
-  7 17  1  0  0  0  0
-  9 18  1  0  0  0  0
- 10 19  1  0  0  0  0
- 11 20  1  0  0  0  0
- 11 21  1  0  0  0  0
- 12 22  1  0  0  0  0
- 12 23  1  0  0  0  0
- 13 24  1  0  0  0  0
- 13 25  1  0  0  0  0
-M  END
-$$$$
-	`
+		 25 26  0  0  0  0  0  0  0  0999 V2000
+		   -2.9412    0.0426    0.2708 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -2.3564   -1.2023    0.3322 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.9908   -1.3410    0.1065 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.2173   -0.2031   -0.1836 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.8213    1.0549   -0.2437 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -2.1779    1.1716   -0.0163 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -2.7714    2.3937   -0.0736 O   0  0  0  0  0  0  0  0  0  0  0  0
+		    1.1554   -0.6813   -0.3648 C   0  0  0  0  0  0  0  0  0  0  0  0
+		    1.1354   -2.0113   -0.1836 C   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.1378   -2.4245    0.0989 N   0  0  0  0  0  0  0  0  0  0  0  0
+		    2.3616    0.1603   -0.6930 C   0  0  0  0  0  0  0  0  0  0  0  0
+		    2.9483    0.7359    0.5975 C   0  0  0  0  0  0  0  0  0  0  0  0
+		    4.1241    1.5564    0.2775 N   0  0  0  0  0  0  0  0  0  0  0  0
+		   -4.0026    0.1441    0.4424 H   0  0  0  0  0  0  0  0  0  0  0  0
+		   -2.9577   -2.0710    0.5560 H   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.2304    1.9311   -0.4661 H   0  0  0  0  0  0  0  0  0  0  0  0
+		   -3.0553    2.5240   -0.9887 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    1.9968   -2.6593   -0.2512 H   0  0  0  0  0  0  0  0  0  0  0  0
+		   -0.4011   -3.3424    0.2690 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    3.1109   -0.4565   -1.1893 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    2.0669    0.9758   -1.3535 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    2.1991    1.3527    1.0937 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    3.2431   -0.0795    1.2580 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    4.4758    1.9131    1.1534 H   0  0  0  0  0  0  0  0  0  0  0  0
+		    4.8267    0.9281   -0.0827 H   0  0  0  0  0  0  0  0  0  0  0  0
+		  1  2  2  0  0  0  0
+		  2  3  1  0  0  0  0
+		  3  4  2  0  0  0  0
+		  4  5  1  0  0  0  0
+		  5  6  2  0  0  0  0
+		  1  6  1  0  0  0  0
+		  6  7  1  0  0  0  0
+		  4  8  1  0  0  0  0
+		  8  9  2  0  0  0  0
+		  9 10  1  0  0  0  0
+		  3 10  1  0  0  0  0
+		  8 11  1  0  0  0  0
+		 11 12  1  0  0  0  0
+		 12 13  1  0  0  0  0
+		  1 14  1  0  0  0  0
+		  2 15  1  0  0  0  0
+		  5 16  1  0  0  0  0
+		  7 17  1  0  0  0  0
+		  9 18  1  0  0  0  0
+		 10 19  1  0  0  0  0
+		 11 20  1  0  0  0  0
+		 11 21  1  0  0  0  0
+		 12 22  1  0  0  0  0
+		 12 23  1  0  0  0  0
+		 13 24  1  0  0  0  0
+		 13 25  1  0  0  0  0
+		M  END
+		$$$$
+			`
 
 	var mol3d = new Mol3D( d3.select( "#gameFrame > .view3D" ), {disableInteractions: true, showfGroups: false, highlight: false, autoRotate: true} );
 	var mol2d = new Mol2D( d3.select( "#gameFrame > .view2D"), [0,0,480,321] );
@@ -242,14 +240,36 @@ $$$$
 					<rect id="dd2_TAR" x="185" y="5" width="100" height="50" mask="url('#second')"></rect>
 					<rect id="dd3_TAR" x="310" y="5" width="100" height="50" mask="url('#third')"></rect>
 					<rect id="dd4_TAR" x="435" y="5" width="100" height="50" mask="url('#fourth')"></rect>
-					<text id="dd1" x="110" y="100"></text>
-					<text id="dd2" x="235" y="100"></text>
-					<text id="dd4" x="485" y="100"></text>
-					<text id="dd3" x="360" y="100"></text>
+					<g class="draggable">
+						<g id="dd1" transform="translate( 110, 100 )">
+							<rect x=-50 y=-32 width=100 height=50></rect>
+							<line x1="-30" x2="30" y1="5" y2="5"></line>
+							<text></text>
+							<line x1="-30" x2="30" y1="12" y2="12"></line>
+						</g>
+						<g id="dd2" transform="translate( 235, 100 )">
+							<rect x=-50 y=-32 width=100 height=50></rect>
+							<line x1="-30" x2="30" y1="5" y2="5"></line>
+							<text></text>
+							<line x1="-30" x2="30" y1="12" y2="12"></line>
+						</g>
+						<g id="dd3" transform="translate( 485, 100 )">
+							<rect x=-50 y=-32 width=100 height=50></rect>
+							<line x1="-30" x2="30" y1="5" y2="5"></line>
+							<text></text>
+							<line x1="-30" x2="30" y1="12" y2="12"></line>
+						</g>
+						<g id="dd4" transform="translate( 360, 100 )">
+							<rect x=-50 y=-32 width=100 height=50></rect>
+							<line x1="-30" x2="30" y1="5" y2="5"></line>
+							<text></text>
+							<line x1="-30" x2="30" y1="12" y2="12"></line>
+						</g>
+					</g>
 				</svg>`
 			);
 
-			d3.selectAll( "#CIPdragdrop > text" ).on( "mousedown touchstart", function(){dragLabel( this )} );
+			d3.selectAll( ".draggable > g" ).on( "mousedown touchstart", function(){dragLabel( this )} );
 		}
 
 		self.init = function(){
@@ -339,7 +359,7 @@ $$$$
 					grp.node().previousSibling.setAttribute( "display", null )
 				}
 
-				d3.select( "#CIPdragdrop > #dd" + ( i + 1 ) ).text( el.el.element + "-" + el.el.index );
+				d3.select( "#dd" + ( i + 1 ) + " > text" ).text( el.el.element + "-" + el.el.index );
 				d3.select( "#atomind_" + el.el.index ).attr( "display", null );
 			});
 
@@ -438,6 +458,7 @@ $$$$
 
 			self.reset()
 			d3.select( ".help" )
+			d3.select( "#CIPdragdrop" ).remove()
 
 			//////Hide 3D View Blocker//////
 			d3.select( ".Blocker3D > :nth-child(1)" ).transition()
@@ -483,21 +504,25 @@ $$$$
 		}
 
 		self.submit = function(){
-			var correct = true;
+			var correct = [false, false, false, false, false, false];
 
-			d3.selectAll( "#CIPdragdrop > text" ).each( function( rank, i ){
-				var bg = d3.select( "#dd" + rank + "_TAR")
-				correct = correct ? self.answer.CIPRanks.split( "," )[ rank - 1 ] === this.innerHTML.split( "-" )[1] : false
-				elFlash( bg, ( self.answer.CIPRanks.split( "," )[ rank - 1 ] === this.innerHTML.split( "-" )[1] ) )
+			d3.selectAll( ".draggable > g" ).each( function( rank, i ){
+				correct[rank - 1] = self.answer.CIPRanks.split( "," )[rank - 1] === d3.select( "#" + this.getAttribute( "id" ) + " > text" ).html().split( "-" )[1]
 			} )
 
 			d3.selectAll( "#CIPtoggles > label > input" ).each( ( d, i, arr ) => {
-				var bg = d3.select( arr[i].nextElementSibling )
-				correct = correct ? arr[i].checked === ( self.answer['CIPr/s'] === "r" ? false : true ) : false
-				elFlash( bg, correct );
+				correct[4 + i] = arr[i].checked === ( self.answer['CIPr/s'] === "r" ? false : true )
 			})
 
-			if( correct ){
+			correct.forEach( function( el, i ){
+				if( i < 4 ){
+					elFlash( d3.select( "#dd" + ( i + 1 ) + "_TAR"), el )
+				} else {
+					elFlash( d3.select( "#CIPtoggles > :nth-child(" + ( i - 3 ) + ") > span" ), el )
+				}
+			})
+
+			if( correct.indexOf( false ) === -1 ){
 				d3.select( "#CIPinputs > .buttons > :nth-child(2)" ).transition()
 					.delay( 300 )
 					.duration( 300 )
@@ -521,17 +546,20 @@ $$$$
 		if( correct ){
 			el.transition()
 				.duration( 200 )
-				.style( "fill", "#4CAF50" )
-				.style( "background-color", "#4CAF50" )
+				.style( "fill", "#387d3b" )
+				.style( "stroke", "#387d3b" )
+				.style( "background-color", "#387d3b" )
 		} else{
 			el.transition()
 				.duration( 200 )
 				.style( "fill", "red" )
+				.style( "stroke", "red" )
 				.style( "background-color", "red" )
 				.on( "end", () => {
 					el.transition()
 						.duration( 800 )
 						.style( "fill", "lightgray" )
+						.style( "stroke", "black" )
 						.style( "background-color", "#5b7da0" )
 				})
 		}
@@ -553,7 +581,7 @@ $$$$
 
 	Newman = function( mode ){
 		var self = this;
-		var pathway, groups, answer;
+		var pathway, groups, answer, rotated, eyeLeft;
 		self.mode = mode;
 		self.labels = [];
 		mol3d.interactions( true );
@@ -576,7 +604,7 @@ $$$$
 					<svg class="dd" id="NMdragdrop" viewBox="0,0,550,255">
 						<g id="NMbonds" transform="translate( 275, 127.5 )rotate( 0 )">
 							<rect x="-87" y="-100" width="174" height="200" style="stroke:none; opacity:0;"></rect>
-							<circle cx="0" cy="0" r="50" style="stroke:black; fill:none;"></circle>
+							<circle cx="0" cy="0" r="50" style="fill:none;"></circle>
 							<line x1="0" y1="0" x2="0" y2="-100"></line>
 							<line x1="0" y1="0" x2="87" y2="50"></line>
 							<line x1="0" y1="0" x2="-87" y2="50"></line>
@@ -584,18 +612,50 @@ $$$$
 							<line x1="0" y1="50" x2="0" y2="100"></line>
 							<line x1="-43" y1="-25" x2="-87" y2="-50"></line>
 						</g>
-						<rect id="dd1_TAR" x="235" y="5" width="80" height="40"></rect>
-						<rect id="dd2_TAR" x="321" y="55" width="80" height="40"></rect>
-						<rect id="dd3_TAR" x="322" y="155" width="80" height="40"></rect>
-						<rect id="dd4_TAR" x="235" y="205" width="80" height="40"></rect>
-						<rect id="dd5_TAR" x="148" y="155" width="80" height="40"></rect>
-						<rect id="dd6_TAR" x="148" y="55" width="80" height="40"></rect>
-						<text id="dd1" x="85" y="75"></text>
-						<text id="dd2" x="85" y="150"></text>
-						<text id="dd3" x="85" y="225"></text>
-						<text id="dd4" x="465" y="75"></text>
-						<text id="dd5" x="465" y="150"></text>
-						<text id="dd6" x="465" y="225"></text>
+						<rect id="dd1_TAR" x="235" y="5" width="80" height="50"></rect>
+						<rect id="dd2_TAR" x="321" y="40" width="80" height="50"></rect>
+						<rect id="dd3_TAR" x="322" y="165" width="80" height="50"></rect>
+						<rect id="dd4_TAR" x="235" y="205" width="80" height="50"></rect>
+						<rect id="dd5_TAR" x="148" y="165" width="80" height="50"></rect>
+						<rect id="dd6_TAR" x="148" y="40" width="80" height="50"></rect>
+						<g class="draggable">
+							<g id="dd1" transform="translate( 85, 75 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd2" transform="translate( 85, 150 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd3" transform="translate( 85, 225 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd4" transform="translate( 465, 75 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd5" transform="translate( 465, 150 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd6" transform="translate( 465, 225 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+						</g>
 					</svg>`
 				)
 			} else{
@@ -646,24 +706,56 @@ $$$$
 								<line id="" x1="149.284" x2="114.64" y1="10" y2="-10"></line>
 							</g>
 						</g>
-						<rect id="dd1_TAR" x="105" y="40" width="80" height="40"></rect>
-						<rect id="dd2_TAR" x="330" y="35" width="80" height="40"></rect>
-						<rect id="dd3_TAR" x="140" y="195" width="80" height="40"></rect>
-						<rect id="dd4_TAR" x="360" y="190" width="80" height="40"></rect>
-						<rect id="dd5_TAR" x="240" y="175" width="80" height="40"></rect>
-						<rect id="dd6_TAR" x="355" y="116" width="80" height="40"></rect>
-						<text id="dd1" x="60" y="75"></text>
-						<text id="dd2" x="60" y="150"></text>
-						<text id="dd3" x="60" y="225"></text>
-						<text id="dd4" x="490" y="75"></text>
-						<text id="dd5" x="490" y="150"></text>
-						<text id="dd6" x="490" y="225"></text>
+						<rect id="dd1_TAR" x="105" y="40" width="80" height="50"></rect>
+						<rect id="dd2_TAR" x="330" y="25" width="80" height="50"></rect>
+						<rect id="dd3_TAR" x="140" y="195" width="80" height="50"></rect>
+						<rect id="dd4_TAR" x="360" y="190" width="80" height="50"></rect>
+						<rect id="dd5_TAR" x="230" y="175" width="80" height="50"></rect>
+						<rect id="dd6_TAR" x="350" y="111" width="80" height="50"></rect>
+						<g class="draggable">
+							<g id="dd1" transform="translate( 60, 75 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd2" transform="translate( 60, 150 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd3" transform="translate( 60, 225 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd4" transform="translate( 490, 75 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd5" transform="translate( 490, 150 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+							<g id="dd6" transform="translate( 490, 225 )">
+								<rect x=-40 y=-32 width=80 height=50></rect>
+								<line x1="-30" x2="30" y1="5" y2="5"></line>
+								<text></text>
+								<line x1="-30" x2="30" y1="12" y2="12"></line>
+							</g>
+						</g>
 					</svg>
 					`
 				)
 			}
 
-			d3.selectAll( "#NMdragdrop > text" ).on( "mousedown touchstart", function(){dragLabel( this )} );
+			d3.selectAll( ".draggable > g" ).on( "mousedown touchstart", function(){dragLabel( this )} );
 			d3.select( "#NMinputs > .buttons > :nth-child(2)" ).html( "Skip" ).style( "background-color", null );
 			d3.select( ".resultRight" ).remove()
 		}
@@ -672,7 +764,7 @@ $$$$
 
 			self.reset();
 
-			groups = shuffle( ["Me","Et","Ph","OH","H",["Cl","Br","F"][Math.floor( Math.random() * 3 )]] );
+			groups = shuffle( ["Me","Et","Ph","OH"," H",["Cl","Br"," F"][Math.floor( Math.random() * 3 )]] );
 			pathway = Math.floor( Math.random() * 4 ) + 1
 
 			if( refresh ){
@@ -716,75 +808,74 @@ $$$$
 
 		self.runGame1 = function(){
 
-			console.log( pathway )
-			shuffle( groups ).forEach( ( el, i ) => d3.select( "#NMdragdrop > #dd" + ( i + 1 ) ).text( el ) );
+			shuffle( groups ).forEach( ( el, i ) => d3.select( "#dd" + ( i + 1 ) + " > text" ).text( el ) );
 
 			var templateMol2D = [2,3].indexOf( pathway ) !== -1 ? `
-APtclcactv04271809452D 0   0.00000     0.00000
+				APtclcactv04271809452D 0   0.00000     0.00000
 
- 8  7   0  0  1  0  0  0  0  0999 V2000
-    5.3350    0.7600    0.0000 ` + groups[( pathway === 2 ? 1 : 5 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-    4.5981    0.2500    0.0000 C   0  0  1  0  0  0  0  0  0  0  0  0
-    5.4641   -0.2500    0.0000 ` + groups[( pathway === 2 ? 3 : 3 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-    4.5981    1.2500    0.0000 ` + groups[( pathway === 2 ? 5 : 1 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-    3.7321   -0.2500    0.0000 C   0  0  2  0  0  0  0  0  0  0  0  0
-    4.3690   -0.6600    0.0000 ` + groups[( pathway === 2 ? 2 : 4 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-    3.7321   -1.2500    0.0000 ` + groups[( pathway === 2 ? 4 : 2 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-    2.8660    0.2500    0.0000 ` + groups[( pathway === 2 ? 0 : 0 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-  2  1  1  1  0  0  0
-  2  3  1  0  0  0  0
-  2  4  1  6  0  0  0
-  2  5  1  0  0  0  0
-  5  6  1  1  0  0  0
-  5  7  1  6  0  0  0
-  5  8  1  0  0  0  0
-M  END
-$$$$
-` : `
-APtclcactv04271809452D 0   0.00000     0.00000
+				 8  7   0  0  1  0  0  0  0  0999 V2000
+				    5.3350    0.7600    0.0000 ` + groups[( pathway === 2 ? 1 : 5 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				    4.5981    0.2500    0.0000 C   0  0  1  0  0  0  0  0  0  0  0  0
+				    5.4641   -0.2500    0.0000 ` + groups[( pathway === 2 ? 3 : 3 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				    4.5981    1.2500    0.0000 ` + groups[( pathway === 2 ? 5 : 1 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				    3.7321   -0.2500    0.0000 C   0  0  2  0  0  0  0  0  0  0  0  0
+				    4.3690   -0.6600    0.0000 ` + groups[( pathway === 2 ? 2 : 4 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				    3.7321   -1.2500    0.0000 ` + groups[( pathway === 2 ? 4 : 2 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				    2.8660    0.2500    0.0000 ` + groups[( pathway === 2 ? 0 : 0 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				  2  1  1  1  0  0  0
+				  2  3  1  0  0  0  0
+				  2  4  1  6  0  0  0
+				  2  5  1  0  0  0  0
+				  5  6  1  1  0  0  0
+				  5  7  1  6  0  0  0
+				  5  8  1  0  0  0  0
+				M  END
+				$$$$
+				` : `
+				APtclcactv04271809452D 0   0.00000     0.00000
 
-8  7   0  0  1  0  0  0  0  0999 V2000
-	5.3350    0.7600    0.0000 ` + groups[( pathway === 1 ? 2 : 4 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-	4.5981    0.2500    0.0000 C   0  0  1  0  0  0  0  0  0  0  0  0
-	5.4641   -0.2500    0.0000 ` + groups[( pathway === 1 ? 4 : 2 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-	4.5981    1.2500    0.0000 ` + groups[( pathway === 1 ? 0 : 0 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-	3.7321   -0.2500    0.0000 C   0  0  2  0  0  0  0  0  0  0  0  0
-	4.0000    0.5000    0.0000 ` + groups[( pathway === 1 ? 5 : 1 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-	3.7321   -1.2500    0.0000 ` + groups[( pathway === 1 ? 3 : 3 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-	2.8660    0.2500    0.0000 ` + groups[( pathway === 1 ? 1 : 5 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
-  2  1  1  6  0  0  0
-  2  3  1  1  0  0  0
-  2  4  1  0  0  0  0
-  2  5  1  0  0  0  0
-  5  6  1  1  0  0  0
-  5  7  1  0  0  0  0
-  5  8  1  6  0  0  0
-M  END
-$$$$
-`
+				8  7   0  0  1  0  0  0  0  0999 V2000
+					5.3350    0.7600    0.0000 ` + groups[( pathway === 1 ? 2 : 4 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+					4.5981    0.2500    0.0000 C   0  0  1  0  0  0  0  0  0  0  0  0
+					5.4641   -0.2500    0.0000 ` + groups[( pathway === 1 ? 4 : 2 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+					4.5981    1.2500    0.0000 ` + groups[( pathway === 1 ? 0 : 0 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+					3.7321   -0.2500    0.0000 C   0  0  2  0  0  0  0  0  0  0  0  0
+					4.0000    0.5000    0.0000 ` + groups[( pathway === 1 ? 5 : 1 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+					3.7321   -1.2500    0.0000 ` + groups[( pathway === 1 ? 3 : 3 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+					2.8660    0.2500    0.0000 ` + groups[( pathway === 1 ? 1 : 5 )] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				  2  1  1  6  0  0  0
+				  2  3  1  1  0  0  0
+				  2  4  1  0  0  0  0
+				  2  5  1  0  0  0  0
+				  5  6  1  1  0  0  0
+				  5  7  1  0  0  0  0
+				  5  8  1  6  0  0  0
+				M  END
+				$$$$
+				`
 
-		var templateMol3D = `
-APtclcactv04271809453D 0   0.00000     0.00000
+			var templateMol3D = `
+				APtclcactv04271809453D 0   0.00000     0.00000
 
- 8  7   0  0  1  0  0  0  0  0999 V2000
-    0.4892    0.0420   -2.0506 ` + groups[1] + `   0  0  0  0  0  0  0  0  0  0  0  0
-    0.3143    0.4552   -1.0572 C   0  0  1  0  0  0  0  0  0  0  0  0
-    0.6266    1.9530   -1.0655 ` + groups[3] + `  0  0  0  0  0  0  0  0  0  0  0  0
-    1.4785   -0.4498    0.2432 ` + groups[5] + `  0  0  0  0  0  0  0  0  0  0  0  0
-   -1.1495    0.2416   -0.6664 C   0  0  2  0  0  0  0  0  0  0  0  0
-   -1.7962    0.6667   -1.4340 ` + groups[2] + `   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.4750    1.0527    0.9106 ` + groups[4] + `   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.4292   -1.2570   -0.5365 ` + groups[0] + `   0  0  0  0  0  0  0  0  0  0  0  0
-  1  2  1  0  0  0  0
-  2  3  1  0  0  0  0
-  2  4  1  0  0  0  0
-  2  5  1  0  0  0  0
-  5  6  1  0  0  0  0
-  5  7  1  0  0  0  0
-  5  8  1  0  0  0  0
-M  END
-$$$$
-`
+				 8  7   0  0  1  0  0  0  0  0999 V2000
+				    0.4892    0.0420   -2.0506 ` + groups[1] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				    0.3143    0.4552   -1.0572 C   0  0  1  0  0  0  0  0  0  0  0  0
+				    0.6266    1.9530   -1.0655 ` + groups[3] + `  0  0  0  0  0  0  0  0  0  0  0  0
+				    1.4785   -0.4498    0.2432 ` + groups[5] + `  0  0  0  0  0  0  0  0  0  0  0  0
+				   -1.1495    0.2416   -0.6664 C   0  0  2  0  0  0  0  0  0  0  0  0
+				   -1.7962    0.6667   -1.4340 ` + groups[2] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				   -1.4750    1.0527    0.9106 ` + groups[4] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				   -1.4292   -1.2570   -0.5365 ` + groups[0] + `   0  0  0  0  0  0  0  0  0  0  0  0
+				  1  2  1  0  0  0  0
+				  2  3  1  0  0  0  0
+				  2  4  1  0  0  0  0
+				  2  5  1  0  0  0  0
+				  5  6  1  0  0  0  0
+				  5  7  1  0  0  0  0
+				  5  8  1  0  0  0  0
+				M  END
+				$$$$
+				`
 
 			mol2d.parse( templateMol2D );
 			mol3d.parse( templateMol3D );
@@ -797,23 +888,20 @@ $$$$
 			//////Give 2 answers//////
 			var ans1 = Math.floor( Math.random() * 6 );
 			var ans2 = Math.floor( Math.random() * 6 );
-			console.log( ans1, ans2 )
 			while( ans2 === ans1 || [0,3].indexOf( ans2 ) !== -1 ){
 				ans2 = Math.floor( Math.random() * 6 );
 			}
 
 			[ans1, ans2].forEach( el => {
-				d3.selectAll( "#NMdragdrop > text" ).each( function(){
-					if( this.innerHTML === groups[el] ){
+				d3.selectAll( ".draggable > g" ).each( function(){
+					if( d3.select( "#" + this.getAttribute( "id" ) + " > text").html() === groups[el] ){
 						var tarNode = d3.select( "#NMdragdrop > #dd" + ( el + 1 ) + "_TAR" ).node()
 
 						d3.select( tarNode ).attr( "disabled", true);
 						d3.select( this ).attr( "disabled", true).attr( "pointer-events", "none" ).attr( "fill", "dimgrey" );
 
-						d3.select( this )
-							.attr( "x", +tarNode.getAttribute( "x" ) + tarNode.getBoundingClientRect().width/2 )
-							.attr( "y", +tarNode.getAttribute( "y" ) + tarNode.getBoundingClientRect().height/2 + 13 )
-							.datum( tarNode.getAttribute( "id" ).substr( 2, 1 ) )
+						this.transform.baseVal.consolidate().setTranslate( +tarNode.getAttribute( "x" ) + tarNode.getBoundingClientRect().width/2, +tarNode.getAttribute( "y" ) + tarNode.getBoundingClientRect().height/2 + 7 )
+						d3.select( this ).datum( tarNode.getAttribute( "id" ).substr( 2, 1 ) )
 					}
 				})
 			})
@@ -828,7 +916,7 @@ $$$$
 			//////Draw eye on 2D view//////
 			d3.select( "#NMdragdrop" )
 				.append( "g" )
-				.attr( "class", "eye" )
+				.attr( "id", "eye" )
 				.html(`
 					<rect x="-140" y="-20" width="140" height="40" style="stroke:none; opacity:0;"></rect>
 					<line x1="-140" x2="-120" y1="0" y2="20"></line>
@@ -839,10 +927,10 @@ $$$$
 				.attr( "transform", "translate( 275, 127.5 )scale( 1, 1 )")
 
 			//////Mouseover/Mousedown Animations//////
-			var eyeLeft = true;
-			var rotated = false;
+			eyeLeft = true;
+			rotated = false;
 
-			d3.select( ".eye" )
+			d3.select( "#eye" )
 				.on( "mouseover", function(){
 					d3.select( this )
 						.transition()
@@ -909,7 +997,7 @@ $$$$
 			if( d3.select( "#NewmanModel" ).empty() ){
 				d3.select( "#gameFrame" ).append( "div" ).attr( "id", "NewmanModel" ).html(`
 					<svg viewBox="0,0,480,321">
-						<g class="dd" transform="translate( 240, 160 )rotate( 0 )">
+						<g id="NMbonds" transform="translate( 240, 165 )rotate( 0 )">
 							<circle cx="0" cy="0" r="50" style="stroke:black; fill:none;"></circle>
 							<line x1="0" y1="0" x2="0" y2="-100"></line>
 							<line x1="0" y1="0" x2="87" y2="50"></line>
@@ -918,21 +1006,21 @@ $$$$
 							<line x1="0" y1="50" x2="0" y2="100"></line>
 							<line x1="-43" y1="-25" x2="-87" y2="-50"></line>
 						</g>
-						<g class="dd" transform="translate( 0, 40 )scale( 1 )">
+						<g class="NMbonds" transform="translate( 0, 40 )scale( 1 )">
 							<text id="model1" x="240" y="5" style="cursor: unset"></text>
 							<text id="model2" x="367" y="85" style="cursor: unset"></text>
 							<text id="model3" x="367" y="195" style="cursor: unset"></text>
 							<text id="model4" x="240" y="265" style="cursor: unset"></text>
 							<text id="model5" x="113" y="195" style="cursor: unset"></text>
-							<text id="model6" x="100" y="85" style="cursor: unset"></text
+							<text id="model6" x="113" y="85" style="cursor: unset"></text
 						</g>
 					</svg>`
 				)
 
 				d3.select( "#NewmanModel > svg" )
 					.append( "g" )
-					.attr( "class", "eye" )
-					.attr( "transform", "translate( 240, 160 )")
+					.attr( "id", "eye" )
+					.attr( "transform", "translate( 240, 165 )")
 					.html(`
 						<line x1="-170" x2="-150" y1="0" y2="20"></line>
 						<line x1="-170" x2="-150" y1="0" y2="-20"></line>
@@ -940,64 +1028,64 @@ $$$$
 						<line x1="-154" x2="-50" y1="0" y2="0" opacity="0.3" style="stroke-dasharray: 10px;"></line>
 					`)
 			} else{
-				d3.select( ".eye" )
+				d3.select( "#eye" )
 					.transition()
 					.duration( 1000 )
-					.attr( "transform", [1,3].indexOf( pathway ) === -1 ? "translate( 240, 160 )scale( -1, 1 )" : "translate( 240, 160 )scale( 1, 1 )" )
+					.attr( "transform", [1,3].indexOf( pathway ) === -1 ? "translate( 240, 165 )scale( -1, 1 )" : "translate( 240, 165 )scale( 1, 1 )" )
 			}
 
-			d3.select( "#NewmanModel > svg > .dd" )
+			d3.select( "#NMbonds" )
 				.transition()
 				.duration( 1000 )
 				.ease( d3.easeBackInOut )
-				.attr( "transform", pathway > 2 ? "translate( 240, 160 )rotate( 180 )" : "translate( 240, 160 )rotate( 0 )");
+				.attr( "transform", pathway > 2 ? "translate( 240, 165 )rotate( 180 )" : "translate( 240, 165 )rotate( 0 )");
 
 			switch( pathway ){
 				case 1:
 
 					d3.select( "#NMdragdrop > #rootframe" ).attr( "transform", "translate( -10, 300 )rotate( -30 )scale( 2, -2 )" );
-					d3.select( "#dd1_TAR" ).attr( "x", 345  ).attr( "y", 20 );
-					d3.select( "#dd2_TAR" ).attr( "x", 145 ).attr( "y", 30 );
-					d3.select( "#dd3_TAR" ).attr( "x", 335  ).attr( "y", 195 );
-					d3.select( "#dd4_TAR" ).attr( "x", 135 ).attr( "y", 210 );
-					d3.select( "#dd5_TAR" ).attr( "x", 355 ).attr( "y", 113 );
-					d3.select( "#dd6_TAR" ).attr( "x", 235 ).attr( "y", 55 );
+					d3.select( "#dd1_TAR" ).attr( "x", 345  ).attr( "y", 10 );
+					d3.select( "#dd2_TAR" ).attr( "x", 135 ).attr( "y", 23 );
+					d3.select( "#dd3_TAR" ).attr( "x", 330  ).attr( "y", 195 );
+					d3.select( "#dd4_TAR" ).attr( "x", 135 ).attr( "y", 204 );
+					d3.select( "#dd5_TAR" ).attr( "x", 355 ).attr( "y", 109 );
+					d3.select( "#dd6_TAR" ).attr( "x", 235 ).attr( "y", 48 );
 					break;
 
 				case 2:
 
 					d3.select( "#dd1_TAR" ).attr( "x", 105 ).attr( "y", 40 );
-					d3.select( "#dd2_TAR" ).attr( "x", 355 ).attr( "y", 116 );
-					d3.select( "#dd3_TAR" ).attr( "x", 240 ).attr( "y", 175 );
+					d3.select( "#dd2_TAR" ).attr( "x", 350 ).attr( "y", 111 );
+					d3.select( "#dd3_TAR" ).attr( "x", 230 ).attr( "y", 175 );
 					d3.select( "#dd4_TAR" ).attr( "x", 360 ).attr( "y", 190 );
 					d3.select( "#dd5_TAR" ).attr( "x", 140 ).attr( "y", 195 );
-					d3.select( "#dd6_TAR" ).attr( "x", 330 ).attr( "y", 35 );
+					d3.select( "#dd6_TAR" ).attr( "x", 330 ).attr( "y", 25 );
 					break;
 
 				case 3:
 
 					d3.select( "#dd1_TAR" ).attr( "x", 105 ).attr( "y", 40 );
-					d3.select( "#dd2_TAR" ).attr( "x", 330 ).attr( "y", 35 );
-					d3.select( "#dd3_TAR" ).attr( "x", 140 ).attr( "y", 200 );
+					d3.select( "#dd2_TAR" ).attr( "x", 330 ).attr( "y", 25 );
+					d3.select( "#dd3_TAR" ).attr( "x", 140 ).attr( "y", 195 );
 					d3.select( "#dd4_TAR" ).attr( "x", 360 ).attr( "y", 190 );
 					d3.select( "#dd5_TAR" ).attr( "x", 230 ).attr( "y", 175 );
-					d3.select( "#dd6_TAR" ).attr( "x", 350 ).attr( "y", 116 );
+					d3.select( "#dd6_TAR" ).attr( "x", 350 ).attr( "y", 111 );
 					break;
 
 				case 4:
 
 					d3.select( "#NMdragdrop > #rootframe" ).attr( "transform", "translate( -10, 300 )rotate( -30 )scale( 2, -2 )" );
-					d3.select( "#dd1_TAR" ).attr( "x", 345 ).attr( "y", 20 );
-					d3.select( "#dd2_TAR" ).attr( "x", 240 ).attr( "y", 55 );
-					d3.select( "#dd3_TAR" ).attr( "x", 360 ).attr( "y", 114 );
-					d3.select( "#dd4_TAR" ).attr( "x", 135 ).attr( "y", 210 );
+					d3.select( "#dd1_TAR" ).attr( "x", 345 ).attr( "y", 10 );
+					d3.select( "#dd2_TAR" ).attr( "x", 235 ).attr( "y", 48 );
+					d3.select( "#dd3_TAR" ).attr( "x", 355 ).attr( "y", 109 );
+					d3.select( "#dd4_TAR" ).attr( "x", 135 ).attr( "y", 204 );
 					d3.select( "#dd5_TAR" ).attr( "x", 330 ).attr( "y", 195 );
-					d3.select( "#dd6_TAR" ).attr( "x", 135 ).attr( "y", 30 );
+					d3.select( "#dd6_TAR" ).attr( "x", 135 ).attr( "y", 23 );
 					break;
 			}
 
 			shuffle( groups ).forEach(function( group, i ){
-				d3.select( "#dd" + ( i + 1 ) ).text( group );
+				d3.select( "#dd" + ( i + 1 ) + " > text" ).text( group );
 			})
 			groups.forEach(function( group, i ){
 				d3.select( "#model" + ( i + 1 ) ).text( group )
@@ -1043,37 +1131,51 @@ $$$$
 
 		self.submit = function(){
 
-			var correct = [false,false,false,false,false,false];
+			var correct = [false,false,false,false,false,false,false,false];
 
-			d3.selectAll( "#NMdragdrop > text" ).each( function( rank, i ){
-				if( groups[ rank-1 ] === this.innerHTML ){
+			d3.selectAll( ".draggable > g" ).each( function( rank, i ){
+				if( groups[ rank-1 ] === d3.select( "#" + this.getAttribute( "id" ) + " > text").html() ){
 					correct[rank-1] = true
-				} else{
 				}
 			} )
 
 			if( self.mode === 1 ){
 				switch( pathway ){
 					case 1:
-						correct = correct === true ? !rotated && eyeLeft : false
+						correct[6] = !rotated
+						correct[7] = eyeLeft
 						break;
 
 					case 2:
-					correct = correct === true ? !rotated && eyeLeft : false
-					break;
+						correct[6] = !rotated
+						correct[7] = !eyeLeft
+						break;
 
 					case 3:
-					correct = correct === true ? !rotated && eyeLeft : false
-					break;
+						correct[6] = rotated
+						correct[7] = eyeLeft
+						break;
 
 					case 4:
-					correct = correct === true ? !rotated && eyeLeft : false
-					break;
+						correct[6] = rotated
+						correct[7] = !eyeLeft
+						break;
 
 				}
+			}else{
+				correct[6] = true;
+				correct[7] = true;
 			}
 
-			correct.forEach( ( el, i ) => elFlash( d3.select( document.querySelectorAll( "#NMdragdrop > rect" )[i] ), el ) )
+			correct.forEach( ( el, i ) => {
+				if( i < 6 ){
+					elFlash( d3.select( document.querySelectorAll( "#NMdragdrop > rect" )[i] ), el )
+				} else if( i === 6 && self.mode === 1 ) {
+					elFlash( d3.select( "#NMbonds" ), el )
+				} else if( i === 7 && self.mode === 1 ){
+					elFlash( d3.select( "#eye" ), el )
+				}
+			})
 			if( correct.indexOf( false ) === -1 ){
 				d3.select( "#NMinputs > .buttons > :nth-child(2)" ).transition()
 					.delay( 300 )
@@ -1147,25 +1249,27 @@ $$$$
 	function dragLabel( el ){
 		evt = d3.event;
 		evt.stopPropagation();
-
-		var start = [ el.getAttribute( "x" ), el.getAttribute( "y" ) ];
+		matrix = el.transform.baseVal.consolidate().matrix
+		start = [matrix.e, matrix.f]
 		var downPos = evt.type === "touchstart" ? [ evt.changedTouches[0].clientX, evt.changedTouches[0].clientY ] : [ evt.clientX, evt.clientY ];
 		var drag = ( evt ) => {
 				evt.preventDefault();
 				evt.stopPropagation();
 
 				var delta = [ downPos[0] - ( evt.type === "touchmove" ? evt.changedTouches[0].clientX : evt.clientX ), downPos[1] - ( evt.type === "touchmove" ? evt.changedTouches[0].clientY : evt.clientY ) ];
-				d3.select( el ).attr( "x", + start[0] - delta[0] );
-				d3.select( el ).attr( "y", + start[1] - delta[1] );
+				downPos = evt.type === "touchmove" ? [ evt.changedTouches[0].clientX, evt.changedTouches[0].clientY ] : [ evt.clientX, evt.clientY ];
+
+				el.transform.baseVal.getItem( 0 ).setMatrix( matrix.translate( -delta[0], -delta[1] ) )
+
 		}
 		var drop = ( evt ) => {
 				evt.preventDefault();
 				evt.stopPropagation();
 
-				var svg = el.parentNode;
 				var upPos = evt.type === "touchend" ? [ evt.changedTouches[0].clientX, evt.changedTouches[0].clientY ] : [ evt.clientX, evt.clientY ];
+				var end = [matrix.e, matrix.f]
 				var hitNode = null;
-				d3.selectAll( "#" + el.parentNode.getAttribute( "id" ) + " > rect" ).each( function(){
+				d3.selectAll( "#" + el.parentNode.parentNode.getAttribute( "id" ) + " > rect" ).each( function(){
 					var bBox = this.getBoundingClientRect();
 					if( upPos[0] > bBox.left && upPos[0] < bBox.right && upPos[1] < bBox.bottom && upPos[1] > bBox.top && this.getAttribute( "disabled" ) !== "true" ){
 						hitNode = this;
@@ -1174,22 +1278,30 @@ $$$$
 				if( hitNode ){
 					d3.select( el ).transition()
 						.duration( 500 )
-						.attr( "x", +hitNode.getAttribute( "x" ) + hitNode.getBoundingClientRect().width/2 )
-						.attr( "y", +hitNode.getAttribute( "y" ) + hitNode.getBoundingClientRect().height/2 + 13 )
-					d3.selectAll( "#" + svg.getAttribute( "id" ) + " > text" ).each( function( e ){
+						.tween( null, function (){
+							return function ( t ){
+									el.transform.baseVal.getItem( 0 ).setTranslate( d3.interpolateNumber( end[0], +hitNode.getAttribute( "x" ) + hitNode.getBoundingClientRect().width/2 )( t ), d3.interpolateNumber( end[1], +hitNode.getAttribute( "y" ) + hitNode.getBoundingClientRect().height/2 + 7 )( t ) )
+								}
+						})
+					d3.selectAll( ".draggable > g" ).each( function( e ){
 						if( e === hitNode.getAttribute( "id" ).substr( 2, 1 ) && el !== this ){
-							d3.select( this ).transition()
+							var startLoc = start;
+							var overlapNode = this;
+							var overlapNodeLoc = [this.transform.baseVal.consolidate().matrix.e, this.transform.baseVal.consolidate().matrix.f];
+							d3.transition()
 								.duration( 500 )
-								.attr( "x", start[0] )
-								.attr( "y", start[1] )
+								.tween( null, function (){
+									return function ( t ){
+											overlapNode.transform.baseVal.getItem( 0 ).setTranslate( d3.interpolateNumber( overlapNodeLoc[0], startLoc[0] )( t ), d3.interpolateNumber( overlapNodeLoc[1], startLoc[1] )( t ) )
+										}
+								})
 							d3.select( this ).datum( d3.select( el ).datum() || null )
 						}
 					});
 
 					d3.select( el ).datum( hitNode.getAttribute( "id" ).substr( 2, 1 ) );
 				} else{
-					d3.select( el ).attr( "x", start[0] );
-					d3.select( el ).attr( "y", start[1] );
+					el.transform.baseVal.getItem( 0 ).setTranslate( start[0], start[1] );
 				}
 
 				window.removeEventListener( "mousemove", drag )
@@ -1206,8 +1318,6 @@ $$$$
 
 
 	}
-
-
 
 /*	mol2d = new Mol2D( d3.select( "#R" ), [0,0,250,250] );
 	mol2d.parse( molfile2d );

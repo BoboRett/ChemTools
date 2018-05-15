@@ -62,10 +62,7 @@ var Mol2D = function( container, dims, params ){
 
 	self.zoomable = params.hasOwnProperty( "zoomable" ) ? params.zoomable : true;
 
-
-
 	var showIndices = params.showIndices !== undefined ? params.showIndices : false;
-
 
 	var zoomFunc = d3.zoom().on( "zoom", function(){
 		self.root.transition()
@@ -161,23 +158,26 @@ var Mol2D = function( container, dims, params ){
 	//////Parse 2D data into object//////
 	self.parse = function( data ){
 		var mol2d = {};
+		data = data.split( "\n" ).map( el => el.trim() ).join( "\n")
 		self.molfile = data;
 		const [numatoms,numbonds] = data.split( "\n" )[3].match( /.{1,3}/g ).slice( 0, 2 ).map( el => parseInt( el ) );
 
 		mol2d.atoms = data.split( "\n" )
 						.slice( 4, 4 + numatoms )
 						.map( function( el, i ){
-							const tmp = el.match( /\S+/g );
+							el = " ".repeat( 69 - el.length ) + el
+							const tmp = el.slice( 0, 30 ).match( /.{1,10}/g ).concat( el.slice( 30 ).match( /.{1,3}/g ) );
 							return {
 								index: i,
 								pos:[parseFloat( tmp[0] ) * 40, -parseFloat( tmp[1] ) * 40],
-								element: tmp[3],
+								element: tmp[3].trim(),
 								charge: 0
 							}
 						});
 		mol2d.bonds = data.split( "\n" )
 						.slice( 4 + numatoms, 4 + numatoms + numbonds )
 						.map( function( el, i ){
+							el = " ".repeat( 21 - el.length ) + el
 							const tmp = el.match( /.{1,3}/g );
 							return {
 								index: i,
@@ -529,12 +529,13 @@ var Mol3D = function( container, params ){
 	//////PROPS//////
 	var disableInteractions = params.disableInteractions !== undefined ? params.disableInteractions : false;
 	var showfGroups = params.showfGroups !== undefined ? params.showfGroups : true;
+	var showStats = params.showStats !== undefined ? params.showStats : false;
 	self.frameFunctions.highlight.enabled = params.highlight !== undefined ? params.highlight : true;
 	self.frameFunctions.highlightSync.enabled = params.highlightSync !== undefined ? params.highlightSync : false;
 	self.frameFunctions.autoRotate.enabled = params.autoRotate !== undefined ? params.autoRotate : false;
 
 	self.scene = new THREE.Scene();
-	self.stats = new Stats()
+	self.stats = showStats ? new Stats() : null;
 	self.mouse = new THREE.Vector2()
 
 	//////CAMERAS//////
@@ -555,7 +556,7 @@ var Mol3D = function( container, params ){
 	self.renderer.setClearColor( 0xffffff, 0 );
 	self.renderer.setSize( self.container.getBoundingClientRect().width, self.container.getBoundingClientRect().height );
 	self.container.appendChild( self.renderer.domElement );
-	self.renderer.domElement.parentNode.appendChild( self.stats.dom )
+	showStats && self.renderer.domElement.parentNode.appendChild( self.stats.dom )
 
 	effect = new THREE.OutlineEffect( self.renderer, {defaultThickness: 0.002} );
 
@@ -726,25 +727,27 @@ var Mol3D = function( container, params ){
 
 	//////Parse 3D data into object//////
 	self.parse = function( data ){
-
 		var mol3d = {}
+		data = data.split( "\n" ).map( el => el.trim() ).join( "\n" )
 		self.molfile = data;
 		const [numatoms, numbonds] = data.split( "\n" )[3].match( /.{1,3}/g ).slice( 0, 2 ).map( el => parseInt( el ) );
 
 		mol3d.atoms = data.split( "\n" )
 						.slice( 4, 4 + numatoms )
 						.map( function( el, i ){
-							const tmp = el.match( /\S+/g );
+							el = " ".repeat( 69 - el.length ) + el
+							const tmp = el.slice( 0, 30 ).match( /.{1,10}/g ).concat( el.slice( 30 ).match( /.{1,3}/g ) );
 							return {
 								index: i,
 								pos:[parseFloat( tmp[0] ),parseFloat( tmp[1] ), parseFloat( tmp[2] )],
-								element: tmp[3]
+								element: tmp[3].trim()
 							}
 						});
 
 		mol3d.bonds = data.split( "\n" )
 						.slice( 4 + numatoms, 4 + numatoms + numbonds )
 						.map( function( el, i ){
+							el = " ".repeat( 21 - el.length ) + el
 							const tmp = el.match( /.{1,3}/g );
 							return {
 								index: i,
@@ -754,6 +757,7 @@ var Mol3D = function( container, params ){
 								claimed: false
 							}
 						});
+
 
 		mol3d.atoms.forEach( function( atom, i ){
 			atom.bondedTo = []
@@ -1044,7 +1048,7 @@ var Mol3D = function( container, params ){
 
 		camOrtho.updateProjectionMatrix();
 
-		self.stats.update()
+		showStats && self.stats.update()
 
 		for( var el in self.frameFunctions ){ self.frameFunctions[el].enabled && self.frameFunctions[el].fn() }
 
