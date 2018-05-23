@@ -62,7 +62,7 @@ var Mol2D = function( container, dims, params ){
 
 	self.zoomable = params.hasOwnProperty( "zoomable" ) ? params.zoomable : true;
 
-	var showIndices = params.showIndices !== undefined ? params.showIndices : false;
+	self.showIndices = params.showIndices !== undefined ? params.showIndices : false;
 
 	var zoomFunc = d3.zoom().on( "zoom", function(){
 		self.root.transition()
@@ -240,7 +240,7 @@ var Mol2D = function( container, dims, params ){
 			const ind = tmp.append( "g" ).attr( "class", "atomind" ).attr( "id", "atomind_" + i );
 			const indBBox = TextGen( ind, null, null, atom.pos[0] - txt.node().getBBox().width/2 - i.toString().split("").length * 2 , atom.pos[1] - 5, i, [], [] ).node().getBBox();
 			ind.append( "rect" ).attr( "x", indBBox.x ).attr( "width", indBBox.width ).attr( "y", indBBox.y ).attr( "height", indBBox.height ).lower();
-			ind.attr( "display", showIndices ? null : "none" );
+			ind.attr( "display", self.showIndices ? null : "none" );
 
 			if( atom.charge ){
 				const chg = tmp.append( "g" ).attr( "class", "charge" );
@@ -811,11 +811,7 @@ var Mol3D = function( container, params ){
 		drawFunctionalGroups( self.molecule.fGroups );
 
  		//////Fit molecule to view///
-		const sceneBox = new THREE.Box3().setFromObject( self.molGroup );
-		sceneBox.width = sceneBox.max.x - sceneBox.min.x;;
-		sceneBox.height = sceneBox.max.y - sceneBox.min.y;
-		const zoom = sceneBox.width > sceneBox.height ? sceneBox.width : sceneBox.height;
-		camPersp.position.z = zoom;
+		self.resetView();
 
 		function drawAtoms( atoms ){
 			//////ATOMS//////
@@ -1143,6 +1139,25 @@ var Mol3D = function( container, params ){
 
 	self.play = function(){
 		self.animID = requestAnimationFrame( self.animate );
+	}
+
+	self.resetView = function (){
+
+		const boundSph = new THREE.Box3().setFromObject( self.molGroup ).getBoundingSphere();
+		const angularSize = mol3d.camActive.fov * Math.PI / 180;
+		const distance = Math.sqrt( 2 ) * boundSph.radius / Math.tan( angularSize / 2 );
+
+		self.camActive.lookAt( boundSph.center );
+		self.camActive.position.set( distance, 0, 0 );
+		self.camActive.updateProjectionMatrix();
+		self.camActive.up.copy( new THREE.Vector3( 0, 1, 0 ) )
+
+		self.controls.dispose()
+		self.controls = new THREE.TrackballControls( self.camActive, self.container );
+		self.controls.update();
+
+		self.interactions( !disableInteractions )
+
 	}
 }
 

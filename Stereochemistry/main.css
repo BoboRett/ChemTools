@@ -74,7 +74,7 @@ body {
     user-select: none;
 }
 
-#NewmanModel {
+#NMatoms {
 	font-family: "Verdana";
 	font-size: 38px;
 	text-anchor: middle;
@@ -163,9 +163,8 @@ h1 {
 }
 
 .header {
-    position: fixed;
-    top: 0;
-    margin: -8px;
+	position: fixed;
+    top: -5px;
     background-color: #3e4649;
     display: block;
     width: 100%;
@@ -174,17 +173,19 @@ h1 {
 }
 
 .help {
-	position:absolute;
-	right: 0px;
-	text-align: right;
-	-webkit-transition: .4s;
+	position: absolute;
+    right: 0px;
+    text-align: right;
+    -webkit-transition: .4s;
     transition: .4s;
-	background-color: #5b7da0;
-	color: white;
-	width: 10px;
-	height: 15px;
-	z-index:2;
-	padding:10px;
+    background-color: #5b7da0;
+    color: white;
+    width: 10px;
+    height: 15px;
+    z-index: 2;
+    padding: 10px;
+    font-family: "Verdana";
+    line-height: 18px;
 }
 
 input:checked + .slider {
@@ -228,6 +229,7 @@ input:checked + .slider:before {
 .page {
     width: 1020px;
 	height: 677px;
+	top:24px;
     margin: auto;
     background-color: #dee8f9;
 	border: 3px solid #5d5d65;
