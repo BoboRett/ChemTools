@@ -1,0 +1,108 @@
+<!DOCTYPE html><meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="NMRtool.css?v=1"/>
+<body>
+	<div class="header">
+		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - NMR Tool</p>
+
+		<a href="http://www.leeds.ac.uk/"><img src="unileeds.svg" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
+	</div>
+	<div class="page">
+		<div id="container">
+			<svg viewbox="0,-5,500,210" class="graph" id="graph">
+				<g id="rootframe" transform="translate(15,0)">
+					<g id="graphs"></g>
+					<g class="outline" id="outline"></g>
+					<g class="inputs" transform="translate(330,0) scale(0.7)">
+						<foreignObject width="40%" height="100%">
+							<p id="levels">
+								<span class="bigtext">Difficulty:</span>
+								<select id="level">
+									<option value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+								</select>
+							</p>
+							<p style="text-align:right"><span class="bigtext">&delta; (2 d.p):</span>
+								<input class="userinp" id="delta" size="10" onkeydown="getDelta()" oninput ="UpdatePrintout()" autocomplete="off"/>
+							</p>
+							<p style="text-align:right"><span class="bigtext">Multiplicity:</span>
+								<input class="userinp" id="multiplicity" size="10" oninput ="UpdatePrintout()" autocomplete="off"/>
+							</p>
+							<p style="text-align:right"><span class="bigtext">J (1 d.p):</span>
+								<input class="userinp" id="J" size="10" oninput ="UpdatePrintout()" autocomplete="off"/>
+							</p>
+						</foreignObject>
+						<text class="bigtext" id="printout" x="110" y="173" text-anchor="middle" font-family="Verdana">   </text>
+
+					</g>
+					<g class="labels" id="staticlabels">
+						<text class="graphtext" x="313" y="200">&delta; ppm</text>
+						<rect x="240" y="5" width="80" height="20" style="fill:#d1e3ff;opacity:0.7"></rect>
+						<text class="graphtext" id="field" x="270" y="17"></text>
+					</g>
+					<g id="indicators">
+						<g class="arrow" id="r" opacity="0">
+							<polyline transform="translate(270,60)scale(3)" style="fill:#64a891; stroke:#518774;stroke-linejoin:round;stroke-linecap:round;" points ="1,-7 7,0 1,7 1,3 -6,3 -6,-3 1,-3 1,-7"></polyline>
+							<text font-size="6" font-family="Verdana" transform="translate(256,62)">Offscreen</text>
+						</g>
+						<g class="arrow" id="l" opacity="0">
+							<polyline transform="translate(30,60)scale(-3)" style="fill:#64a891; stroke:#518774;stroke-linejoin:round;stroke-linecap:round;;" points ="1,-7 7,0 1,7 1,3 -6,3 -6,-3 1,-3 1,-7"></polyline>
+							<text font-size="6" font-family="Verdana" transform="translate(16,62)">Offscreen</text>
+						</g>
+						<polyline class="validate" id="tick" style="stroke:#4adc4a;" points="11.6,20 15.9,24.2 26.4,13.8 " transform="translate(209,50)scale(3)"></polyline>
+						<polyline class="validate" id="cross1" style="stroke:#4A142B;" points="10,10 25,25" transform="translate(212,50)scale(3)"></polyline>
+						<polyline class="validate" id="cross2" style="stroke:#4A142B;" points="25,10 10,25" transform="translate(212,50)scale(3)"></polyline>
+						<text class="tip" style="fill:#4A142B; stroke:#4A142B;" transform="translate(404,180)scale(.6)">
+							<tspan x=0 y=0>Remember! Even if the graphs match,</tspan>
+							<tspan x=0 dy=1.2em>are your multiplicities in their simplest form?</tspan>
+							<tspan x=0 dy=1.5em>Multiplicity abbreviations: d|t|q|qn|sx</tspan>
+						</text>
+						</g>
+					<g class="buttons"></g>
+					<g id="intro">
+						<rect x=-30 y=50 width=110% height=86 fill="#c4d9e8" opacity=0.6></rect>
+						<polyline id="animarrow" transform="translate(290,18)scale(3)" style="fill:#e69633; stroke:#86581f;stroke-width:0.33;stroke-linejoin:round;stroke-linecap:round;" points ="1,-5 5,0 1,5 1,3 -6,3 -6,-3 1,-3 1,-5"></polyline>
+						<text class="tiptext" style="fill:black; font-family:Verdana;" transform="translate(2,60)scale(.5)">
+							<tspan x=0 y=0>To begin:</tspan>
+							<tspan x=0 dy=1.2em>Select a difficulty level, then hit Go to generate a pattern</tspan>
+							<tspan x=0 dy=1.2em>It's up to you to work out the Chemical Shift, &delta;, the multiplet structure,</tspan>
+							<tspan x=0 dy=1.2em>and the corresponding Coupling Constants, J</tspan>
+							<tspan x=0 dy=2em>Multiplet abbreviations to use: d, t, q, qn, sx</tspan>
+							<tspan x=0 dy=1.2em>For example: 6.24 dt 5.6, 1.2</tspan>
+							<tspan x=0 dy=2em>Good Luck!</tspan>
+						</text>
+					</g>
+				</g>
+			</svg>
+		</div>
+		<div class="body" style="display:none">
+			<h1 class="bodyheader"></h1>
+			
+			<svg viewbox="0,-5,500,210" class="tree">
+				<foreignObject width="40%" height="100%" transform="translate(-10,50)scale(0.4)">
+					<p style="text-align:right"><span class="bigtext">Query:</span>
+						<input class="userinp" id="query" size="10" placeholder="tqn 20,7" onkeydown="if(event.keyCode==13){DrawTree(this.value)}" autocomplete="off"/>
+					</p>
+				</foreignObject>
+			</svg>
+			
+			</p>
+			<br/>
+		</div>
+	</div>
+			
+			
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="NMRtool.js?v=6"></script>
+	<script src="treetool.js?v=6"></script>
+
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106347776-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-106347776-1');
+	</script>
+
+</body>

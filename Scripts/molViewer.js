@@ -55,10 +55,12 @@ var Mol2D = function( container, dims, params ){
 	params = params || {}
 
 	var self = this
+	var svgBox;
 	self.container = container;
 	self.molecule = {};
 	self.molfile = "";
 	self.SMILE = "";
+	self.dims = dims;
 
 	self.zoomable = params.hasOwnProperty( "zoomable" ) ? params.zoomable : true;
 
@@ -83,6 +85,7 @@ var Mol2D = function( container, dims, params ){
 		    stroke: black;
 		    stroke-width: 1px;
 			pointer-events: none;
+		    stroke-linecap: round;
 		}
 
 		.highlight, .highlight_hover {
@@ -224,7 +227,7 @@ var Mol2D = function( container, dims, params ){
 		const atoms = self.molecule.atoms;
 		const bonds = self.molecule.bonds;
 
-		self.svg = self.container.append( "svg" ).attr( "viewBox", dims.join( "," ) ).attr( "id", "view2d" );
+		self.svg = self.container.append( "svg" ).attr( "viewBox", self.dims.join( "," ) ).attr( "id", "view2d" );
 		self.root = self.svg.append( "g" ).attr( "id", "rootframe" );
 		self.root.attr( "transform", null ) ;
 		self.root.html( "" );
@@ -292,8 +295,6 @@ var Mol2D = function( container, dims, params ){
 		});
 
 		multiBonds();
-
-		self.zoomable && self.svg.call( zoomFunc );
 		self.zoomable && self.fitToScreen();
 
 		//////CONVERT BONDS//////
@@ -395,13 +396,16 @@ var Mol2D = function( container, dims, params ){
 		return self.root
 	}
 
+	//////FIT SVG TO SCREEN//////
 	self.fitToScreen = function(){
-		//////FIT SVG TO SCREEN//////
-		const rootBox = self.root.node().getBBox()
-		const viewBox = self.svg.node().viewBox.baseVal
+		self.root.attr( "transform", null ) ;
+		const viewBox = self.root.node().parentNode.getBoundingClientRect();
+		const rootBox = self.root.node().getBoundingClientRect();
+
 		const zoom = viewBox.width/rootBox.width < viewBox.height/rootBox.height ? viewBox.width/rootBox.width : viewBox.height/rootBox.height
 
-		self.svg.call( zoomFunc.transform, d3.zoomIdentity.translate( viewBox.width/2 + ( - rootBox.x - rootBox.width/2 )*zoom, viewBox.height/2 + ( - rootBox.y - rootBox.height/2 )*zoom ).scale( zoom ) )
+		self.svg.call( zoomFunc.transform, d3.zoomIdentity.translate( viewBox.width/2 + ( - ( rootBox.left - viewBox.left ) - rootBox.width/2 )*zoom, viewBox.height/2 + ( - ( rootBox.top - viewBox.top ) - rootBox.height/2 )*zoom ).scale( zoom ) )
+		self.svg.call( zoomFunc );
 	}
 
 	self.showH = function( showH ){
@@ -439,6 +443,7 @@ var Mol3D = function( container, params ){
 	self.camActive;
 	self.renderer;
 	self.stats;
+	self.labels = [];
 	var ajaxRunning;
 	self.animID;
 
@@ -456,6 +461,7 @@ var Mol3D = function( container, params ){
 	var aspect = self.container.getBoundingClientRect().width / self.container.getBoundingClientRect().height
 	var frustum = 10;
 	var effect;
+	var hovered = 0;
 
 	//////BUILT-INS//////
 	self.frameFunctions = {
@@ -464,7 +470,7 @@ var Mol3D = function( container, params ){
 				var raycaster = new THREE.Raycaster();
 				raycaster.setFromCamera( self.mouse, self.camActive );
 
-				var intersects = raycaster.intersectObjects( self.scene.children, true );
+				var intersects = raycaster.intersectObjects( self.molGroup.children, true );
 
 				if( self.mouse.x > -1 && self.mouse.x < 1 && self.mouse.y > -1 && self.mouse.y < 1 && intersects.length > 0){
 					intersected && intersected.material.emissive.setHex( intersected.currentHex );
@@ -492,7 +498,7 @@ var Mol3D = function( container, params ){
 				var raycaster = new THREE.Raycaster();
 				raycaster.setFromCamera( self.mouse, self.camActive );
 
-				var intersects = raycaster.intersectObjects( self.scene.children, true );
+				var intersects = raycaster.intersectObjects( self.molGroup.children, true );
 
 				if( self.mouse.x > -1 && self.mouse.x < 1 && self.mouse.y > -1 && self.mouse.y < 1 && intersects.length > 0){
 
@@ -523,6 +529,42 @@ var Mol3D = function( container, params ){
 
 				}
 			}
+		},
+		//////Dispatch object mouseover events to "3DMouseover"//////
+		mouseoverDispatch: {enabled: false, fn: function(){
+				var raycaster = new THREE.Raycaster();
+				raycaster.setFromCamera( self.mouse, self.camActive );
+
+				var intersects = raycaster.intersectObjects( self.molGroup.children, true );
+
+				if( intersects.length > 0 ){
+					if( hovered < intersects.length ){
+						document.dispatchEvent( new CustomEvent( "3DMouseover", {"detail": {"type": "mouseover", "objects":intersects } } ) )
+						hovered = intersects.length;
+					} else if( hovered > intersects.length ){
+						document.dispatchEvent( new CustomEvent( "3DMouseover", {"detail": {"type": "mouseout", "objects":intersects } } ) )
+						hovered = intersects.length;
+					}
+				} else{
+					if( hovered !== 0 ){
+						hovered = 0;
+						document.dispatchEvent( new CustomEvent( "3DMouseover", {"detail": {"type": "mouseout", "objects":intersects } } ) )
+					}
+				}
+			}
+		},
+		//////Attach labels to atoms in 3d//////
+		labelTrack: {enabled: false, fn: function(){
+				var widthHalf = mol3d.container.getBoundingClientRect().width/2;
+				var heightHalf = mol3d.container.getBoundingClientRect().height/2;
+				for( label of self.labels ){
+					var vector = new THREE.Vector3().setFromMatrixPosition( label.datum().object.matrixWorld );
+					vector.project( mol3d.camActive );
+
+					label.style("right", ( - ( vector.x * widthHalf ) + widthHalf ) + "px" )
+					label.style("bottom", ( ( vector.y * heightHalf ) + heightHalf ) + "px" )
+				}
+			}
 		}
 	};
 
@@ -533,6 +575,8 @@ var Mol3D = function( container, params ){
 	self.frameFunctions.highlight.enabled = params.highlight !== undefined ? params.highlight : true;
 	self.frameFunctions.highlightSync.enabled = params.highlightSync !== undefined ? params.highlightSync : false;
 	self.frameFunctions.autoRotate.enabled = params.autoRotate !== undefined ? params.autoRotate : false;
+	self.frameFunctions.mouseoverDispatch.enabled = params.mouseoverDispatch !== undefined ? params.mouseoverDispatch : false;
+	self.frameFunctions.labelTrack.enabled = params.labelTrack !== undefined ? params.labelTrack : true;
 
 	self.scene = new THREE.Scene();
 	self.stats = showStats ? new Stats() : null;
@@ -727,9 +771,9 @@ var Mol3D = function( container, params ){
 
 	//////Parse 3D data into object//////
 	self.parse = function( data ){
+
 		var mol3d = {}
 		data = data.split( "\n" ).map( el => el.trim() ).join( "\n" )
-		self.molfile = data;
 		const [numatoms, numbonds] = data.split( "\n" )[3].match( /.{1,3}/g ).slice( 0, 2 ).map( el => parseInt( el ) );
 
 		mol3d.atoms = data.split( "\n" )
@@ -758,7 +802,6 @@ var Mol3D = function( container, params ){
 							}
 						});
 
-
 		mol3d.atoms.forEach( function( atom, i ){
 			atom.bondedTo = []
 			mol3d.bonds
@@ -779,33 +822,36 @@ var Mol3D = function( container, params ){
 	//////Draw Molecule//////
 	self.draw = function( hidden ) {
 
+		var molGroup;
+
 		if( ajaxRunning ){ console.warn( "AJAX Request currently in progress: no data to draw. Listen for event 'ajaxComplete' after calling getFromSMILE() to call draw()." ) }
 		else{
 			if (Detector.webgl) {
-				self.addtoScene( hidden );
+				molGroup = self.addtoScene( hidden );
 				if( self.animID ){ window.cancelAnimationFrame( self.animID ) };
 				self.play()
 				self.onWindowResize();
 				window.addEventListener( "resize", self.onWindowResize );
-				self.renderer.domElement.addEventListener( "mousemove", self.onMouseMove, false );
+				document.addEventListener( "mousemove", self.onMouseMove, false );
 			} else {
 				var warning = Detector.getWebGLErrorMessage();
 				d3.select( self.container ).appendChild( warning );
 			};
 		}
+		return molGroup
 
 	};
 
 	//////Initialise Scene//////
 	self.addtoScene = function( hidden ) {
 
-		self.molGroup = new THREE.Group()
+		self.molGroup = new THREE.Group();
 
-		drawAtoms( self.molecule.atoms );
-		drawBonds( self.molecule.bonds );
+		drawAtoms( self.molecule.atoms, self.molGroup );
+		drawBonds( self.molecule.bonds, self.molGroup );
 
-		hidden && console.warn( "Molecule hidden. Use .molGroup to access scene objects." )
-		self.molGroup.traverse( obj => { if( obj instanceof THREE.Mesh ){ obj.visible = !hidden } } )
+		hidden && console.warn( "Molecule hidden. Use .molGroup to access scene objects." );
+		self.molGroup.traverse( obj => { if( obj instanceof THREE.Mesh ){ obj.visible = !hidden } } );
 		self.scene.add( self.molGroup );
 
 		drawFunctionalGroups( self.molecule.fGroups );
@@ -813,191 +859,194 @@ var Mol3D = function( container, params ){
  		//////Fit molecule to view///
 		self.resetView();
 
-		function drawAtoms( atoms ){
-			//////ATOMS//////
-			atoms.forEach(function( el, i ){
+		return self.molGroup
+	}
 
-				material = new THREE.MeshToonMaterial({
-								color: new THREE.Color().setRGB( ...atomCols[el.element] ),
-								reflectivity: 0.8,
-								shininess: 0.8,
-								specular: 0.8,
-							});
+	self.genGroup = function( data ){
+		var group = new THREE.Group();
 
-				const sphere = new THREE.SphereGeometry( ( el.element === "H" ? 0.2 : 0.25 ) , 16, 16 )
-				mesh = new THREE.Mesh( sphere, material );
-				mesh.position.set( ...el.pos );
+		drawAtoms( data.atoms, group );
+		drawBonds( data.bonds, group );
+		drawFunctionalGroups( data.fGroups );
 
-				mesh.name = el.index;
-				mesh.userData.tooltip = el.element;
-				mesh.userData.type = "atom";
-				mesh.userData.source = el;
+		return group
+	}
 
-				el.HTML = mesh;
+	function drawAtoms( atoms, group ){
+		//////ATOMS//////
+		atoms.forEach(function( el, i ){
 
-				self.molGroup.add( mesh );
-
-			});
-		}
-
-		function drawBonds( bonds ){
-
-			//////BONDS//////
-			bonds.forEach( function( el, i ){
-				var vec = new THREE.Vector3( ...el.end.pos ).sub( new THREE.Vector3( ...el.start.pos ) );
-
-				switch ( el.type ){
-
-					case "1":
-
-						var bond = new THREE.TubeGeometry(
-							new THREE.LineCurve3(
-								new THREE.Vector3( 0, 0, 0 ),
-								vec,
-							), 0, .05, 14, false );
-						break;
-
-					case "2":
-					case "3":
-
-						const polar_sphere = [vec.length(), Math.acos(vec.z/vec.length()), Math.atan2(vec.y,vec.x)]; //[r,theta,phi]
-						var bond = new THREE.Geometry();
-
-						bond.merge( new THREE.TubeGeometry(
-							new THREE.QuadraticBezierCurve3(
-								new THREE.Vector3( 0, 0, 0 ),
-								new THREE.Vector3(
-									vec.x/2 + 0.5*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
-									vec.y/2 + 0.5*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
-									vec.z/2 + 0.5*Math.cos( polar_sphere[1] )
-								),
-								vec
-							), 10, .05, 8, false )
-						);
-
-						bond.merge( new THREE.TubeGeometry(
-							new THREE.QuadraticBezierCurve3(
-								new THREE.Vector3( 0, 0, 0 ),
-								new THREE.Vector3(
-									vec.x/2 - 0.5*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
-									vec.y/2 - 0.5*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
-									vec.z/2 - 0.5*Math.cos( polar_sphere[1] )
-								),
-								vec
-							), 10, .05, 8, false )
-						);
-
-						if ( el.type === "3" ) {
-
-							bond.merge(
-								new THREE.TubeGeometry(
-									new THREE.LineCurve3(
-										new THREE.Vector3( 0, 0, 0 ),
-										vec,
-								), 0, .05, 14, false )
-							);
-
-						};
-						break;
-
-				};
-
-				material = new THREE.MeshToonMaterial({
-										color: new THREE.Color().setRGB( ...bondCols[el.type] ),
-										reflectivity: 0.8,
-										shininess: 0.8,
-										specular: 0.8,
-									});
-				mesh = new THREE.Mesh( bond, material );
-
-				mesh.name = el.start.index + "_" + el.end.index;
-				mesh.userData.source = el;
-				mesh.userData.tooltip = el;
-				mesh.userData.type = "bond";
-
-				mesh.position.set( ...el.start.pos );
-
-				el.HTML = mesh;
-
-				self.molGroup.add( mesh );
-
-				////// attach bond to self.root atom
-				//THREE.SceneUtils.attach( mesh, self.scene, self.scene.getObjectByName( el.start.index ) )
-				////// attach target atom to bond
-				//THREE.SceneUtils.attach( self.scene.getObjectByName( el.end.index ), self.scene, mesh )
-
-				//mesh.children[0].position.copy( new THREE.Vector3( ...el.end.pos ) ).sub( new THREE.Vector3( ...el.start.pos ) )
-
-
-
-			})
-
-		}
-
-		function drawFunctionalGroups( fGroups ){
-			//////FUNCTIONAL-GROUPS//////
-			fGroups.forEach( function( el, i ){
-
-				var hlmat = new THREE.MeshToonMaterial( {
-							color: new THREE.Color().setHex( Math.random() * 0xffffff ),
-							transparent: true,
-							visible: true,
-							opacity: 0.7,
-							flatShading: true,
+			material = new THREE.MeshToonMaterial({
+							color: new THREE.Color().setRGB( ...atomCols[el.element] ),
+							reflectivity: 0.8,
+							shininess: 0.8,
+							specular: 0.8,
 						});
 
-				//Draw bonds//////
-				// el.claimed.forEach( function ( d ){
+			const sphere = new THREE.SphereGeometry( ( el.element === "H" ? 0.2 : 0.25 ) , 16, 16 )
+			mesh = new THREE.Mesh( sphere, material );
+			mesh.position.set( ...el.pos );
 
-					// var vec = new THREE.Vector3( ...d.end.pos ).sub( new THREE.Vector3( ...d.start.pos ) )//[d.end.pos[0] - d.start.pos[0], d.end.pos[1] - d.start.pos[1], d.end.pos[2] - d.start.pos[2]];
+			mesh.name = el.index;
+			mesh.userData.tooltip = el.element;
+			mesh.userData.type = "atom";
+			mesh.userData.source = el;
 
-					// var hlgeo = new THREE.TubeGeometry(
-								// new THREE.LineCurve3( new THREE.Vector3( 0, 0, 0 ), vec),
-								// 0, 0.5, 14, false );
+			el.HTML = mesh;
 
-					// var hlmesh = new THREE.Mesh( hlgeo, hlmat );
-					// hlmesh.userData.tooltip = el.type;
-					// hlmesh.userData.type = "rGroup";
-					// hlmesh.userData.source = el;
-					// scene.getObjectByName( d.start.index + "_" + d.end.index ).add( hlmesh );
-				// })
+			group.add( mesh );
 
-				//Draw atoms//////
-				var hlgeo = new THREE.IcosahedronBufferGeometry( 0.5, 1 );
-				var hlmesh = new THREE.Mesh( hlgeo, hlmat );
+		});
+	}
 
-				var source = self.scene.getObjectByName( el.source.index );
-				hlmesh.userData.tooltip = el.type;
-				hlmesh.userData.type = "fGroup";
+	function drawBonds( bonds, group ){
 
-				el.domain.forEach( function( d ){
+		//////BONDS//////
+		bonds.forEach( function( el, i ){
+			var vec = new THREE.Vector3( ...el.end.pos ).sub( new THREE.Vector3( ...el.start.pos ) );
 
-					const hlmeshNEW = hlmesh.clone();
-					hlmeshNEW.userData.source = el;
-					self.scene.getObjectByName( d.index ).add( hlmeshNEW );
+			switch ( el.type ){
 
-					hlmeshNEW.visible = showfGroups
+				case "1":
 
-				});
+					var bond = new THREE.TubeGeometry(
+						new THREE.LineCurve3(
+							new THREE.Vector3( 0, 0, 0 ),
+							vec,
+						), 0, .05, 14, false );
+					break;
 
-				hlmesh.userData.source = el;
+				case "2":
+				case "3":
 
+					const polar_sphere = [vec.length(), Math.acos(vec.z/vec.length()), Math.atan2(vec.y,vec.x)]; //[r,theta,phi]
+					var bond = new THREE.Geometry();
 
-				source.add( hlmesh )
+					bond.merge( new THREE.TubeGeometry(
+						new THREE.QuadraticBezierCurve3(
+							new THREE.Vector3( 0, 0, 0 ),
+							new THREE.Vector3(
+								vec.x/2 + 0.5*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
+								vec.y/2 + 0.5*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
+								vec.z/2 + 0.5*Math.cos( polar_sphere[1] )
+							),
+							vec
+						), 10, .05, 8, false )
+					);
 
-				hlmesh.visible = showfGroups
+					bond.merge( new THREE.TubeGeometry(
+						new THREE.QuadraticBezierCurve3(
+							new THREE.Vector3( 0, 0, 0 ),
+							new THREE.Vector3(
+								vec.x/2 - 0.5*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
+								vec.y/2 - 0.5*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
+								vec.z/2 - 0.5*Math.cos( polar_sphere[1] )
+							),
+							vec
+						), 10, .05, 8, false )
+					);
 
-			})
+					if ( el.type === "3" ) {
 
-		}
+						bond.merge(
+							new THREE.TubeGeometry(
+								new THREE.LineCurve3(
+									new THREE.Vector3( 0, 0, 0 ),
+									vec,
+							), 0, .05, 14, false )
+						);
+
+					};
+					break;
+
+			};
+
+			material = new THREE.MeshToonMaterial({
+									color: new THREE.Color().setRGB( ...bondCols[el.type] ),
+									reflectivity: 0.8,
+									shininess: 0.8,
+									specular: 0.8,
+								});
+			mesh = new THREE.Mesh( bond, material );
+
+			mesh.name = el.start.index + "_" + el.end.index;
+			mesh.userData.source = el;
+			mesh.userData.tooltip = el;
+			mesh.userData.type = "bond";
+
+			mesh.position.set( ...el.start.pos );
+
+			el.HTML = mesh;
+
+			group.add( mesh );
+
+		})
 
 	}
+
+	function drawFunctionalGroups( fGroups ){
+		//////FUNCTIONAL-GROUPS//////
+		fGroups.forEach( function( el, i ){
+
+			var hlmat = new THREE.MeshToonMaterial( {
+						color: new THREE.Color().setHex( Math.random() * 0xffffff ),
+						transparent: true,
+						visible: true,
+						opacity: 0.7,
+						flatShading: true,
+					});
+
+			//Draw bonds//////
+			// el.claimed.forEach( function ( d ){
+
+				// var vec = new THREE.Vector3( ...d.end.pos ).sub( new THREE.Vector3( ...d.start.pos ) )//[d.end.pos[0] - d.start.pos[0], d.end.pos[1] - d.start.pos[1], d.end.pos[2] - d.start.pos[2]];
+
+				// var hlgeo = new THREE.TubeGeometry(
+							// new THREE.LineCurve3( new THREE.Vector3( 0, 0, 0 ), vec),
+							// 0, 0.5, 14, false );
+
+				// var hlmesh = new THREE.Mesh( hlgeo, hlmat );
+				// hlmesh.userData.tooltip = el.type;
+				// hlmesh.userData.type = "rGroup";
+				// hlmesh.userData.source = el;
+				// scene.getObjectByName( d.start.index + "_" + d.end.index ).add( hlmesh );
+			// })
+
+			//Draw atoms//////
+			var hlgeo = new THREE.IcosahedronBufferGeometry( 0.5, 1 );
+			var hlmesh = new THREE.Mesh( hlgeo, hlmat );
+
+			var source = self.scene.getObjectByName( el.source.index );
+			hlmesh.userData.tooltip = el.type;
+			hlmesh.userData.type = "fGroup";
+
+			el.domain.forEach( function( d ){
+
+				const hlmeshNEW = hlmesh.clone();
+				hlmeshNEW.userData.source = el;
+				self.scene.getObjectByName( d.index ).add( hlmeshNEW );
+
+				hlmeshNEW.visible = showfGroups
+
+			});
+
+			hlmesh.userData.source = el;
+
+
+			source.add( hlmesh )
+
+			hlmesh.visible = showfGroups
+
+		})
+
+	}
+
 
 	//////Show Scene hierarchy//////
 	self.printHierarchy = function( obj ) {
 
 		console.group( ' <' + obj.type + '> ' + obj.name );
-		obj.children.forEach( printGraph );
+		obj.children.forEach( self.printHierarchy );
 		console.groupEnd();
 
 	}
@@ -1083,12 +1132,12 @@ var Mol3D = function( container, params ){
 
 				case "atom":
 
-					if( ob.userData.source.element === "H" ) ob.visible = showH;
+					if( ob.userData.source.element === "H" && ob.userData.source.bondedTo[0].el.element === "C" ) ob.visible = showH;
 					break;
 
 				case "bond":
 
-					if( ob.userData.source.start.element === "H" || ob.userData.source.end.element === "H" ) ob.visible = showH;
+					if( ( ob.userData.source.start.element === "H" && ob.userData.source.end.element === "C" ) || ( ob.userData.source.start.element === "C" && ob.userData.source.end.element === "H" ) ) ob.visible = showH;
 					break;
 
 				case "rGroup":

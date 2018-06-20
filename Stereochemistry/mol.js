@@ -1,6 +1,3 @@
-
-
-
 var molfile2d = `C3H7NO2
 APtclcactv03051809372D 0   0.00000     0.00000
 

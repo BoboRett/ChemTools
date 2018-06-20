@@ -1,0 +1,345 @@
+<!DOCTYPE html><meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="NMRtool.css?v=1"/>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106347776-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-106347776-2');
+</script>
+
+
+<body>
+	<div class="header">
+		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 2.3vw;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - NMR Multiplet Tool</p>
+		<!-- <p style="position:absolute;left: 50vw;top: 26px;font-size: 16px;color:white;font-family:'tradegothicltcom',sans-serif;font-weight: normal;width: 360px;text-align: center;">Does nothing get your protons flipping more than NMR? Perhaps one of our Masters programs are for you!</p> -->
+
+		<a href="http://www.leeds.ac.uk/"><img src="unileeds.svg" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 16vw;min-width: 135px;"/></a>
+	</div>
+	<div class="page">
+		<div id="container">
+			<svg viewbox="0,-5,500,210" class="graph" id="graph">
+				<g id="rootframe" transform="translate(15,0)">
+					<g id="graphs"></g>
+					<g class="outline" id="outline"></g>
+					<g class="inputs" transform="translate(330,0) scale(0.7)">
+						<foreignObject width="40%" height="100%">
+							<p style="text-align:right"><span class="bigtext">&delta; (2 d.p):</span>
+								<input class="userinp" id="delta" size="10" onkeydown="getDelta()" oninput ="UpdatePrintout()" autocomplete="off"/>
+							</p>
+							<p style="text-align:right"><span class="bigtext">Multiplicity:</span>
+								<input class="userinp" id="multiplicity" size="10" oninput ="UpdatePrintout()" autocomplete="off"/>
+							</p>
+							<p style="text-align:right"><span class="bigtext">J (1 d.p):</span>
+								<input class="userinp" id="J" size="10" oninput ="UpdatePrintout()" autocomplete="off"/>
+							</p>
+						</foreignObject>
+						<text class="bigtext" id="printout" x="110" y="173" text-anchor="middle" font-family="Verdana">   </text>
+					</g>
+					<g class="labels" id="staticlabels">
+						<text class="graphtext" x="313" y="200">&delta; ppm</text>
+						<rect x="240" y="5" width="80" height="20" style="fill:#d1e3ff;opacity:0.7"></rect>
+						<text class="graphtext" id="field" x="270" y="17">Field: 400MHz</text>
+					</g>
+					<g id="indicators">
+						<g class="arrow" id="r" opacity="0">
+							<polyline transform="translate(270,60)scale(3)" style="fill:#64a891; stroke:#518774;stroke-linejoin:round;stroke-linecap:round;" points ="1,-7 7,0 1,7 1,3 -6,3 -6,-3 1,-3 1,-7"></polyline>
+							<text font-size="6" font-family="Verdana" transform="translate(256,62)">Offscreen</text>
+						</g>
+						<g class="arrow" id="l" opacity="0">
+							<polyline transform="translate(30,60)scale(-3)" style="fill:#64a891; stroke:#518774;stroke-linejoin:round;stroke-linecap:round;;" points ="1,-7 7,0 1,7 1,3 -6,3 -6,-3 1,-3 1,-7"></polyline>
+							<text font-size="6" font-family="Verdana" transform="translate(16,62)">Offscreen</text>
+						</g>
+						<polyline class="validate" id="tick" style="stroke:#4adc4a;" points="11.6,20 15.9,24.2 26.4,13.8 " transform="translate(209,50)scale(3)"></polyline>
+						<polyline class="validate" id="cross1" style="stroke:#4A142B;" points="10,10 25,25" transform="translate(212,50)scale(3)"></polyline>
+						<polyline class="validate" id="cross2" style="stroke:#4A142B;" points="25,10 10,25" transform="translate(212,50)scale(3)"></polyline>
+						<text class="tip" style="fill:#4A142B; stroke:#4A142B;" transform="translate(404,180)scale(.6)">
+							<tspan x=0 dy=1.5em>Multiplicity abbreviations: d|t|q|qn|sx</tspan>
+						</text>
+						</g>
+						<g class="buttons"></g>
+					</g>
+			</svg>
+		</div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+	function padset(){
+		d3.select(".page").style("padding-top",d3.select(".header").node().getBoundingClientRect().bottom - 10 + "px");
+	}
+	
+	window.onload = padset
+	window.addEventListener("resize",padset)
+
+
+	d3.select("#graph").on("keypress",function(){if(d3.event.keyCode==13){Attempt()}})
+	
+	function LineGen(root,cls,id,x1,x2,y1,y2,attributes,styles){ //Line template
+		var tmp = root.append("line")
+			.attr("class",cls)
+			.attr("id",id)
+			.attr("x1",x1)
+			.attr("x2",x2)
+			.attr("y1",y1)
+			.attr("y2",y2)
+		for(attribute of attributes){
+			tmp.attr(attribute[0],attribute[1])
+		}
+		for(style of styles){
+			tmp.style(style[0],style[1])
+		}
+		return tmp
+	}
+	function TextGen(root,cls,id,x,y,text,attributes,styles){ //Text template
+		var tmp = root.append("text")
+			.attr("class",cls)
+			.attr("id",id)
+			.attr("x",x)
+			.attr("y",y)
+			.text(text)
+		for(attribute of attributes){
+			tmp.attr(attribute[0],attribute[1])
+		}
+		for(style of styles){
+			tmp.style(style[0],style[1])
+		}
+		return tmp
+	}
+ 	
+	function buildAxes(){ //Generates axes and ticklines/labels
+		interval = 12
+		var inc = 0.01 //ticklines
+		var major = 0.1 //major labels
+		var minor = 0.05 //minor labels
+		d3.select("#xTicks").remove()
+		d3.select("#labels").remove()
+		var tickmarks = d3.select("#rootframe").append("g").attr("class","labels").attr("id","xTicks").lower()
+		var ticks = d3.range(150,300,interval)
+		graph_centre = typeof graph_centre=="undefined" ? 0:graph_centre
+		var labelr = d3.range(graph_centre,graph_centre-0.2,-inc).map(function(i){return (Math.round(i*100))})
+		var labell = d3.range(graph_centre,graph_centre+0.2,inc).map(function(i){return (Math.round(i*100))})
+ 		for(var i=0; i<ticks.length; i++){
+			LineGen(tickmarks,"line",i+"_r",ticks[i],ticks[i],190,191,[],[])
+			LineGen(tickmarks,"line",i+"_l",2*ticks[0]-ticks[i],2*ticks[0]-ticks[i],190,191,[],[])
+			LineGen(tickmarks,"minorline",i+"_r",ticks[i],ticks[i],5,190,[["opacity",0.1]],[])
+			LineGen(tickmarks,"minorline",i+"_l",2*ticks[0]-ticks[i],2*ticks[0]-ticks[i],5,190,[["opacity",0.1]],[])
+			
+			if(labelr[i]/(100*major)%1==0){
+				d3.select("#\\3"+String(i).split("").join(" ")+"_r.line").attr("y2",193)
+				d3.select("#\\3"+String(i).split("").join(" ")+"_r.minorline").attr("opacity",0.3)
+				TextGen(tickmarks,"graphtext",i+"_r",ticks[i],200,(labelr[i]/100).toFixed(2),[],[])
+			}
+			else if(labelr[i]/(100*minor)%1==0){
+				d3.select("#\\3"+String(i).split("").join(" ")+"_r.line").attr("y2",192)
+				d3.select("#\\3"+String(i).split("").join(" ")+"_r.minorline").attr("opacity",0.2)
+				TextGen(tickmarks,"graphtext",i+"_r",ticks[i],200,labelr[i]/100,[],[])
+			}
+					
+			if(labell[i]/(100*major)%1==0){
+				d3.select("#\\3"+String(i).split("").join(" ")+"_l.line").attr("y2",193)
+				d3.select("#\\3"+String(i).split("").join(" ")+"_l.minorline").attr("opacity",0.3)
+				TextGen(tickmarks,"graphtext",i+"_l",2*ticks[0]-ticks[i],200,(labell[i]/100).toFixed(2),[],[])
+			}
+			else if(labell[i]/(100*minor)%1==0){
+				d3.select("#\\3"+String(i).split("").join(" ")+"_l.line").attr("y2",192)
+				d3.select("#\\3"+String(i).split("").join(" ")+"_l.minorline").attr("opacity",0.2)
+				TextGen(tickmarks,"graphtext",i+"_l",2*ticks[0]-ticks[i],200,(labell[i]/100).toFixed(2),[],[])
+			}
+		}
+	}
+	
+	function BuildLabels(target, centres){ //Generates peak labels and lines
+		var grp = d3.select("#rootframe").append("g").attr("class","labels").attr("id","tags")
+		var exists = false
+		var y = 30
+		centres = centres.sort(function(a,b){return a-b})
+		for(i=0;i<centres.length;i++){
+			var bool = centres.indexOf(centres[i])==i
+			for(val of centres){
+				if(centres[i]-val!=0){
+					if(centres[i]-val<=1 && centres[i]-val>0){
+						bool=false;
+						if(centres[i-1]!=null){
+							centres[i-1]=((centres[i]-centres[i-1])/2)+centres[i-1]
+						}
+					}
+				}
+			}
+			if(bool){centres[i]=centres[i]}
+			else{centres[i]=null}
+		}
+		centres.filter(function(d){return d!=null}).map(function(d,i,self){
+			if(y==30){
+				if(Math.abs(d-self[i+1])<4 || Math.abs(d-self[i-1])<4){y=45};
+			}
+			else{y=30}
+			TextGen(grp,"","",0,0,((150-d)/(pph*100)+graph_centre).toFixed(4),[["transform","translate("+(d+1.4)+","+y+") rotate(-90)"]],[])
+			LineGen(grp,"","",parseFloat(d.toFixed(1)),parseFloat(d.toFixed(1)),y+9,y+9,[],[])
+		})
+	}
+	
+	
+	function LineBuild(target, centres){ //Generates data-sets and scalefactor, creates target graph, and animates correct curve
+		console.log(centres)
+		var graphs = d3.select("#graphs")
+		var xdata = d3.range(0,300,0.1)
+		var ydata = []
+		var data = []
+		var correctY = []
+		line = d3.line()
+			.x(function(d){return d.x;})
+			.y(function(d){return d.y;})
+		for(var i=0; i<xdata.length; i++){
+			ydata.push(parseFloat(Gaussian(xdata[i],centres,centres.length).toFixed(4)))
+			data.push({"x":xdata[i].toFixed(2),"y":ydata[i]})
+		}
+		scalefactor = 120/d3.max(ydata)
+		if(d3.select("#"+target).empty()){
+			graphs.append("path")
+				.data([data])
+				.attr("class","graphline")
+				.attr("id",target)
+				.attr("d",line(data.map(function(d){return {x:d.x, y:0}})))
+				.attr("transform","translate(300,180) scale(-1)")
+		}
+		else{d3.select("#"+target).data([data])}
+		
+		BuildLabels(target,centres)
+		//d3.select("#"+target).attr("d",line(d3.select("#"+target).data()[0].map(function(d){return {x:d.x, y:0}})))
+		d3.select("#"+target).transition().duration(2300).ease(d3.easeCubic)
+			.attr("d",line(d3.select("#"+target).data()[0].map(function(d){return {x:d.x, y:scalefactor*d.y}})))
+
+		d3.selectAll("#tags > line").each(function(d,i){
+			x_1 = d3.select(this).attr("x1")
+			d3.select(this).transition().duration(2300).ease(d3.easeCubic)
+				.attr("y2",177-d3.select("#"+target).data()[0].filter(function(a){return a.x==parseFloat(x_1)})[0].y*scalefactor)
+		})
+		buildAxes()
+	}
+	
+	function ErrorBuzz(target){ //Flashes target field red
+		var col = target.style("background-color")
+		target.transition()
+			.duration(200)
+			.style("background-color","#4A142B")
+			.transition()
+			.delay(0)
+			.duration(200)
+			.style("background-color","white")
+	}
+	
+	function Gaussian(x, x0,n){	//(x-point, centre, no. of peaks)
+		var value = 0
+		for(var i=0; i<n; i++){
+			value += 100*Math.exp(-(Math.pow(x-(x0[i]),2)/(2*Math.pow(0.6,2))))
+		}
+		return value
+	}
+	
+	function getMult(){ //Get multiplicity input and check for errors
+		var field = d3.select("#multiplicity")
+		var input = field.node().value
+		if(/([^dtqnsx])/.test(input)==true && input!="") {
+			ErrorBuzz(field)
+			field.node().value=input_mult
+		}
+		input_mult = field.node().value
+		return input_mult
+	}
+	function getJ(){ //Get J input and check for errors
+		var field = d3.select("#J")
+		var input = field.node().value
+		if(/[^0-9,.\s]/.test(input)==true && input!="") {
+			field.node().value=input_J
+			ErrorBuzz(field)
+		}
+		input_J = field.node().value
+		return input_J.replace(/\s/g,"")
+	}
+	function getDelta(){ //Get delta input and check for errors
+		var field = d3.select("#delta")
+		var input = field.node().value
+		if(/[^0-9.]/.test(input)==true && input!="") {
+			ErrorBuzz(field)
+			field.node().value=input_delt
+		}
+		input_delt = field.node().value
+		return input_delt
+	}
+	function UpdatePrintout(){ //Returns user's answer
+		d3.select("#printout").text(getDelta() + " " + getMult() + " " + getJ())
+	}
+	
+	function StringParse(string, isanswer){ //Parses string into delta, multiplicity, and J, generating peak positions and graph dimensions
+		var delt = parseFloat(string[0])
+		var mults = string[1].match(/(d|t|qn|q|sx)/g)
+		var J = string[2].split(",").map(function(d){return parseFloat(parseFloat(d).toFixed(1))})
+
+		var shifts = []
+		var centres = []
+		var ap = [150];
+		pph = 12;
+		graph_centre = delt;
+		graph_width = d3.sum(shifts)*pph
+		for(i=0;i<mults.length;i++){
+			switch(mults[i]){
+				case "d": shifts.push(J[i]); break;
+				case "t": mults[i]="dd"; shifts.push(J[i],J[i]); break;
+				case "q": mults[i]="ddd"; shifts.push(J[i],J[i],J[i]); break;
+				case "qn": mults[i]="dddd"; shifts.push(J[i],J[i],J[i],J[i]); break;
+				case "sx": mults[i]="ddddd"; shifts.push(J[i],J[i],J[i],J[i],J[i]); break;
+			}				
+		}
+		mults = mults.join("")
+		for(i=0;i<mults.length;i++){
+			var centre = []
+			for(j=0;j<ap.length;j++){
+				shift = parseFloat(shifts[i])*pph*100;
+				x0 = ap[j]
+				centre = centre.concat([x0+shift/(2*400), x0-shift/(2*400)])
+			}
+			ap.length=0;
+			for(point of centre){ap.push(point)};
+		}
+		for(point of centre){centres.push(parseFloat(point.toFixed(1)))};
+		return centres
+	}
+	
+	function ErrorPing(text){
+		if(d3.select(".error").empty()){
+			TextGen(d3.select("#indicators"),"error","",400,120,text,[["fill","#4A142B"]],[])
+			setTimeout(function(){d3.select(".error").remove()},3000)
+		}
+	}
+	
+	function Attempt(){ //Verifies input format and triggers scale animations
+		d3.selectAll("#tags").remove()
+		Clear()
+		var error=false
+		var input = d3.select("#printout").html().split(" ")
+		if(input[0]==""||input[0].match(/[0-9]{1,}[.]([0-9]{2}(?![0-9]))/)==null){ErrorBuzz(d3.select("#delta")); error=true}
+		if(input[1]==""||input[1].replace(/(d|t|qn|q|sx)/g,"").length!=0){ErrorBuzz(d3.select("#multiplicity"));error=true}
+		if(input[2]==""||input[2].replace(/(,|[0-9]{1,}[.]([0-9]{1}(?![0-9])))/g,"").length!=0){ErrorBuzz(d3.select("#J")); error=true}
+		else if((input[1].match(/(d|t|qn|q|sx)/g)||[]).length!=input[2].split(",").length){ErrorBuzz(d3.selectAll("#J,#multiplicity"));ErrorPing("Is there a J for every multiplet?");error=true}
+		if(error){return}
+
+		LineBuild("attempt", StringParse(d3.select("#printout").html().split(" "),false));
+	}
+	
+	function Clear(){
+		if(!d3.select("#attempt").empty()){
+			d3.selectAll("#tags > line").each(function(d,i){
+				x_1 = d3.select(this).attr("x1")
+				d3.select(this).transition().duration(2300).ease(d3.easeCubic)
+					.attr("y2",177-d3.select("#attempt").data()[0].filter(function(a){return a.x==parseFloat(x_1)})[0].y*scalefactor)
+			})
+		}
+	}
+	var input_J = ""
+	var input_delt = ""
+	var input_mult = ""
+	var timeout
+	buildAxes()
+</script>
+</body>

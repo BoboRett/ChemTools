@@ -1,0 +1,136 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+
+.answerButton {
+	background: grey;
+    height: 95%;
+    width: 60%;
+    border: solid 1px;
+	border-radius: 20px;
+}
+
+body {
+	margin-top: 80px;
+	background-color: #293026;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+.button {
+    background-color: #5b7da0;
+    border: none;
+    color: white;
+    padding: 15px 0px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 45%;
+    margin: 5px;
+    box-shadow: 3px 3px 4px rgba(0,0,0,.3);
+}
+
+div{
+    overflow: hidden;
+    display: block;
+	position:relative;
+}
+
+h1 {
+	margin: 3px;
+	text-align: center;
+	font-family: "Bookman Old Style";
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.header {
+	position: fixed;
+    top: -5px;
+    background-color: #3e4649;
+    display: block;
+    width: 100%;
+    z-index: 10;
+    border-bottom: 3px solid #212121;
+}
+
+.menu {
+	position: relative;
+	height: 220px;
+	width: 100%;
+	background: linear-gradient(-90deg, #7B8976, #7B8976);
+	border-top: 6px solid #4e564b;
+	padding: 10px 0px 10px 0px;
+}
+
+.page {
+    width: 100%;
+    height: 677px;
+    top:24px;
+    background-color: #AFC2A9;
+    border-top: 3px solid #4e564b;
+    border-bottom: 3px solid #4e564b;
+}
+
+.answerFrame {
+    position: relative;
+    height: 25%;
+    width: 1050px;
+    margin: auto;
+}

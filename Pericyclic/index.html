@@ -1,0 +1,43 @@
+<!DOCTYPE html><meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="main.css"/>
+
+<body>
+	<div class="header" onclick="mol2d.fitToScreen()">
+		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Stereochemistry</p>
+		<p id="dev" style="color:white"></p>
+		<a href="http://www.leeds.ac.uk/"><img src="../unileeds.svg" alt="University of Leeds" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
+	</div>
+
+	<div class="page">
+		<div id="gameFrame" style="height:100%">
+			<div class="view3D" style="width:1020px; height:431px;"></div>
+
+			<div class="menu" id="root" style="">
+				<div class="answerFrame">
+					<div class="answerButton"></div>
+				</div>
+				<div class="answerFrame">
+					<div class="answerButton"></div>
+				</div>
+				<div class="answerFrame">
+					<div class="answerButton"></div>
+				</div>
+				<div class="answerFrame">
+					<div class="answerButton"></div>
+				</div>
+			</div
+		</div>
+	</div>
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+	<script src="https://www.lactame.com/lib/openchemlib/5.4.0/openchemlib-minimal.js"></script>
+	<script src="../Scripts/three.min.js"></script>
+	<script src="../Scripts/stats.min.js"></script>
+	<script src="../Scripts/Detector.js"></script>
+	<script src="../Scripts/TrackballControls.js"></script>
+	<script src="../Scripts/OutlineEffect.js"></script>
+	<script src="../Scripts/molViewer.js"></script>
+	<script src="pericyclic.js"></script>
+
+</body>

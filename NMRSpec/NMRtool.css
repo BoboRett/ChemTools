@@ -1,0 +1,236 @@
+::-webkit-scrollbar {
+	display:none;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    margin: -8px;
+    background-color: #3e4649;
+    display: block;
+    width: 100%;
+    z-index: 10;
+    border-bottom: 7px solid #212121;
+}
+
+body {
+	margin-top: 100px;
+    background-color: #4a5f6f;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+#container {
+    position: relative;
+}
+
+text:not(#tooltip),span {
+	pointer-events:none;
+}
+
+.outline{
+	stroke:black;
+	stroke-width: .5;
+}
+
+#correct {
+	stroke: #7B3B3B;
+	stroke-width: 1;
+	fill: none;
+}
+
+#attempt, #tree, .tree > #graph {
+	stroke: #ff5e00;
+	stroke-width: .8;
+	fill: none;
+}
+
+.labels > line {
+	stroke: black;
+	stroke-width: 0.3px;
+}
+
+#tags > text {
+	font-family: timesnewroman;
+	stroke:#7B3B3B;
+	stroke-width:0px;
+	font-size: 5.4px;
+	text-anchor:middle;
+	fill:#7B3B3B;
+	pointer-events:all;
+}
+
+#tags > text:hover {
+	font-size: 12px;
+	font-weight:bold;
+	stroke:black;
+	fill:black;
+}
+
+#tags > line {
+	stroke-dasharray:2;
+	stroke:#7B3B3B;
+	stroke-width: 0.4px;
+}
+
+.graphtext {
+	font-family: timesnewroman;
+	fill: black;
+	font-size: 8px;
+	text-anchor:middle;
+}
+
+.validate {
+	fill:none;
+	stroke-width:3;
+	stroke-linejoin:round;
+	stroke-miterlimit:10;
+	stroke-dasharray:50;
+	stroke-dashoffset:51;
+	stroke-linecap:round;
+}
+
+#indicators > text {
+	stroke-width:0.3;
+	font-size: 9px;
+	font-family:Verdana;
+	text-anchor:middle;
+}
+
+.bigtext {
+	font-family: Verdana;
+	color: black;
+	text-align:right;
+	font-size: initial;
+	line-height: 1;
+}
+
+.button > text {
+	font-size:8.4px;
+	fill:black;
+	font-family:Verdana;
+	text-anchor:middle;
+}
+
+.button > rect {
+	fill: #e69633;
+	stroke: #86581f;
+	stroke-width: 1;
+}
+
+.userinp {
+	border:none;
+	border-color:transparent;
+}
+
+h1 {
+    text-align: center;
+    font-size: 32px;
+    font-family: Verdana;
+    line-height: 52px;
+    font-weight: normal;
+    background: #81a3bb;
+    margin-top: 48px;
+    color: black;
+    box-shadow: 0px 0px 8px 8px #81a3bb;
+    margin-left: -6%;
+    margin-right: -6%;
+}
+
+.body > p, .body2 > p, .body > ul {
+	width: 90%;
+	margin: auto;
+	margin-top: 20px;
+	font-family:Verdana;
+	font-size: 17px;
+	line-height: 27px;
+}
+
+h2 {
+    margin-left: 2%;
+    margin-top: 39px;
+    font-size: 24px;
+    font-family: sans-serif;
+    font-weight: normal;
+}
+
+li {
+    margin-top: 5px;
+    line-height: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+}
+
+img.molecule {
+    width: 16vw;
+    min-width: 250px;
+    margin: auto;
+    vertical-align: text-top;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.page {
+    width: 80%;
+    margin: auto;
+    min-width: 400px;
+    background-color: #d1e3ff;
+    box-shadow: 0px 0px 21px 19px #d1e3ff;
+}
+
+.body {
+}
+
+img.graph {
+    width: 23.8vw;
+    min-width: 300px;
+    margin: auto;
+    vertical-align: text-top;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.minigraph {
+    width: 65vw;
+    padding-top: 30px;
+    min-width: 250px;
+    margin: auto;
+    margin-left: 9.5vw;
+    text-align: center;
+    display: inline-block;
+}
+
+.minigraph > div > img {
+    width: 20vw;
+    min-width: 240px;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.minigraph > div:hover {
+    transform: scale(2);
+}
+
+.minigraph > div {
+	transition: transform 0.25s ease-in-out;
+	float: left;
+	margin: 2px;
+	width: 20vw;
+	min-width: 300px;
+	background-color: #d1e3ff;
+}
+
+#mouseover {
+	stroke-width: 2px;
+	stroke: #2fb726;
+	pointer-events:none;
+	stroke-linecap:round;
+}
+
+.fat {
+	stroke: rgba(0, 0, 0, 0)
+}
+
