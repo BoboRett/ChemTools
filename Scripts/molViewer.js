@@ -571,6 +571,7 @@ var Mol3D = function( container, params ){
 	//////PROPS//////
 	var disableInteractions = params.disableInteractions !== undefined ? params.disableInteractions : false;
 	var showfGroups = params.showfGroups !== undefined ? params.showfGroups : true;
+	var showHs = params.showHs !== undefined ? params.showHs : true;
 	var showStats = params.showStats !== undefined ? params.showStats : false;
 	self.frameFunctions.highlight.enabled = params.highlight !== undefined ? params.highlight : true;
 	self.frameFunctions.highlightSync.enabled = params.highlightSync !== undefined ? params.highlightSync : false;
@@ -724,7 +725,9 @@ var Mol3D = function( container, params ){
 	var bondCols = new Proxy( {
 		1 : [0.1, 0.1, 0.1],
 		2 : [0.5, 0.1, 0.3],
-		3 : [0.1, 0.2, 0.5]
+		3 : [0.1, 0.2, 0.5],
+		4 : [0.5, 0.1, 0.3],
+		9 : [0.3, 0.3, 0.3]
 	}, {
 		get: function( target, name ){
 				return target.hasOwnProperty( name ) ? target[name]: [0, 0, 0];
@@ -855,6 +858,7 @@ var Mol3D = function( container, params ){
 		self.scene.add( self.molGroup );
 
 		drawFunctionalGroups( self.molecule.fGroups );
+		self.showH( showHs );
 
  		//////Fit molecule to view///
 		self.resetView();
@@ -919,7 +923,7 @@ var Mol3D = function( container, params ){
 				case "2":
 				case "3":
 
-					const polar_sphere = [vec.length(), Math.acos(vec.z/vec.length()), Math.atan2(vec.y,vec.x)]; //[r,theta,phi]
+					var polar_sphere = [vec.length(), Math.acos(vec.z/vec.length()), Math.atan2(vec.y,vec.x)]; //[r,theta,phi]
 					var bond = new THREE.Geometry();
 
 					bond.merge( new THREE.TubeGeometry(
@@ -957,6 +961,53 @@ var Mol3D = function( container, params ){
 						);
 
 					};
+					break;
+
+				case "4":
+
+					var polar_sphere = [vec.length(), Math.acos(vec.z/vec.length()), Math.atan2(vec.y,vec.x)]; //[r,theta,phi]
+					var bond = new THREE.Geometry();
+
+					const offsetStart1 = new THREE.Vector3(
+						0.1*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
+						0.1*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
+						0.1*Math.cos( polar_sphere[1] )
+					);
+					const offsetStart2 = new THREE.Vector3(
+						-0.1*Math.sin( polar_sphere[1] )*Math.cos( polar_sphere[2] + Math.PI/2 ),
+						-0.1*Math.sin( polar_sphere[1] )*Math.sin( polar_sphere[2] + Math.PI/2 ),
+						-0.1*Math.cos( polar_sphere[1] )
+					);
+
+					bond.merge( new THREE.TubeGeometry(
+						new THREE.LineCurve3(
+							offsetStart1,
+							new THREE.Vector3().copy( offsetStart1 ).add( vec )
+						), 0, .05, 8, false )
+					);
+
+					[[0.0, 0.15],[0.25, 0.45],[0.55, 0.75],[0.85, 1.0]].forEach( el => {
+						bond.merge( new THREE.TubeGeometry(
+							new THREE.LineCurve3(
+								new THREE.Vector3().copy( offsetStart2 ).addScaledVector( vec, el[0] ),
+								new THREE.Vector3().copy( offsetStart2 ).addScaledVector( vec, el[1] ),
+								), 0, .05, 14, false )
+						);
+					});
+					break;
+
+				case "9":
+
+					var bond = new THREE.Geometry();
+
+					[[0.0, 0.15],[0.25, 0.45],[0.55, 0.75],[0.85, 1.0]].forEach( el => {
+						bond.merge( new THREE.TubeGeometry(
+							new THREE.LineCurve3(
+								new THREE.Vector3().copy( vec ).multiplyScalar( el[0] ),
+								new THREE.Vector3().copy( vec ).multiplyScalar( el[1] ),
+								), 0, .05, 14, false )
+						);
+					})
 					break;
 
 			};

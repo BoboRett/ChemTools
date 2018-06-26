@@ -2,8 +2,8 @@
 <link rel="stylesheet" type="text/css" href="main.css"/>
 
 <body>
-	<div class="header" onclick="mol2d.fitToScreen()">
-		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Stereochemistry</p>
+	<div class="header">
+		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Ring</p>
 		<p id="dev" style="color:white"></p>
 		<a href="http://www.leeds.ac.uk/"><img src="../unileeds.svg" alt="University of Leeds" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
 
@@ -14,32 +14,26 @@
 
 	</div>
 
-	<div class="page">
-		<div id="gameFrame">
-			<div class="QuestionBox">
-				<h1 id="Question"></h1>
-				<div id="Image"></div>
-			</div>
-			<div class="AnswerBG">
-				<div class="AnswerBox">
-					<div class="AnswerFrame" id="framea"></div>
-					<div class="AnswerFrame" id="frameb"></div>
-					<div class="AnswerFrame" id="framec"></div>
-					<div class="AnswerFrame" id="framed"></div>
-				</div>
-			</div
-		</div>
-	</div>
+    <div class="page">
+		<div class="view3D"></div>
+        <div class="dragBox" id="drag1"></div>
+        <div class="dragBox" id="drag2" style="top:18.5%"></div>
+        <div class="dragBox" id="drag3" style="top:37%"></div>
+        <div class="dragBox" id="drag4" style="left:10%"></div>
+        <div class="dragBox" id="drag5" style="left:10%; top:18.5%"></div>
+        <div class="dragBox" id="drag6" style="left:10%; top:37%"></div>
+		<div class="dragBox" id="drag7" style="right: 210px; bottom: 6px; width: 100px; height: 100px;"</div>
+    </div>
+	<button type="button" onclick="genSmile();" style="position: relative;">Mark</button>
 
 	<script src="https://d3js.org/d3.v4.min.js"></script>
-	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 	<script src="https://www.lactame.com/lib/openchemlib/5.4.0/openchemlib-minimal.js"></script>
-	<script src="../Scripts/three.min.js"></script>
+    <script src="../Scripts/three.min.js"></script>
 	<script src="../Scripts/stats.min.js"></script>
 	<script src="../Scripts/Detector.js"></script>
 	<script src="../Scripts/TrackballControls.js"></script>
 	<script src="../Scripts/OutlineEffect.js"></script>
 	<script src="../Scripts/molViewer.js"></script>
-	<script src="pericyclic.js"></script>
+    <script src="ring.js"></script>
 
 </body>
