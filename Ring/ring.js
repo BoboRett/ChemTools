@@ -28,14 +28,52 @@ d3.select( document ).on( "ajaxComplete.highlightRing", () => {
     clearInterval( loadinterval );
     d3.select( "#loading" ).remove();
 
-    ["0_1","1_2","2_3","3_4","4_5","0_5"].forEach( e =>{
-        mol3d.scene.getObjectByName( e ).material.color = new THREE.Color( 255, 0, 170 )
+    var tmpmol = new OCL.Molecule.fromMolfile( mol3d.molfile );
+    var ring = tmpmol.oclMolecule.mRingSet.mRingAtomSet.array[0];
+
+    function getVec( vec1, vec2 ){
+        return {x: vec2.x - vec1.x, y: vec2.y - vec1.y, z: vec2.z - vec1.z}
+    }
+
+    var normal = new THREE.Vector3().copy( getVec( mol3d.scene.getObjectByName( ring[0] ).position, mol3d.scene.getObjectByName( ring[2] ).position ) ).cross( new THREE.Vector3().copy( getVec( mol3d.scene.getObjectByName( ring[0] ).position, mol3d.scene.getObjectByName( ring[4] ).position ) ) ).normalize()
+
+    mol3d.molecule.bonds.forEach( bond => {
+
     });
-    ["5_17","1_8","3_12","4_15","2_11","0_6"].forEach( e =>{
-        mol3d.scene.getObjectByName( e ).material.color = new THREE.Color( 255, 0, 0 )
+
+    ring.forEach( ( atom ) => {
+
+        tmpmol.oclMolecule.mConnAtom[atom].forEach( bondEnd =>{
+
+            var bondName = [atom, bondEnd];
+            if( mol3d.scene.getObjectByName( bondName.join("_") ) === undefined ){
+                bondName.reverse();
+            }
+            var bond = mol3d.scene.getObjectByName( bondName.join("_") ).userData.source;
+            var vec = new THREE.Vector3( ...bond.end.pos ).sub( new THREE.Vector3( ...bond.start.pos ) );
+            var dot = Math.abs( vec.dot( normal )/( normal.length() * vec.length() ) );
+            if( dot > 0.95 ){
+                bond.HTML.material.color = new THREE.Color( 255, 0, 0 )
+                bond.HTML.userData.source.btype = "axial"
+            } else{
+                bond.HTML.material.color = new THREE.Color( 0, 0, 255 )
+                bond.HTML.userData.source.btype = "equatorial"
+            }
+
+        } )
+
     });
-    ["3_13","0_7","5_16","2_10","4_14","1_9"].forEach( e =>{
-        mol3d.scene.getObjectByName( e ).material.color = new THREE.Color( 0, 0, 255 )
+
+    ring.forEach( ( atom, i, arr ) => {
+
+        var bondName = bondName = [atom, arr[i === 5 ? 0 : i + 1]];
+        if( mol3d.scene.getObjectByName( bondName.join("_") ) === undefined ){
+            bondName.reverse();
+        }
+        var bond = mol3d.scene.getObjectByName( bondName.join("_") ).userData.source;
+        bond.HTML.material.color = new THREE.Color( 255, 0, 170 );
+        bond.HTML.userData.source.btype = "ring";
+
     });
 
 })
@@ -250,8 +288,9 @@ d3.selectAll( ".dragBox" ).on( "mousedown", function(){
             }
 
             substituent.smile === "H" && mol3d.scene.remove( group );
-            mol[snapTarget.userData.source.bondedTo[0].el.index][1].index = substituent.smile === "H" ? null : snapTarget.userData.source.index;
-            mol[snapTarget.userData.source.bondedTo[0].el.index][1].smile = substituent.smile;
+
+            mol[snapTarget.userData.source.bondedTo[0].el.index][{"axial": 2, "equatorial":1}[snapTarget.userData.source.bondedTo[0].bond.btype]].index = substituent.smile === "H" ? null : snapTarget.userData.source.index;
+            mol[snapTarget.userData.source.bondedTo[0].el.index][{"axial": 2, "equatorial":1}[snapTarget.userData.source.bondedTo[0].bond.btype]].smile = substituent.smile;
             snapTarget.userData.attached = substituent.smile === "H" ? null : group;
 
         }
@@ -373,7 +412,6 @@ function addSubstituents(){
 function genSmile(){
     result = new OCL.Molecule.fromSmiles( "C1CCCCC1" )
     result.addImplicitHydrogens()
-    console.log( mol )
     for( var i = 0; i < mol.length; i++ ){
         for( var j = 1; j < mol[i].length; j++ ){
             if( mol[i][j].index !== null ){
@@ -381,12 +419,12 @@ function genSmile(){
                 fragment = new OCL.Molecule.fromSmiles( mol[i][j].smile );
                 fragment.setFragment( true );
                 subIndices = result.addSubstituent( fragment, 0 );
-                result.addBond( mol[i][0].index, subIndices[0], 1 );
+                console.log( subIndices );
+                result.oclMolecule.addBond_1( mol[i][0].index, subIndices[0], 1 );
             }
         }
     }
 
-    console.log( result.toSmiles() )
     while( mol3d.scene.children.length > 1 ){
         mol3d.scene.children.pop();
     }
@@ -395,14 +433,14 @@ function genSmile(){
 
 }
 
-function draw2D(){
+function draw2D( len ){
 
     if( !d3.select( ".view2D" ).empty() ){ d3.select( ".view2D" ).remove() }
 
     var hexPoints = [[0, 0],[86.6, 50],[86.6, 150],[0, 200],[-86.6, 150],[-86.6, 50],[0, 0]];
-    var groups = Array( 6 ).fill( 0 )
+    var groups = Array( len ).fill( 0 )
     for( var i = 0; i < groups.length; i++ ){
-        console.log( groups )
+
         var rnd = Math.floor( Math.random() * 6 );
         while( groups.filter( e => e === rnd ).length > 1 ){
             rnd = Math.floor( Math.random() * 6 );
@@ -435,20 +473,20 @@ function draw2D(){
 
         if( groups.filter( e => e === el ).length > 1 ){
 
-            grp.append( "g" ).html( rnd > 0.5 ? hashBond : wedgeBond ).attr( "transform", "translate(" + hexPoints[el][0] + "," + hexPoints[el][1] + ")rotate(" + ( angle - 90 ) + ")" )
-            grp.append( "text" ).text( "OH" ).attr( "x", hexPoints[el][0] + length*Math.cos( angle*Math.PI/180 - Math.PI/2 )*1.1 ).attr( "y", hexPoints[el][1] + Math.sin( angle*Math.PI/180 - Math.PI/2 )*1.1 )
+            grp.append( "g" ).html( rnd > 0.5 ? hashBond : wedgeBond ).attr( "transform", "translate(" + hexPoints[el][0] + "," + hexPoints[el][1] + ")rotate(" + ( angle - 90 ) + ")" );
+            grp.append( "text" ).text( subs.splice(Math.floor( Math.random() * subs.length ), 1)[0] ).attr( "x", hexPoints[el][0] + length*Math.sin( angle*Math.PI/180 )*1.4 ).attr( "y", hexPoints[el][1] + 10 - length*Math.cos( angle*Math.PI/180 )*1.4 );
 
             grp.append( "g" ).html( rnd > 0.5 ? wedgeBond : hashBond ).attr( "transform", "translate(" + hexPoints[el][0] + "," + hexPoints[el][1] + ")rotate(" + ( angle - 150 ) + ")" );
+            grp.append( "text" ).text( subs.splice(Math.floor( Math.random() * subs.length ), 1)[0] ).attr( "x", hexPoints[el][0] + length*Math.sin( angle*Math.PI/180 - Math.PI/3 )*1.4 ).attr( "y", hexPoints[el][1] + 10 - length*Math.cos( angle*Math.PI/180 - Math.PI/3 )*1.4 );
             i++;
 
         } else {
 
             grp.append( "g" ).html( rnd > 0.5 ? wedgeBond : hashBond ).attr( "transform", "translate(" + hexPoints[el][0] + "," + hexPoints[el][1] + ")rotate(" + ( angle - 120 ) + ")" );
+            grp.append( "text" ).text( subs.splice(Math.floor( Math.random() * subs.length ), 1)[0] ).attr( "x", hexPoints[el][0] + length*Math.sin( angle*Math.PI/180 - Math.PI/6 )*1.4 ).attr( "y", hexPoints[el][1] + 10 - length*Math.cos( angle*Math.PI/180 - Math.PI/6 )*1.4 );
+
         }
 
     }
 
-    //mol2d = new Mol2D( d3.select( ".page" ), [250,250,0,0] );
-    //mol2d.getFromSMILE( "C1C(C)CCC(C)C1" );
-    //mol2d.draw();
 }
