@@ -1,23 +1,22 @@
 var question, IsResponseGrid, data;
 
 
-    d3.csv( "data.csv", ( d ) => {
+d3.csv( "data.csv", ( d ) => {
 
-        data = d
-        init()
+    data = d;
+    init();
 
-
-    } )
+} )
 
 function init(){
 
     d3.select( "#Image > div" ).remove();
 
     if( data.length > 0 ){
-        question = data.pop(Math.floor( Math.random() * data.length ));
+        question = data.splice(Math.floor( Math.random() * data.length ), 1)[0];
         QuestionSetup( 1 );
     } else{
-        d3.select( "#framea" ).html( "No questions left" )
+        d3.select( "#framea" ).html( "No questions left" );
     }
 
 }
@@ -54,10 +53,33 @@ function QuestionSetup( qNum ){
         mol3d.parse( question["Molfile"] );
         mol3d.draw();
         mol3d.toggleCam();
+        d3.select( "#Image > div" ).append( "h1" ).html( "+" ).style( "position", "absolute" ).style( "top", "0px" ).style( "right", "0px" ).attr( "onclick", "zoom3D( this, true );" );
     }
 
     ResponseUpdate( qNum );
     AnswerInteractions( qNum );
+
+};
+
+function zoom3D( el, ZoomIn ){
+
+    d3.select( el ).attr( "onclick", ZoomIn ? "zoom3D( this, false )": "zoom3D( this, true )" );
+
+    if( ZoomIn ){
+        d3.select( "#Image" ).style( "overflow", "visible" );
+        d3.select( ".QuestionBox" ).style( "overflow", "visible" );
+        d3.select( "#Image > svg" ).attr( "visibility", "hidden" );
+        d3.select( el ).html( "-" );
+        d3.select( el.parentNode ).style( "width", "100%" ).style( "height", "225%" ).style( "background", "#84A59D" ).style( "float", null );
+    } else{
+        d3.select( "#Image" ).style( "overflow", null );
+        d3.select( ".QuestionBox" ).style( "overflow", null );
+        d3.select( "#Image > svg" ).attr( "visibility", null );
+        d3.select( el ).html( "+" );
+        d3.select( el.parentNode ).style( "width", "50%" ).style( "height", "100%" ).style( "background", null ).style( "float", "right" );
+    }
+
+    mol3d.onWindowResize();
 
 };
 

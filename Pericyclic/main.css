@@ -185,7 +185,8 @@ h1 {
 }
 
 #Image {
-	height: 75%;
+	top: 2%;
+	height: 70%;
 }
 
 #Image > svg {
@@ -204,6 +205,7 @@ h1 {
 	width: 1050px;
 	margin: auto;
 	text-align: center;
+	z-index: 2;
 }
 
 .QuestionBox > img {
@@ -214,6 +216,7 @@ h1 {
 
 .page {
     width: 100%;
+	min-width: 1050px;
     height: 677px;
     top:24px;
     background-color: #84A59D;

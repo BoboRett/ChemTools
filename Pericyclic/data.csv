@@ -1,4 +1,4 @@
-Num,Molfile,Q1A,Q1Feedback,Q2A,Q2Feedback,Q3A1,Q3A2,Q3A3,Q3A4,Q3A,Q3Feedback,Q4A1,Q4A2,Q4A3,Q4A4,Q4A,Q4Feedback,
+Num,Molfile,Q1A,Q1Feedback,Q2A,Q2Feedback,Q3A1,Q3A2,Q3A3,Q3A4,Q3A,Q3Feedback,Q4A1,Q4A2,Q4A3,Q4A4,Q4A,Q4Feedback
 1,"Example 1 transition state
 
 Created by GaussView 5.0.8
@@ -44,7 +44,7 @@ Created by GaussView 5.0.8
  16 19  1  0  0  0  0
 ",a,"Two new s-bonds and a new ring were formed at the expense of 1 p-bond in this reaction. This is a [4+2] cycloaddition, a Diels-Alder reaction specifically.
 ",a,"A [4+2] cycloaddition goes through a preferred endo TS. Note that this may not necessarily apply to all types of cycloaddition.
-",img,img,img,img,"a,c",Both A and C are endo transition states with secondary orbital interaction between the two middle carbons of the diene and the carbonyl groups (all marked with *'s).,img,img,img,img,"a,d",A point-of-view as shown will result in the hydrogens in question pointing toward the viewer. Thus both A and D (identical structures) are correct., 
+",img,img,img,img,"a,c",Both A and C are endo transition states with secondary orbital interaction between the two middle carbons of the diene and the carbonyl groups (all marked with *'s).,img,img,img,img,"a,d",A point-of-view as shown will result in the hydrogens in question pointing toward the viewer. Thus both A and D (identical structures) are correct.
 2,"Example 2 transition state
 
 Created by GaussView 5.0.8
@@ -100,7 +100,7 @@ Created by GaussView 5.0.8
  22 24  1  0  0  0  0
  22 25  1  0  0  0  0
 ",b,"This reaction resulted in the migration of 1 s-bond and a net change of zero s or p-bond. The two flip-flop fragments contain 3 heavy atoms each. So this is a [3,3]-sigmatropic rearrangement. A Claisen rearrangement, specifically.
-",b,"The selectivity of a [3,3]-sigmatropic rearrangement is determined by a 6-membered ring chair TS. Note that this may not necessarily apply to all types of sigmatropic rearrangement.",img,img,Neither of them,Both of them,b,"Only B is a chair TS. A is a boat TS, which will only happen when it is impossible to achieve the chair TS.",img,img,img,img,"c,d","The TS suggest the two Me groups should be trans to each other. This is due to the original trans geometry of both double bonds, which must be maintained in the TS. This specific TS will give C. Its mirror image will give D.", 
+",b,"The selectivity of a [3,3]-sigmatropic rearrangement is determined by a 6-membered ring chair TS. Note that this may not necessarily apply to all types of sigmatropic rearrangement.",img,img,Neither of them,Both of them,b,"Only B is a chair TS. A is a boat TS, which will only happen when it is impossible to achieve the chair TS.",img,img,img,img,"c,d","The TS suggest the two Me groups should be trans to each other. This is due to the original trans geometry of both double bonds, which must be maintained in the TS. This specific TS will give C. Its mirror image will give D."
 4,"Title Card Required
 
 Created by GaussView 5.0.8
@@ -204,7 +204,7 @@ Created by GaussView 5.0.8
 ",a,"Two new s-bonds and a new ring was formed from two fragments at the expense of 1 p-bond. This is a [4+2] cycloaddition. The dienophile is also very conveniently electron poor.
 ",a,"Diels-Alder reaction always prefer an endo TS which maximises the secondary orbital interactions.
 ",img,img,img,img,c,(a) and (b) are exo TS’s. (d) shows reaction at the wrong double bond. So the correct answer is (c).,img,img,img,img,a,"The POV shown above will have all the three H’s in question pointing away from the viewer.
-",
+"
 5,"Title Card Required
 
 Created by GaussView 5.0.8
@@ -262,4 +262,4 @@ Created by GaussView 5.0.8
 ",b,"Claisen rearrangement follows a chair TS unless it is physically impossible.
 ",img,img,img,img,d,"(c) and (d) are  the only chair TS’s. (c) shows the unreacted double bond as trans instead of cis. So (d) is the correct answer.
 ",img,img,img,img,a,"A point-of-view from the top will result in the stereochemistry showed in (a).
-",
+"

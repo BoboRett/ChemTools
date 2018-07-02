@@ -29,7 +29,7 @@ function LineGen( root, cls, id, x1, x2, y1, y2, attributes, styles ){ //Line te
 		.attr( "y2" ,y2 )
 
 	for( var attribute of attributes ){ tmp.attr( ...attribute ) };
-	for( var style of styles ){	tmp.style( ...style[0] ) };
+	for( var style of styles ){	tmp.style( ...style ) };
 
 	return tmp
 }
@@ -45,7 +45,7 @@ function TextGen( root, cls, id, x, y, text, attributes, styles ){ //Text templa
 		.text( text )
 
 	for( var attribute of attributes ){ tmp.attr( ...attribute ) };
-	for( var style of styles ){	tmp.style( ...style[0] ) };
+	for( var style of styles ){	tmp.style( ...style ) };
 
 	return tmp
 }
@@ -726,7 +726,7 @@ var Mol3D = function( container, params ){
 		1 : [0.1, 0.1, 0.1],
 		2 : [0.5, 0.1, 0.3],
 		3 : [0.1, 0.2, 0.5],
-		4 : [0.5, 0.1, 0.3],
+		4 : [0.9, 0.5, 0.2],
 		9 : [0.3, 0.3, 0.3]
 	}, {
 		get: function( target, name ){
