@@ -195,6 +195,16 @@ h1 {
     display: block;
 }
 
+.page {
+    width: 100%;
+	min-width: 1050px;
+    height: 677px;
+    top:24px;
+    background-color: #84A59D;
+    border-top: 3px solid #4e564b;
+    border-bottom: 3px solid #4e564b;
+}
+
 #Question {
 	height: 20%;
 	margin-top: 14px;
@@ -214,12 +224,10 @@ h1 {
 	margin:auto;
 }
 
-.page {
-    width: 100%;
-	min-width: 1050px;
-    height: 677px;
-    top:24px;
-    background-color: #84A59D;
-    border-top: 3px solid #4e564b;
-    border-bottom: 3px solid #4e564b;
+strong, b {
+	font-weight: bold;
+}
+
+em, i {
+	font-style: italic;
 }

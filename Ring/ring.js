@@ -71,7 +71,7 @@ d3.select( document ).on( "ajaxComplete.highlightRing", () => {
             bondName.reverse();
         }
         var bond = mol3d.scene.getObjectByName( bondName.join("_") ).userData.source;
-        bond.HTML.material.color = new THREE.Color( 255, 0, 170 );
+        bond.HTML.material.color = new THREE.Color( 0.3, 0.3, 0.3 );
         bond.HTML.userData.source.btype = "ring";
 
     });
@@ -327,7 +327,7 @@ function addSubstituents(){
               1  2  1  0  0  0  0
             M  END
             $$$$
-        `}, {name: "Phenyl", smile: "c1ccccc1", replaceBond: "0_6", img: "img/Phenyl.png", molfile: `C6H6
+        `}, {name: "Phenyl", smile: "C:1:C:C:C:C:C1", replaceBond: "0_6", img: "img/Phenyl.png", molfile: `C6H6
             APtclcactv06061809523D 0   0.00000     0.00000
 
              7  7  0  0  0  0  0  0  0  0999 V2000
@@ -338,12 +338,12 @@ function addSubstituents(){
                 1.1066    0.8284    0.0006 C   0  0  0  0  0  0  0  0  0  0  0  0
                 1.2707   -0.5442   -0.0007 C   0  0  0  0  0  0  0  0  0  0  0  0
                 0.2923   -2.4449    0.0044 H   0  0  0  0  0  0  0  0  0  0  0  0
-              1  2  1  0  0  0  0
-              2  3  2  0  0  0  0
-              3  4  1  0  0  0  0
-              4  5  2  0  0  0  0
-              5  6  1  0  0  0  0
-              1  6  2  0  0  0  0
+              1  2  4  0  0  0  0
+              2  3  4  0  0  0  0
+              3  4  4  0  0  0  0
+              4  5  4  0  0  0  0
+              5  6  4  0  0  0  0
+              6  1  4  0  0  0  0
               1  7  1  0  0  0  0
             M  END
             $$$$
@@ -410,26 +410,29 @@ function addSubstituents(){
 }
 
 function genSmile(){
-    result = new OCL.Molecule.fromSmiles( "C1CCCCC1" )
-    result.addImplicitHydrogens()
-    for( var i = 0; i < mol.length; i++ ){
-        for( var j = 1; j < mol[i].length; j++ ){
-            if( mol[i][j].index !== null ){
-                result.deleteAtom( mol[i][j].index );
-                fragment = new OCL.Molecule.fromSmiles( mol[i][j].smile );
-                fragment.setFragment( true );
-                subIndices = result.addSubstituent( fragment, 0 );
-                console.log( subIndices );
-                result.oclMolecule.addBond_1( mol[i][0].index, subIndices[0], 1 );
-            }
-        }
-    }
 
-    while( mol3d.scene.children.length > 1 ){
-        mol3d.scene.children.pop();
-    }
-
-    mol3d.getFromSMILE( result.toSmiles() );
+    //WORK OUT MANUALLY
+    //result = new OCL.Molecule.fromSmiles( "C1CCCCC1" )
+    //result.addImplicitHydrogens()
+    //for( var i = 0; i < mol.length; i++ ){
+    //    for( var j = 1; j < mol[i].length; j++ ){
+    //        if( mol[i][j].index !== null ){
+    //            result.deleteAtom( mol[i][j].index );
+    //            fragment = new OCL.Molecule.fromSmiles( mol[i][j].smile );
+    //            fragment.setFragment( true );
+    //            subIndices = result.addSubstituent( fragment, 0 );
+    //            console.log( subIndices );
+    //            result.oclMolecule.addBond_1( mol[i][0].index, subIndices[0], 1 );
+    //        }
+    //    }
+    //}
+//
+    //while( mol3d.scene.children.length > 1 ){
+    //    mol3d.scene.children.pop();
+    //}
+//
+    //console.log( result.toSmiles() );
+    //mol3d.getFromSMILE( result.toSmiles() );
 
 }
 
@@ -451,7 +454,7 @@ function draw2D( len ){
     groups = groups.sort( ( a, b ) => a > b );
     var length = 50;
     var width = 10;
-    var subs = ["Ph","NH2","Me","Br","OH","tB"];
+    var subs = ["Ph","NH2","Me","Br","OH","t-Bu"];
     var wedgeBond = `<polygon id="" points="0,0 ` + length + `,` + width + ` ` + length + `,` + -width + `"></polygon>`;
     var hashBond = `<line class="bond" x1="` + 0*length/5 + `" x2="` + 0*length/5 + `" y1="` + 1*width/6 + `" y2="` + -1*width/6 + `"></line>
             <line class="bond" x1="` + 1*length/5 + `" x2="` + 1*length/5 + `" y1="` + 2*width/6 + `" y2="` + -2*width/6 + `"></line>
@@ -470,6 +473,7 @@ function draw2D( len ){
         var rnd = Math.random();
         var el = groups[i]
         var angle = Math.atan2( hexPoints[el + 1][1] - hexPoints[el][1], hexPoints[el + 1][0] - hexPoints[el][0] )*180/Math.PI;
+        console.log( el )
 
         if( groups.filter( e => e === el ).length > 1 ){
 

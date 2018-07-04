@@ -1,4 +1,4 @@
-var question, IsResponseGrid, data;
+var question, IsResponseGrid, data, isShortQuestion;
 
 
 d3.csv( "data.csv", ( d ) => {
@@ -13,7 +13,15 @@ function init(){
     d3.select( "#Image > div" ).remove();
 
     if( data.length > 0 ){
-        question = data.splice(Math.floor( Math.random() * data.length ), 1)[0];
+        question = data.splice( Math.floor( Math.random() * data.length ), 1 )[0];
+        while( question["Num"] === "" ){
+            question = data.splice( Math.floor( Math.random() * data.length ), 1 )[0];
+        }
+
+        d3.select( ".qNum" ).remove();
+        d3.select( ".header" ).append( "h1" ).attr("class","qNum").style("color","white").html( question.Num );
+        isShortQuestion = question["Q3A"] === "";
+        console.log( isShortQuestion );
         QuestionSetup( 1 );
     } else{
         d3.select( "#framea" ).html( "No questions left" );
@@ -49,7 +57,7 @@ function QuestionSetup( qNum ){
     }
 
     if( qNum === 4 ){
-        mol3d = new Mol3D( d3.select( "#Image" ).append( "div" ).style( "width", "50%" ).style( "height", "100%" ).style( "float", "right" ), { showfGroups: false, showHs: false } );
+        mol3d = new Mol3D( d3.select( "#Image" ).append( "div" ).style( "width", "50%" ).style( "height", "100%" ).style( "float", "right" ), { showfGroups: false, showHs: true } );
         mol3d.parse( question["Molfile"] );
         mol3d.draw();
         mol3d.toggleCam();
@@ -223,7 +231,7 @@ function showcaseAnswers( answerElements, qNum ){
         .append( "div" )
         .attr( "class", "button" )
         .html( "Next Question" )
-        .attr( "onclick", qNum < 4 ? "QuestionSetup(" + ( qNum + 1 ) + ");" : "init()" )
+        .attr( "onclick", qNum < ( isShortQuestion ? 2 : 4 ) ? "QuestionSetup(" + ( qNum + 1 ) + ");" : "init()" )
 
 }
 
