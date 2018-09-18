@@ -1,0 +1,57 @@
+<!DOCTYPE html><meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="main.css"/>
+<head>
+	<title>Pericyclic Quiz 1</title>
+</head>
+<body>
+	<div class="header">
+		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Stereochemistry</p>
+		<p id="dev" style="color:white"></p>
+		<a href="http://www.leeds.ac.uk/"><img src="../../unileeds.svg" alt="University of Leeds" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
+
+		<script type="text/javascript">
+			window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience. Google cookies are also used to help us track use of and make improvements.","dismiss":"Got it!","learnMore":"More info","link":"http://www.leeds.ac.uk/privacy","theme":"dark-bottom"};
+		</script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.10/cookieconsent.min.js"></script>
+
+	</div>
+
+	<div class="page">
+		<div id="gameFrame">
+			<div class="QuestionBox">
+				<h1 id="Question"></h1>
+				<div id="Image"></div>
+			</div>
+			<div class="AnswerBG">
+				<div class="AnswerBox">
+					<div class="AnswerFrame" id="framea"></div>
+					<div class="AnswerFrame" id="frameb"></div>
+					<div class="AnswerFrame" id="framec"></div>
+					<div class="AnswerFrame" id="framed"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+	<script src="https://www.lactame.com/lib/openchemlib/5.4.0/openchemlib-minimal.js"></script>
+	<script src="../../Scripts/three.min.js"></script>
+	<script src="../../Scripts/stats.min.js"></script>
+	<script src="../../Scripts/Detector.js"></script>
+	<script src="../../Scripts/TrackballControls.js"></script>
+	<script src="../../Scripts/OutlineEffect.js"></script>
+	<script src="../../Scripts/molViewer.js"></script>
+	<script src="pericyclic.js"></script>
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106347776-4"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-106347776-4');
+	</script>
+
+</body>

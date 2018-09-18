@@ -1,0 +1,258 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+
+.AnswerBox {
+	height: 100%;
+	margin: auto;
+}
+
+.AnswerBG {
+	position: relative;
+	height: 281px;
+	padding: 10px 0px 10px 0px;
+}
+
+.AnswerFrame {
+    background: #99A1A6;
+    position: absolute;
+    border: #462d33 solid 5px;
+    border-radius: 20px;
+    padding: 5px;
+    text-align: center;
+    box-shadow: 2px 2px 5px black;
+}
+
+.AnswerFrame > svg {
+	height:80%;
+}
+
+.answerText {
+    position: relative;
+    top: 30%;
+    font-family: "Bookman Old Style";
+    font-size: 20px;
+    letter-spacing: 0.3px;
+}
+
+.Arrow {
+	overflow:visible;
+	fill:#84A59D;
+	stroke:black;
+	stroke-width:3px;
+	stroke-linejoin: bevel;
+	position:absolute;
+}
+
+.ArrowText {
+	direction: rtl;
+    stroke-width: 0;
+    fill: black;
+    font-size: 30px;
+    font-family: sans-serif;
+}
+
+body {
+	margin-top: 80px;
+	background-color: #293026;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+.button {
+	background: #99A1A6;
+	border: #462d33 3px solid;
+	border-radius: 10px;
+	padding: 15px 0px;
+	text-align: center;
+	font-size: 20px;
+	width: 65%;
+	margin: auto;
+	bottom: 1%;
+	left: 16%;
+	position: absolute;
+}
+
+.button:hover {
+	background: rgb( 146, 175, 215 );
+}
+
+.button:active {
+	background: #C5D1EB;
+}
+
+div{
+    overflow: hidden;
+    display: block;
+    position:relative;
+}
+
+.feedbackBG {
+	fill: rgb(204, 247, 143);
+	stroke: black;
+	stroke-width: 1px;
+}
+
+.feedbackText {
+	position: absolute;
+	right: 2%;
+	top: 1%;
+	width: 55%;
+	height: 96%;
+	background: rgb(204, 247, 143);
+	border: #462d33 3px solid;
+	border-radius: 20px;
+	font-family: "Bookman Old Style";
+	font-size: 20px;
+	z-index: 1;
+}
+
+.FlowBox {
+	background: #535b5f;
+	width: 28%;
+	border: #462d33 solid 5px;
+	border-radius: 10px;
+	padding: 5px;
+}
+
+.FlowBox > p {
+	position: relative;
+    top: 30%;
+    font-family: "Bookman Old Style";
+    font-size: 18px;
+    letter-spacing: -0.5px;
+}
+
+
+
+.flowchartLevel {
+	position:absolute;
+	overflow:visible;
+	height:100%;
+	width:100%;
+}
+
+#gameFrame {
+	height: 100%;
+	background: linear-gradient(to bottom, #c6d0cd 13%, #84A59D 13%, #84A59D 54%, #4e564b 54%, #4e564b 55%, #84A59D 55%, #3a5a50 55%);
+	border-right: #4e564b solid 3px;
+}
+
+h1 {
+	margin: 3px;
+	font-family: "Bookman Old Style";
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.header {
+	position: fixed;
+    top: -5px;
+    background-color: #3e4649;
+    display: block;
+    width: 100%;
+    z-index: 10;
+    border-bottom: 3px solid #212121;
+}
+
+#Image {
+	top: 2%;
+	height: 70%;
+}
+
+#Image > svg {
+	width: 90%;
+    margin: auto;
+    display: block;
+}
+
+.page {
+    width: 100%;
+	min-width: 1380px;
+    height: 677px;
+    top:24px;
+    background-color: #84A59D;
+    border-top: 3px solid #4e564b;
+    border-bottom: 3px solid #4e564b;
+}
+
+#Question {
+	height: 20%;
+	margin-top: 14px;
+}
+
+.QuestionBox {
+	height: 370px;
+	margin: auto;
+	text-align: center;
+	z-index: 2;
+}
+
+.QuestionBox > img {
+	position: relative;
+	width: 70%;
+	margin:auto;
+}
+
+strong, b {
+	font-weight: bold;
+}
+
+em, i {
+	font-style: italic;
+}

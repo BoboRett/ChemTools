@@ -1,6 +1,8 @@
 <!DOCTYPE html><meta charset="utf-8"/>
 <link rel="stylesheet" type="text/css" href="main.css"/>
-
+<head>
+	<title>Cyclohexane Rings UoL</title>
+</head>
 <body>
 	<div class="header">
 		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Ring</p>
@@ -15,18 +17,106 @@
 	</div>
 
     <div class="page">
-		<div class="view3D"></div>
-        <div class="dragBox" id="drag1"></div>
-        <div class="dragBox" id="drag2" style="top:18.5%"></div>
-        <div class="dragBox" id="drag3" style="top:37%"></div>
-        <div class="dragBox" id="drag4" style="left:10%"></div>
-        <div class="dragBox" id="drag5" style="left:10%; top:18.5%"></div>
-        <div class="dragBox" id="drag6" style="left:10%; top:37%"></div>
-		<div class="dragBox" id="drag7" style="right: 210px; bottom: 6px; width: 100px; height: 100px;"</div>
+		<div class="gameFrame" id="game">
+			<div class="view3D" id="conform1">
+				<div class="canvas3D" id="conform1_Canvas"></div>
+				<div class="conformOverlay" id="conform1_Overlay">
+					<h1>Conformation 1</h1>
+					<h2>Click to activate</h2>
+				</div>
+			</div>
+			<div class="view3D" id="conform2" style="right: 0;">
+				<div class="canvas3D" id="conform2_Canvas"></div>
+				<div class="conformOverlay" id="conform2_Overlay">
+					<h1>Conformation 2</h1>
+					<h2>Click to activate</h2>
+				</div>
+			</div>
+			<a class="button" onclick="toggleHs();" style="position: absolute;bottom:0px;left:0%">Toggle Hydrogens</a>
+			<a class="button" onclick="MarkAttempts();" style="position: absolute;bottom:0px;left:190px">Mark</a>
+		</div>
+		<div class="gameFrame maximise" id="questionMolecule" onclick="this.removeChild( this.children[1] );handler.changeState(handler.state === 1 ? handler.lastState : 1)">
+			<h1>Your job is to give the two conformations of the ring below</h1>
+			<h2>Click to continue...</h2>
+		</div>
+		<div class="gameFrame" id="result">
+			<div class="view3D" id="answerconform">
+			</div>
+		</div>
+		<div class="gameFrame hidden" id="markHighEnergy">
+			<h1 style="top:5%">Good job!</h1>
+			<h1 style="top:7%">But now...Which one would be the most stable?</h1>
+			<div class="HighEnergyButton" id="HighEnergyConform1" style="left:7%" onclick="MarkEnergy(this, handler.conform1)"></div>
+			<div class="HighEnergyButton" id="HighEnergyConform2" style="right:7%" onclick="MarkEnergy(this, handler.conform2)"></div>
+			<div class="HighEnergyButton" style="top: 61%;left: 38%;height: 12%;width: 25%;" onclick="MarkEnergy(this)">
+		    	<h1 style="top: 33%;">Equally stable</h1>
+			</div>
+		</div>
+		<div class="gameFrame active" id="intro">
+			<div id="loading">
+				<h1 style="top: 420px;">Loading</h1>
+				<svg id="loadingWidget">
+					<g>
+						<path d="M0 0 L60 35 L60 105 L0 140 L-60 105 L-60 35 L0 0"></path>
+						<circle id="loadCirc0" cx="0" cy="0" r="0"></circle>
+						<circle id="loadCirc1" cx="60" cy="35" r="0"></circle>
+						<circle id="loadCirc2" cx="60" cy="105" r="0"></circle>
+						<circle id="loadCirc3" cx="0" cy="140" r="0"></circle>
+						<circle id="loadCirc4" cx="-60" cy="105" r="0"></circle>
+						<circle id="loadCirc5" cx="-60" cy="35" r="0"></circle>
+					</g>
+				</svg>
+			</div>
+			<div id="menu" style="width: 300px; margin: auto; top: 28%; display: none;">
+				<h1>Cyclohexane Rings</h1>
+				<h2 class="subtitle">Select a difficulty:</h2>
+				<h2 onclick="handler.changeState(1); generateAnswerMol(1)">Easy</h2>
+				<h2 onclick="handler.changeState(1); generateAnswerMol(4)">Medium</h2>
+				<h2 onclick="handler.changeState(1); generateAnswerMol(6)">Hard</h2>
+				<h2 onclick="handler.changeState(1); generateAnswerMol(10)">Where's my PhD?</h2>
+			</div>
+		</div>
     </div>
-	<button type="button" onclick="genSmile();" style="position: relative;">Mark</button>
 
 	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script>
+		(function LoadingWidget(){
+
+			const loadEl = d3.select( "#loadingWidget > g > path" );
+			let point = -1;
+
+			loadEl
+				.style( "stroke-dashoffset", 420 )
+				.transition()
+		        .duration( 2000 )
+				.ease( d3.easeLinear )
+				.style( "stroke-dashoffset", 0 )
+				.tween( null, () => t => animCircle( t, d3.easeBackOut, 6 ) )
+				.transition()
+				.duration( 2000 )
+				.ease( d3.easeLinear )
+				.style( "stroke-dashoffset", -420 )
+				.tween( null, () => t => animCircle( t, d3.easeBackIn, 0 ) )
+				.on( "end", LoadingWidget )
+
+			function animCircle( t, easeFn, radius ){
+
+				if( point != Math.floor( t*6 ) ){
+
+					d3.select( "#loadCirc" + ( point+1 ) )
+						.transition()
+						.duration( 1000 )
+						.ease( easeFn )
+						.attr( "r", radius )
+					point = point > 5 ? -1 : Math.floor( t*6 );
+
+				}
+
+			}
+
+		})()
+	</script>
+
 	<script src="../Scripts/openchemlib-full.pretty.js"></script>
 	<!--<script src="https://www.lactame.com/lib/openchemlib/5.4.0/openchemlib-minimal.js"></script>-->
     <script src="../Scripts/three.min.js"></script>
@@ -34,7 +124,7 @@
 	<script src="../Scripts/Detector.js"></script>
 	<script src="../Scripts/TrackballControls.js"></script>
 	<script src="../Scripts/OutlineEffect.js"></script>
-	<script src="../Scripts/molViewer.js"></script>
+	<script src="../Scripts/molViewer_New.js"></script>
     <script src="ring.js"></script>
 
 </body>

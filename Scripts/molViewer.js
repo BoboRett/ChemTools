@@ -1,3 +1,5 @@
+//Molecule Viewer. Author: Jamie Ridley
+
 function ButtonGen( root, id, x, y, rx, ry, w, h, text, onclick ){ //Button template
 	var onclick = onclick || ""
 	var tmp = root.append( "g" ).attr( "class", "button" ).attr( "id", id );
@@ -772,8 +774,7 @@ var Mol3D = function( container, params ){
 
 	};
 
-	//////Parse 3D data into object//////
-	self.parse = function( data ){
+	self.parseMol = function( data ){
 
 		var mol3d = {}
 		data = data.split( "\n" ).map( el => el.trim() ).join( "\n" )
@@ -817,6 +818,16 @@ var Mol3D = function( container, params ){
 		});
 
 		mol3d.fGroups = fGroupSearcher( mol3d );
+
+		return mol3d
+
+	}
+
+	//////Parse 3D data into object//////
+	self.parse = function( data ){
+
+		var mol3d = self.parseMol( data );
+
 		self.molecule = mol3d
 		return mol3d
 
@@ -1177,7 +1188,7 @@ var Mol3D = function( container, params ){
 
 	self.showH = function( showH ){
 
-		self.scene.traverse( function( ob ){
+		self.molGroup.traverse( function( ob ){
 
 			switch( ob.userData.type ){
 
@@ -1247,16 +1258,22 @@ var Mol3D = function( container, params ){
 		const angularSize = mol3d.camActive.fov * Math.PI / 180;
 		const distance = Math.sqrt( 2 ) * boundSph.radius / Math.tan( angularSize / 2 );
 
-		self.camActive.lookAt( boundSph.center );
-		self.camActive.position.set( distance, 0, 0 );
+		self.setView( boundSph, new THREE.Vector3().set( distance, 0, 0), new THREE.Vector3( 0, 1, 0 ) );
+
+		self.interactions( !disableInteractions )
+
+	}
+
+	self.setView = function( lookAt, position, up ){
+
+		self.camActive.lookAt( lookAt.center );
+		self.camActive.position.copy( position );
 		self.camActive.updateProjectionMatrix();
-		self.camActive.up.copy( new THREE.Vector3( 0, 1, 0 ) )
+		self.camActive.up.copy( up )
 
 		self.controls.dispose()
 		self.controls = new THREE.TrackballControls( self.camActive, self.container );
 		self.controls.update();
-
-		self.interactions( !disableInteractions )
 
 	}
 }

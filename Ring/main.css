@@ -7,7 +7,7 @@ html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
 del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
+small, strike, strong, tt, var,
 b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
@@ -82,19 +82,226 @@ body {
     user-select: none;
 }
 
+.button {
+
+	padding: 0.46em 1.6em;
+    border: 0.1em solid #000000;
+    margin: 0.2em;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-family: sans-serif;
+    color: #000000;
+    text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+    background-color: #FFFFFF;
+    text-align: center;
+    transition: 0.15s;
+
+}
+
+.button:hover {
+
+	text-shadow: 0 0 2em rgb(72, 83, 101);
+    color: rgb(72, 83, 101);
+    border-color: rgb(72, 83, 101);
+
+}
+
+.canvas3D {
+
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	filter: blur(15px);
+	transition: 1s;
+
+}
+
+.canvas3D.correct {
+
+	background: rgb(90, 191, 90);
+
+}
+
+.canvas3D.incorrect {
+
+	background: rgb(220, 91, 91);
+
+}
+
+.active > .canvas3D {
+
+	filter: blur(0px);
+
+}
+
+.conformOverlay {
+
+	opacity: 1;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	transition: 1s;
+
+}
+
+.active > .conformOverlay {
+
+	pointer-events: none;
+	opacity: 0;
+
+}
+
+.conformOverlay > h1 {
+
+	top: 50%;
+
+}
+
+.conformOverlay > h2 {
+
+	top: 50%;
+
+}
+
 .dragBox {
-    height: 18.5%;
-    width: 10%;
-    position: absolute;
-    background-color: #808080cc;
-	cursor: -webkit-grab;
-	border: 1px solid;
+
+	height: 110px;
+    width: 8%;
+    position: relative;
+    float: left;
+    background-color: rgba(255,255,255,0.5);
+    cursor: grab;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+
+}
+
+.dragBox:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .dragBox > p {
 	font-family: "Verdana";
-	font-size: x-large;
+	font-size: 20px;
 	text-align: center;
+}
+
+.gameFrame {
+
+	height: 100%;
+	width: 100%;
+	filter: blur(30px);
+	transition: 1s;
+	pointer-events: none;
+	position: absolute;
+	top: 0px;
+
+}
+
+.gameFrame.active {
+
+	filter: blur(0px);
+	pointer-events: all;
+
+}
+
+.gameFrame.hidden {
+
+	opacity: 0;
+
+}
+
+h1 {
+
+	text-align: center;
+	position: relative;
+	font-family: sans-serif;
+	font-size: 26px;
+	transition: 1s;
+
+}
+
+h2 {
+
+	text-align: center;
+	position: relative;
+	font-family: sans-serif;
+	font-size: 20px;
+	transition: 1s;
+
+}
+
+.HighEnergyButton {
+
+	position: absolute;
+    width: 42%;
+    height: 35%;
+    top: 140px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    box-shadow: 3px 3px 11px 0px black;
+
+}
+
+.HighEnergyButton.wrong {
+
+	background: rgba(255, 130, 130, 1);
+	transition: 0.3s;
+
+}
+
+.HighEnergyButton:active {
+
+    transform: translate(3px,3px);
+    box-shadow: 0px 0px 3px 0px black;
+
+}
+
+.HighEnergyButton > svg {
+
+	width: 100%;
+	height: 100%;
+
+}
+
+.HighEnergyButton path, .HighEnergyButton line {
+
+    stroke-width: 2px;
+	stroke-linejoin: round;
+
+}
+
+.HighEnergyButton text, #beepboop {
+
+	fill: black;
+    stroke: #89c689;
+    paint-order: stroke;
+    stroke-width: 2px;
+    font-size: 24px;
+    dominant-baseline: middle;
+
+}
+
+#menu > h2:not(.subtitle) {
+
+	margin: 10px;
+	padding: 10px;
+	background: rgba(0,0,0,0.1);
+	transition: 0.3s;
+
+}
+
+#menu > h2:not(.subtitle):hover {
+
+	background: rgba(0,0,0,0.05);
+
+}
+
+#menu > h2:not(.subtitle):active {
+
+	background: rgba(0,0,0,0);
+
 }
 
 .label {
@@ -104,6 +311,38 @@ body {
     height: 32px;
     font-size: 32px;
     font-family: fantasy;
+}
+
+#loading {
+
+	width: 100%;
+	height: 100%;
+
+}
+
+#loadingWidget {
+
+	position: relative;
+    left: 360px;
+    top: 150px;
+	height: 300px;
+
+}
+
+#loadingWidget > g {
+
+	transform: translate(150px,75px);
+
+}
+
+#loadingWidget > g > path {
+
+	stroke: #252525;
+	stroke-dasharray: 420;
+    stroke-dashoffset: 420;
+	stroke-linecap: round;
+	stroke-width: 4px;
+
 }
 
 .page {
@@ -116,28 +355,136 @@ body {
 }
 
 path, line {
+
 	stroke: black;
-    fill: none;
+	fill: none;
+
+}
+
+#questionMolecule path, #questionMolecule line, #intro path {
+
     stroke-width: 1px;
+
+}
+
+#questionMolecule {
+
+    background: rgba(255,255,255,0.5);
+	height: 38.5%;
+	width: 40%;
+	right: 0px;
+	top: 0px;
+	pointer-events: none;
+	transition: 1s;
+    border-bottom-left-radius: 150px;
+
+}
+
+#questionMolecule.maximise {
+
+	height: 100%;
+	width: 100%;
+	pointer-events: all;
+    border-bottom-left-radius: 0%;
+
+}
+
+#questionMolecule > svg {
+	width: 410px;
+	height: 400px;
+	top: 0px;
+	right: 0px;
+	position: absolute;
+	transition: 1s;
+
+}
+
+#questionMolecule.maximise > svg {
+
+	width: 100%;
+	height: 100%;
+
+}
+
+#questionMolecule > svg > g {
+
+	transform: translate(230px,137px) scale(0.8);
+	transition: 1s;
+
+}
+
+#questionMolecule.maximise > svg > g {
+
+	transform: translate(513px,350px) scale(1.5);
+
+}
+
+#questionMolecule > h1 {
+
+	font-size: 15px;
+	top: 0px;
+
+}
+
+#questionMolecule.maximise > h1 {
+
+	top: 20px;
+	font-size: 28px;
+
+}
+
+#questionMolecule > h2 {
+
+	top:20px;
+
 }
 
 .substituentImage {
+
 	width: 100%;
+	pointer-events: none;
+
 }
 
-svg {
-	width: 500px;
-	height: 500px;
-	float: right;
-}
+.SubstituentText{
 
-svg text {
-	text-anchor: middle;
 	font-size: 24px;
+
 }
 
 .view3D {
+
 	position: absolute;
-	width: 100%;
+	width: 50%;
 	height: 100%;
+	transition: 1s;
+	background: rgba(128, 128, 128, 0);
+
+}
+
+.view3D.inactive {
+
+	background: rgba(128, 128, 128, 0.75);
+	width: 20%;
+
+}
+
+.view3D.active {
+
+	width: 80%;
+
+}
+
+.view3D.active > .conformOverlay {
+
+	display: none;
+	opacity: 0;
+
+}
+
+.view3D.inactive > .conformOverlay {
+
+	display: unset;
+	opacity: 1;
+
 }

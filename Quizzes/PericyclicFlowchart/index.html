@@ -1,0 +1,123 @@
+<!DOCTYPE html><meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="main.css"/>
+<head>
+	<title>Pericyclic Quiz 2</title>
+</head>
+<body>
+	<div class="header">
+		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Pericyclic Reactions</p>
+		<p id="dev" style="color:white"></p>
+		<a href="http://www.leeds.ac.uk/"><img src="../../unileeds.svg" alt="University of Leeds" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
+
+		<script type="text/javascript">
+			window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience. Google cookies are also used to help us track use of and make improvements.","dismiss":"Got it!","learnMore":"More info","link":"http://www.leeds.ac.uk/privacy","theme":"dark-bottom"};
+		</script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.10/cookieconsent.min.js"></script>
+
+	</div>
+
+	<div class="page">
+		<div id="gameFrame" style="float:left; width:55%">
+			<div class="QuestionBox">
+				<h1 id="Question"></h1>
+				<div id="Image"></div>
+			</div>
+			<div class="AnswerBG">
+				<div class="AnswerBox">
+				</div>
+			</div>
+		</div>
+		<div id="flowchart" style="float: right; width: 827px; height: 100%;">
+			<div class="flowchartLevel" id="L1" style="top:2%; left: 0.7%">
+				<div class="FlowBox" style="left: 34%"><p>Are two new σ-bonds formed?</p></div>
+				<div class="flowchartLevel" id="L2a" style="top: 24%;">
+					<svg class="Arrow" style="left:62%; top:-7%">
+						<g transform="translate(20,0)rotate(-120)">
+							<polygon points="-40 0, -5 -40, -5 -25, 40 -25, 40 25, -5 25, -5 40"></polygon>
+							<text class="ArrowText" transform="scale(-1)translate(15,10)">Yes</text>
+						</g>
+					</svg>
+					<div class="FlowBox" style="left: 52%;"><p>A <em>cycloaddition</em>. How many atoms are in each partner?</p></div>
+					<div class="flowchartLevel" id="L3" style="top:24%;" terminal=true>
+						<svg class="Arrow" style="left: 66%;top: -7%;">
+							<g transform="translate(90,0)rotate(-120)">
+								<polygon points="-40 0, -5 -40, -5 -25, 40 -25, 40 25, -5 25, -5 40"></polygon>
+							</g>
+						</svg>
+						<div class="FlowBox" style="left: 68%;">
+							<p>[4+2]: thermal, <em>endo TS</em></p>
+							<p>[3+2]: thermal, <em>6 π-electrons</em></p>
+							<p>[2+2]: photochemical</p>
+						</div>
+					</div>
+				</div>
+				<div class="flowchartLevel" id="L2b" style="top:24%;">
+					<svg class="Arrow" style="left:34%; top:-7%">
+						<g transform="translate(0,0)rotate(-60)">
+							<polygon points="-40 0, -5 -40, -5 -25, 40 -25, 40 25, -5 25, -5 40"></polygon>
+							<text class="ArrowText" transform="translate(25,10)">No</text>
+						</g>
+					</svg>
+					<div class="FlowBox" style="left: 15%;"><p>Is there a change in the number of π-bonds?</p></div>
+					<div class="flowchartLevel" id="L3a" style="top: 24%;" terminal=true>
+						<svg class="Arrow" style="left: 43%;top: -7%;">
+							<g transform="translate(10,0)rotate(-120)">
+								<polygon points="-40 0, -5 -40, -5 -25, 40 -25, 40 25, -5 25, -5 40"></polygon>
+								<text class="ArrowText" transform="scale(-1)translate(15,10)">Yes</text>
+							</g>
+						</svg>
+						<div class="FlowBox" style="left: 34%;"><p>An <em>electrocyclic</em> reaction, where a ring is formed or broken. See <em>con-/dis- rotatory</em></p></div>
+					</div>
+					<div class="flowchartLevel" id="L3b" style="top: 24%;" terminal=true>
+						<svg class="Arrow" style="left: 15%;top: -7%;">
+							<g transform="translate(10,0)rotate(-60)">
+								<polygon points="-40 0, -5 -40, -5 -25, 40 -25, 40 25, -5 25, -5 40"></polygon>
+								<text class="ArrowText" transform="translate(25,10)">No</text>
+							</g>
+						</svg>
+						<div class="FlowBox"><p>A <em>sigmatropic rearrangement</em>, where a σ-bond is swapped with another</p></div>
+						<div class="flowchartLevel" id="L4" style="top: 28%;">
+							<svg class="Arrow" style="left:15%;top: -7%;">
+								<polygon points="-40 0, -5 -40, -5 -25, 40 -25, 40 25, -5 25, -5 40" transform="translate(0,0)rotate(-90)"></polygon>
+							</svg>
+							<div class="FlowBox" style="width: 70%;"><p>Common reactions: <br>[3,3]: <em>chair TS</em> <br>[1,5]: often involves hydrogen shifting</p></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+	<script src="https://www.lactame.com/lib/openchemlib/5.4.0/openchemlib-minimal.js"></script>
+	<script src="../../Scripts/three.min.js"></script>
+	<script src="../../Scripts/stats.min.js"></script>
+	<script src="../../Scripts/Detector.js"></script>
+	<script src="../../Scripts/TrackballControls.js"></script>
+	<script src="../../Scripts/OutlineEffect.js"></script>
+	<script src="../../Scripts/molViewer.js"></script>
+	<script src="flowchart.js"></script>
+
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106347776-5"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-106347776-5');
+	</script>
+
+	<script>
+
+		var screenFit = function(){
+
+			d3.select( "#gameFrame" ).style( "width", d3.select( ".page" ).node().getBoundingClientRect().width - 830 + "px" );
+
+		}
+		screenFit();
+		window.addEventListener( "resize", screenFit );
+
+	</script>
+
+</body>
