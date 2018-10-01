@@ -1,24 +1,31 @@
+let handler;
+let subs = addSubstituents();
+
 document.addEventListener( "DOMContentLoaded", ev => {
 
     d3.select( "#loading" ).remove();
     d3.select( "#menu" ).style( "display", null );
+    displayHelpers();
+    handler = new GameHandler();
+    handler.startGame();
 
 });
 
 let GameHandler = function(){
 
-    this.grabbed = false;
-    this.snapTarget = null;
-    this.fadeGroup = null;
-    this.substituent = null;
-    this.state = 0; //0: start, 1: showAnswerMolecule, 2: playing, 3: markConforms, 4: markHighEnergy, 5: result
-    this.lastState = 0;
-    this.HVisible = false;
-    this.camSave = null;
-    this.answerConform = null;
-    this.activeConform = null;
-    this.inactiveConform = null;
-    this.incorrectMAT = new THREE.MeshToonMaterial();
+    this.grabbed            = false;
+    this.diff               = null;
+    this.snapTarget         = null;
+    this.fadeGroup          = null;
+    this.substituent        = null;
+    this.state              = 0; //0: start, 1: showAnswerMolecule, 2: playing, 3: markConforms, 4: markHighEnergy, 5: result
+    this.lastState          = 0;
+    this.HVisible           = false;
+    this.camSave            = null;
+    this.answerConform      = null;
+    this.activeConform      = null;
+    this.inactiveConform    = null;
+    this.incorrectMAT       = new THREE.MeshToonMaterial();
     this.incorrectMAT.color = new THREE.Color( 1, 0.5, 0.5 );
 
     this.changeState = function( newState ){
@@ -27,57 +34,75 @@ let GameHandler = function(){
 
             case 0:
 
-                d3.select( "#intro" )           .classed( "active", true ).classed( "hidden", false )
-                d3.select( "#questionMolecule" ).classed( "active", false )
-                d3.select( "#game" )            .classed( "active", false )
-                d3.select( "#result" )          .classed( "active", false )
-                d3.select( "#markHighEnergy" )  .classed( "active", false )
+                d3.select( "#intro" )           .classed( "active", true ).classed( "hidden", false );
+                d3.select( "#questionMolecule" ).classed( "active", false ).classed( "hidden", false ).classed( "maximise", true );
+                d3.select( "#game" )            .classed( "active", false ).classed( "hidden", false );
+                d3.select( "#result" )          .classed( "active", false ).classed( "hidden", true );
+                d3.select( "#markHighEnergy" )  .classed( "active", false ).classed( "hidden", true );
+
+                stateUpdater( [], [], [], "Welcome to the game!", "This was made to test your understanding of Cyclohexane and its stable conformations.</br></br>To begin with, you'll be given a top-down view of a 2D molecule. Your first job will be to work out the two possible ways it could appear in 3D space. Once you've got that cracked, you'll need to figure out which of the two conformations is most likely to be stable...</br></br>Pick a difficulty and give it a shot" );
 
                 break;
 
             case 1:
 
-                d3.select( "#intro" )           .classed( "active", false ).classed( "hidden", true )
-                d3.select( "#questionMolecule" ).classed( "active", true ).classed( "maximise", true )
+                stateUpdater( ["#intro","#questionMolecule"], ["#intro"], [], "This is Cyclohexane", "What you're looking at is a ring of 6 carbons. Attached at various points are functional groups, or substituents.</br></br>The location of each substituent depends on where it is on the ring and how it is bonded to the carbon.</br></br>Seems simple enough? The tricky part is when transferring this picture to 3D..." );
 
                 break;
 
             case 2:
 
-                d3.select( "#questionMolecule" ).classed( "active", true ).classed( "maximise", false )
-                d3.select( "#game" )            .classed( "active", true )
+                stateUpdater( ["#game"], [], ["#questionMolecule"], "What to do?", "You need to recreate the Cyclohexane shown in the top right of your screen. The two common 'chair' conformations are provided, but it's up to you to place the substituents.</br></br>You can do this by dragging them from the bar along the top and dropping them onto a Hydrogen that needs to get out the way.</br></br>Made a mistake? Grab a Hydrogen from the right of the toolbar and simply drop it on to the misplaced substituent.</br></br>Good luck!" );
+
+                this.enableLabels();
 
                 break;
 
             case 3:
 
-                d3.select( "#questionMolecule" ).classed( "active", true ).classed( "maximise", false )
-                d3.select( "#game" )            .classed( "active", true )
-                    .selectAll( ".view3D" )
-                        .classed( "active", false )
-                        .classed( "inactive", false )
-                        .transition()
-                        .duration( 1000 )
-                        .tween( null, () => function(){ handler.conform1.Mol3D.onWindowResize(); handler.conform2.Mol3D.onWindowResize() })
+                d3.selectAll( "#game .view3D" )
+                    .classed( "active", false )
+                    .classed( "inactive", false )
+                    .transition()
+                    .duration( 1000 )
+                    .tween( null, () => function(){ handler.conform1.Mol3D.onWindowResize(); handler.conform2.Mol3D.onWindowResize() })
 
                 break;
 
             case 4:
 
-                d3.select( "#questionMolecule" ).classed( "active", false ).classed( "hidden", true )
-                d3.select( "#game" )            .classed( "active", false )
-                d3.select( "#markHighEnergy" )  .classed( "active", true ).classed( "hidden", false )
+                stateUpdater( ["#questionMolecule", "#game", "#markHighEnergy"], ["#questionMolecule", "#markHighEnergy"], [], "The important bit", "So, you got the conformations correct? Now comes the hard part.</br></br>An 'Axial' substituent that is pointing out of the chain is particularly uncomfortable; all the substituents would much rather be horizontal, or 'Equatorial'. Unfortunately, for the Cyclohexane, that isn't possible, and the best it can do is minimise the amount of 'stuff' it has sticking out at an awkward angle.</br></br>You need to pick which of the two conformations is carrying the least 'stuff'..." );
 
                 break;
 
             case 5:
 
-                d3.select( "#game" )            .classed( "active", false ).classed( "hidden", true )
-                d3.select( "#markHighEnergy" )  .classed( "active", false ).classed( "hidden", true )
-                d3.select( "#result" )          .classed( "active", true )
+                stateUpdater( ["#markHighEnergy", "#result"], ["#result", "#game", "#markHighEnergy"], ["#questionMolecule"], false, "" );
 
-            break;
+                animateResult();
 
+                break;
+
+
+        }
+
+        function stateUpdater( activeToggles, hiddenToggles, maximiseToggles, helpTitle, helpText ){
+
+            activeToggles.forEach( el => document.querySelector( el ).classList.toggle( "active" ) );
+            hiddenToggles.forEach( el => document.querySelector( el ).classList.toggle( "hidden" ) );
+            maximiseToggles.forEach( el => document.querySelector( el ).classList.toggle( "maximise" ) );
+
+            if( helpTitle === false ){
+
+                d3.select( ".helpFrame" ).classed( "nohelp", true );
+
+            } else {
+
+                d3.select( ".helpFrame" ).classed( "nohelp", false );
+                d3.select( "#helpTitle" ).html( helpTitle );
+                d3.select( "#helpBody" ).html( helpText );
+
+            }
 
         }
 
@@ -94,6 +119,71 @@ let GameHandler = function(){
 
         }
 
+    this.enableLabels = function(){
+
+        d3.select( document ).on( "3DMouseover.labels", function(){
+
+            if( !handler.grabbed && handler.activeConform ){
+
+                if( d3.event.detail.objects.length > 0 ){ showLabels( handler.activeConform.Mol3D ) }
+                else{ hideLabels( handler.activeConform.Mol3D ) }
+
+            }
+
+        })
+
+    }
+
+    this.startGame = function(){
+
+        //////Last Run Cleanup//////
+        d3.selectAll( ".canvas3D" ).classed( "correct incorrect", false );
+
+        if( handler.answerConform ){
+
+            handler.answerConform.Mol3D.dispose();
+
+            [handler.conform1,handler.conform2].forEach( conform => {
+
+                conform.Mol3D.dispose();
+                conform.svg.remove();
+
+            })
+
+        }
+
+        handler.changeState( 0 );
+
+        //////New Run//////
+        handler.conform1 = new Conformation( chair1, d3.select( "#conform1 > .canvas3D" ) );
+        handler.conform2 = new Conformation( chair2, d3.select( "#conform2 > .canvas3D" ) );
+
+        [handler.conform1, handler.conform2].forEach( conform => {
+
+            conform.draw();
+            setTimeout( () => conform.Mol3D.pause(), 50 );
+
+        });
+
+        d3.select( "#questionMolecule" ).append( "h2" ).text( "Hint: Carbon 1 bears the heaviest substituent" );
+        d3.select( "#questionMolecule" ).append( "h2" ).text( "Click to continue..." ).style( "top", "80%" );
+
+
+
+        //////MOUSEDOWN//////
+        d3.selectAll( ".dragBox" ).on( "mousedown touchstart", handleMousedown );
+
+        d3.selectAll( ".conformOverlay" ).on( "mousedown", function(){
+
+            handler.activeConform = d3.select( this ).attr( "id" ).split( "_" )[0] === "conform1" ? handler.conform2 : handler.conform1;
+            handler.inactiveConform = handler.activeConform === handler.conform1 ? handler.conform2 : handler.conform1;
+            toggleConform();
+            //handler.changeState( 2 );
+
+        })
+
+    }
+
 }
 
 let Conformation = function( molFile, container, molecule ){
@@ -107,6 +197,7 @@ let Conformation = function( molFile, container, molecule ){
          {index: 4, equatorial: null, axial: null},
          {index: 5, equatorial: null, axial: null}];
     this.container = container;
+    this.svg = null;
     if( molFile ){
 
         this.Mol3D = new MolViewer.Mol3D( new MolViewer.Molecule( this.molFile ), container.node(), {mouseoverDispatch: true, showfGroups: false} );
@@ -120,12 +211,12 @@ let Conformation = function( molFile, container, molecule ){
         this.Mol3D.scene.children.slice(1).forEach( child => this.Mol3D.scene.remove( child ) );
         this.Mol3D.draw();
 
-        this.Mol3D.setView( new THREE.Box3().setFromObject( this.Mol3D.molGroup ).getBoundingSphere(), new THREE.Vector3( 0, 0, 5 ), new THREE.Vector3().copy( this.Mol3D.camActive.up ) );
+        this.Mol3D.setView( new THREE.Box3().setFromObject( this.Mol3D.molGroup ).getBoundingSphere(), new THREE.Vector3( 0, 0, 6 ), new THREE.Vector3().copy( this.Mol3D.camActive.up ) );
 
         const normal = this.Mol3D.scene.getObjectByName( 0 ).position.clone().sub( this.Mol3D.scene.getObjectByName( 2 ).position ).cross( this.Mol3D.scene.getObjectByName( 0 ).position.clone().sub( this.Mol3D.scene.getObjectByName( 4 ).position ) ).normalize();
 
         const ringBondMAT = new THREE.MeshToonMaterial( {
-                                color: new THREE.Color( 0.3, 0.3, 0.3 ),
+                                color: new THREE.Color( 0.1, 1, 1 ),
                                 reflectivity: 0.8,
                                 shininess: 0.8,
                                 specular: 0.8,
@@ -225,50 +316,72 @@ let Conformation = function( molFile, container, molecule ){
 
     this.drawSideOn = function(){
 
-        const svg = d3.select( document.createElementNS( "http://www.w3.org/2000/svg", "svg" ) )
-        const grp = svg.append( "g" ).attr( "transform", "translate(215,115)" );
+        const _chair1 = this.molFile === chair1;
 
-        const points = [[-80,-25],[-20,-5],[40,-20],[80,25],[20,5],[-40,20],[-80,-25]].map( point => [point[0], point[1] * ( this.molFile === chair1 ? -1 : 1 )] );
+        const svg = d3.select( document.createElementNS( "http://www.w3.org/2000/svg", "svg" ) );
+        const front = svg.append( "g" ).attr( "transform", "translate(215,115)" );
+        const back = svg.append( "g" ).attr( "transform", "translate(215,115)" ).attr( "mask", "url(#overlayLine" + _chair1 + ")" );
 
-        grp.append( "path" ).attr( "d", points.map( ( el, i ) => ( i === 0 ? "M " : "L " ) + el.join(" ") ).join(" ") );
+        const mask = svg.append( "defs" ).lower()
+            .append( "mask" ).attr( "id", "overlayLine" + _chair1 )
+            .append( "g" )
+
+        mask.append( "rect" )
+            .attr( "width", "100%" )
+            .attr( "height", "100%" )
+            .attr( "transform", "translate( -215, -115 )" )
+            .style( "fill", "white" )
+
+        const points = [[-80,-25],[-20,-5],[40,-20],[80,25],[20,5],[-40,20],[-80,-25]].map( point => [point[0], point[1] * ( _chair1 ? -1 : 1 )] );
+        !_chair1 && points.reverse();
+
+        front.append( "path" ).attr( "d", points.slice( 1, 3 ).map( ( el, i ) => ( i === 0 ? "M " : "L " ) + el.join(" ") ).join(" ") );
+        mask.append( "path" ).attr( "d", points.slice( 1, 3 ).map( ( el, i ) => ( i === 0 ? "M " : "L " ) + el.join(" ") ).join(" ") ).attr( "class", "maskLine" );
+        back.append( "path" ).attr( "d", points.map( ( el, i ) => ( i === 0 ? "M " : "L " ) + el.join(" ") ).join(" ") );
 
         const bondLength = 30;
         let lineTarget = [];
 
         this.molecule.forEach( ( atom, i ) => {
 
+            const parent = ( _chair1 ? i === 1 : i === 2 ) ? front : back;
+
             if( atom.equatorial ){
 
                 const line = [i < 5 ? points[i + 1] : points[ i - 5], i < 4 ? points[i + 2] : points[i - 4]]
                 const angle = Math.atan2( line[1][1] - line[0][1], line[1][0] - line[0][0] ) + Math.PI
                 const lineTarget = [points[i][0] + bondLength*Math.cos( angle ), points[i][1] + bondLength*Math.sin( angle )]
-                grp.append( "line" )
-                    .attr( "x1", points[i][0] )
-                    .attr( "x2", lineTarget[0] )
-                    .attr( "y1", points[i][1] )
-                    .attr( "y2", lineTarget[1] )
 
-                drawText( points[i], lineTarget, [-6, 4], atom.equatorial, grp, lineTarget[0] < points[i][0] );
+                drawLine( lineTarget[0] === points[i][0] ? parent : back, points[i], lineTarget, i );
+                drawText( points[i], lineTarget, [-6, 4], atom.equatorial, front, lineTarget[0] < points[i][0] );
 
             }
 
             if( atom.axial ){
 
-                const flipped = ( this.molFile === chair1 ? [0,2,4] : [1,3,5] ).indexOf( i ) !== -1
+                const flipped = ( _chair1 ? [0,2,4] : [1,3,5] ).indexOf( i ) !== -1
                 const lineTarget = [points[i][0], points[i][1] + ( flipped ? bondLength : -bondLength )]
-                grp.append( "line" )
-                    .attr( "x1", points[i][0] )
-                    .attr( "x2", lineTarget[0] )
-                    .attr( "y1", points[i][1] )
-                    .attr( "y2", lineTarget[1] )
 
-                drawText( points[i], lineTarget, flipped ? [-9, 2] : [-8, 3], atom.axial, grp, false );
+                drawLine( lineTarget[0] === points[i][0] ? parent : back, points[i], lineTarget, i );
+                drawText( points[i], lineTarget, flipped ? [-9, 2] : [-8, 3], atom.axial, front, false );
 
             }
 
-
-
         })
+
+        function drawLine( parent, point, lineTarget, atomIndex ){
+
+            const group = parent.append( "line" )
+                            .attr( "x1", point[0] )
+                            .attr( "x2", lineTarget[0] )
+                            .attr( "y1", point[1] )
+                            .attr( "y2", lineTarget[1] )
+                            //.attr( "class", ( _chair1 ? atomIndex === 1 : atomIndex === 2 ) ? ( lineTarget[0] === point[0] ? "front" : null ) : null )
+                            .attr( "id", atomIndex )
+
+            if( parent === front ) mask.node().appendChild( d3.select( group.node().cloneNode( true ) ).attr( "class", "maskLine" ).node() );
+
+        }
 
         function drawText( orig, target, textOffset, sub, parent, reverseText ){
 
@@ -280,25 +393,28 @@ let Conformation = function( molFile, container, molecule ){
                             .attr( "x", pos[0] + ( reverseText ? -1 : 1 ) * textOffset[0] )
                             .attr( "y", pos[1] + textOffset[1]  )
                             .attr( "text-anchor", reverseText ? "end" : "start" )
-                            .append( "tspan" )
+
+            const tspan = group.append( "tspan" )
 
             formula.forEach( x => {
 
-                group.append( "tspan" )
+                tspan.append( "tspan" )
                     .html( x )
                     .attr( "baseline-shift", +x === +x ? "sub" : null )
 
             })
 
+            mask.node().appendChild( d3.select( group.node().cloneNode( true ) ).attr( "class", "maskText" ).node() )
+
         }
+
+        this.svg = svg;
 
         return svg.node()
 
     }
 
     this.draw2D = function(){
-
-        if( !d3.select( ".view2D" ).empty() ){ d3.select( ".view2D" ).remove() }
 
         const hexPoints = [[0, -100],[86.6, -50],[86.6, 50],[0, 100],[-86.6, 50],[-86.6, -50],[0, -100]].map( point => point.map( coord => coord * 0.7 ) );
 
@@ -307,28 +423,37 @@ let Conformation = function( molFile, container, molecule ){
         const wedgeBond = `<polygon id="" points="0,0 ` + length + `,` + width + ` ` + length + `,` + -width + `"></polygon>`;
         const hashBond = Array( 6 ).fill( 0 ).map( ( val, i, arr )  => { i = i + 1; return "<line class='bond' x1=" + i*length/arr.length + " x2=" + i*length/arr.length + " y1=" + i*width/arr.length + " y2=" + -i*width/arr.length + "></line>" } ).join("");
 
-        let svg = d3.select( "#questionMolecule" ).append( "svg" ).classed( "view2D maximise", true );
+        let svg = d3.select( document.createElementNS( "http://www.w3.org/2000/svg", "svg" ) ).classed( "view2D maximise", true );
         const grp = svg.append( "g" );
         grp.append( "path" ).attr( "d", hexPoints.map( ( point, i ) => ( i === 0 ? "M " : "L " ) + point.join( " " ) ).join( " " ));
 
-        this.molecule.forEach( ( atom, i ) => {
 
-            const angle = Math.atan2( hexPoints[i + 1][1] - hexPoints[i][1], hexPoints[i + 1][0] - hexPoints[i][0] )*180/Math.PI - 0;
+        this.molecule.forEach( ( atom, index ) => {
 
-            const flipped = [ 0, 2, 4 ].indexOf( i ) !== -1;
+            let atomIndex = atom.index;
+
+            const angle = Math.atan2( hexPoints[atomIndex + 1][1] - hexPoints[atomIndex][1], hexPoints[atomIndex + 1][0] - hexPoints[atomIndex][0] );
+
+            if( handler.diff < 3 ){
+
+                grp.append( "text" ).attr( "class", "atomIndex" ).text( index + 1 ).attr( "x", hexPoints[atomIndex][0] + 10*Math.cos( angle + Math.PI/3 ) ).attr( "y", hexPoints[atomIndex][1] + 10*Math.sin( angle + Math.PI/3 ) ).attr( "dy", "5px" );
+
+            }
+
+            const flipped = ( this.molFile === chair1 ? [ 0, 2, 4 ] : [ 1, 3, 5 ] ).indexOf( index ) !== -1;
 
             if( atom.axial && atom.equatorial ){
 
-                drawBond( angle + 30, atom.axial.shorthand, flipped ? wedgeBond : hashBond, hexPoints[i] );
-                drawBond( angle - 30, atom.equatorial.shorthand, flipped ? hashBond : wedgeBond, hexPoints[i] );
+                drawBond( angle + Math.PI/6, atom.axial.shorthand, flipped ? wedgeBond : hashBond, hexPoints[atomIndex] );
+                drawBond( angle - Math.PI/6, atom.equatorial.shorthand, flipped ? hashBond : wedgeBond, hexPoints[atomIndex] );
 
             } else if ( atom.axial ) {
 
-                drawBond( angle, atom.axial.shorthand, flipped ? wedgeBond : hashBond, hexPoints[i] );
+                drawBond( angle, atom.axial.shorthand, flipped ? wedgeBond : hashBond, hexPoints[atomIndex] );
 
             } else if ( atom.equatorial ) {
 
-                drawBond( angle, atom.equatorial.shorthand, flipped ? hashBond : wedgeBond, hexPoints[i] );
+                drawBond( angle, atom.equatorial.shorthand, flipped ? hashBond : wedgeBond, hexPoints[atomIndex] );
 
             }
 
@@ -336,9 +461,9 @@ let Conformation = function( molFile, container, molecule ){
 
         function drawBond( AngleOffset, text, bondType, atomHexPoint ){
 
-            grp.append( "g" ).html( bondType ).attr( "transform", "translate(" + atomHexPoint[0] + "," + atomHexPoint[1] + ")rotate(" + ( AngleOffset - 120 ) + ")" );
+            grp.append( "g" ).html( bondType ).attr( "transform", "translate(" + atomHexPoint[0] + "," + atomHexPoint[1] + ")rotate(" + ( AngleOffset*180/Math.PI - 120 ) + ")" );
 
-            const textPos = [ atomHexPoint[0] + length*Math.sin( ( AngleOffset - 30 ) * Math.PI/180 )*1.3, atomHexPoint[1] + 10 - length*Math.cos( ( AngleOffset - 30 ) * Math.PI/180 )*1.3 ];
+            const textPos = [ atomHexPoint[0] + length*Math.sin( AngleOffset - Math.PI/6 )*1.3, atomHexPoint[1] + 10 - length*Math.cos( AngleOffset - Math.PI/6 )*1.3 ];
 
             const txtGrp = grp.append( "text" ).attr( "class", "SubstituentText" )
                 .append( "tspan" )
@@ -357,113 +482,366 @@ let Conformation = function( molFile, container, molecule ){
             })
 
         }
+
+        return svg.node()
     }
 
 }
 
-const chair1 = `C6H12
-APtclcactv07251806263D 0   0.00000     0.00000
+let Sprinkler = function( scene, pos, initialVel, count, spread ){
 
- 18 18  0  0  0  0  0  0  0  0999 V2000
-    0.0335   -1.4421    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.2321   -0.7501   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.2657    0.6920    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.0335    1.4421   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-    1.2321    0.7501    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-    1.2657   -0.6920   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-    0.0335   -1.4421    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-    0.0574   -2.4695   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.2321   -0.7501   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -2.1100   -1.2844    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -2.1673    1.1851   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.2657    0.6920    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.0335    1.4421   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.0574    2.4695    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-    2.1100    1.2844   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-    1.2321    0.7501    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-    2.1673   -1.1851    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-    1.2657   -0.6920   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-  1  2  1  0  0  0  0
-  2  3  1  0  0  0  0
-  3  4  1  0  0  0  0
-  4  5  1  0  0  0  0
-  5  6  1  0  0  0  0
-  1  6  1  0  0  0  0
-  1  7  1  0  0  0  0
-  1  8  1  0  0  0  0
-  2  9  1  0  0  0  0
-  2 10  1  0  0  0  0
-  3 11  1  0  0  0  0
-  3 12  1  0  0  0  0
-  4 13  1  0  0  0  0
-  4 14  1  0  0  0  0
-  5 15  1  0  0  0  0
-  5 16  1  0  0  0  0
-  6 17  1  0  0  0  0
-  6 18  1  0  0  0  0
-M  END
-$$$$`;
+    this.root = pos;
+    this.scene = scene;
+    this.obj = null;
+    this.points = [];
+    this.geometry = null;
+    this.colors = [];
+    this.emitter = null;
+    this.count = 1;
+    this.maxCount = count;
+    this.spread = spread instanceof THREE.Vector3 ? spread : new THREE.Vector3( spread, spread, spread );
+    this.initialVel = initialVel;
+    this.drag = 1E-3;
 
-const chair2 = `C6H12
-APtclcactv07251806263D 0   0.00000     0.00000
+    this.material = new THREE.ShaderMaterial( {
 
- 18 18  0  0  0  0  0  0  0  0999 V2000
-    0.0335   -1.4421   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.2321   -0.7501    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.2657    0.6920   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.0335    1.4421    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-    1.2321    0.7501   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-    1.2657   -0.6920    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
-    0.0335   -1.4421   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-    0.0574   -2.4695    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.2321   -0.7501    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -2.1100   -1.2844   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -2.1673    1.1851    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -1.2657    0.6920   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.0335    1.4421    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-   -0.0574    2.4695   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-    2.1100    1.2844    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-    1.2321    0.7501   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-    2.1673   -1.1851   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
-    1.2657   -0.6920    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
-  1  2  1  0  0  0  0
-  2  3  1  0  0  0  0
-  3  4  1  0  0  0  0
-  4  5  1  0  0  0  0
-  5  6  1  0  0  0  0
-  1  6  1  0  0  0  0
-  1  7  1  0  0  0  0
-  1  8  1  0  0  0  0
-  2  9  1  0  0  0  0
-  2 10  1  0  0  0  0
-  3 11  1  0  0  0  0
-  3 12  1  0  0  0  0
-  4 13  1  0  0  0  0
-  4 14  1  0  0  0  0
-  5 15  1  0  0  0  0
-  5 16  1  0  0  0  0
-  6 17  1  0  0  0  0
-  6 18  1  0  0  0  0
-M  END
-$$$$`
+        vertexShader: `
+            attribute float alpha;
+            attribute float size;
+            attribute vec3 color;
 
-let handler = new GameHandler();
-handler.conform1 = new Conformation( chair1, d3.select( "#conform1 > .canvas3D" ) );
-handler.conform2 = new Conformation( chair2, d3.select( "#conform2 > .canvas3D" ) );
+            varying vec3 vColor;
+            varying float vAlpha;
 
-handler.conform1.draw();
-handler.conform2.draw();
+            void main() {
 
-let subs = addSubstituents();
+                vAlpha = alpha;
+                vColor = color;
 
-d3.selectAll( ".conformOverlay" ).on( "mousedown", function(){
+                vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-    handler.activeConform = d3.select( this ).attr( "id" ).split( "_" )[0] === "conform1" ? handler.conform2 : handler.conform1;
-    handler.inactiveConform = handler.activeConform === handler.conform1 ? handler.conform2 : handler.conform1;
-    toggleConform();
-    handler.changeState( 2 );
+                gl_PointSize = size;
+
+                gl_Position = projectionMatrix * mvPosition;
+
+            }
+        `,
+
+        fragmentShader:`
+            varying vec3 vColor;
+            varying float vAlpha;
+
+            void main() {
+
+                gl_FragColor = vec4( vColor, vAlpha );
+
+            }
+        `,
+
+        transparent: true,
+
+    })
+
+    this.geometry = new THREE.BufferGeometry();
+    this.geometry.addAttribute( "alpha", new THREE.Float32BufferAttribute( [], 1 ).setDynamic( true ) );
+    this.geometry.addAttribute( "position", new THREE.Float32BufferAttribute( [], 3 ).setDynamic( true ) );
+    this.geometry.attributes.position.count = this.maxCount;
+    this.geometry.addAttribute( "color", new THREE.Float32BufferAttribute( [], 3 ).setDynamic( true ) );
+    this.geometry.addAttribute( "size", new THREE.Float32BufferAttribute( [], 1 ).setDynamic( true ) );
+
+    this.obj = new THREE.Points( this.geometry, this.material );
+
+    this.addPoints( this.count );
+
+}
+
+Object.assign( Sprinkler.prototype, {
+
+    addPoints: function( count ){
+
+        for( let i = this.points.length; i < this.maxCount; i++ ){
+
+            const color = new THREE.Color();
+            color.setHSL( THREE.Math.randFloat( 0.1, 0.9 ), 1, 0.5 );
+
+            const pos = new THREE.Vector3(
+                this.root.x,
+                this.root.y,
+                this.root.z
+            );
+            const velocity = new THREE.Vector3(
+                this.initialVel.x + THREE.Math.randFloat( -this.spread.x, this.spread.x ),
+                this.initialVel.y + THREE.Math.randFloat( -this.spread.y, this.spread.y ),
+                this.initialVel.z + THREE.Math.randFloat( -this.spread.z, this.spread.z )
+            );
+
+            if( this.count === this.maxCount ){
+
+                this.points.push( { geo: pos, v: velocity , color: color, lifetime: THREE.Math.randInt( 30, 100 ), age: 1} )
+
+            } else {
+
+                this.points.push( { geo: pos , v: velocity , color: color, lifetime: THREE.Math.randInt( 30, 100 ), age: 1, hidden: true} )
+
+            }
+
+        }
+
+        this.geometry.attributes.position.array = new Float32Array( this.points.map( el => Object.values( el.geo.add( el.v ) ).join( "," ) ).join( "," ).split( "," ) );
+        this.geometry.attributes.position.count = this.count;
+        this.geometry.attributes.color.array = new Float32Array( this.points.map( el => Object.values( el.color ).join( "," ) ).join( "," ).split( "," ) );
+        this.geometry.attributes.alpha.array = new Float32Array( this.points.map( el => el.hidden ? 0 : 1-el.age/el.lifetime ) );
+        this.geometry.attributes.size.array = new Float32Array( this.points.map( el => 4*(1-el.age/el.lifetime) ) );
+
+        this.scene.add( this.obj );
+
+    },
+
+    draw: function(){
+
+        window.requestAnimationFrame( () => this.draw() );
+
+        this.addPoints( this.count );
+
+        this.points = this.points.map( ( point, i ) => {
+
+            if( point.age === point.lifetime ){
+
+                return null
+
+            }
+
+            //Bit of drag
+            point.v.multiplyScalar( Math.exp( -point.age*this.drag ) );
+            //Drop of gravity
+            point.v.y = point.v.y - 0.0001*point.age;
+
+            point.age += 1;
+            if( this.count < this.maxCount ) this.count++;
+
+            return point
+
+        }).filter( el => el !== null );
+
+        this.geometry.attributes.position.needsUpdate = true;
+        this.geometry.attributes.color.needsUpdate = true;
+        this.geometry.attributes.alpha.needsUpdate = true;
+        this.geometry.attributes.size.needsUpdate = true;
+
+    }
 
 })
+
+const chair1 = `C6H12
+    APtclcactv07251806263D 0   0.00000     0.00000
+
+     18 18  0  0  0  0  0  0  0  0999 V2000
+        0.0335   -1.4421    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+       -1.2321   -0.7501   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+       -1.2657    0.6920    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+       -0.0335    1.4421   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+        1.2321    0.7501    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+        1.2657   -0.6920   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+        0.0335   -1.4421    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+        0.0574   -2.4695   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -1.2321   -0.7501   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -2.1100   -1.2844    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -2.1673    1.1851   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -1.2657    0.6920    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -0.0335    1.4421   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -0.0574    2.4695    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+        2.1100    1.2844   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+        1.2321    0.7501    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+        2.1673   -1.1851    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+        1.2657   -0.6920   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+      1  2  1  0  0  0  0
+      2  3  1  0  0  0  0
+      3  4  1  0  0  0  0
+      4  5  1  0  0  0  0
+      5  6  1  0  0  0  0
+      1  6  1  0  0  0  0
+      1  7  1  0  0  0  0
+      1  8  1  0  0  0  0
+      2  9  1  0  0  0  0
+      2 10  1  0  0  0  0
+      3 11  1  0  0  0  0
+      3 12  1  0  0  0  0
+      4 13  1  0  0  0  0
+      4 14  1  0  0  0  0
+      5 15  1  0  0  0  0
+      5 16  1  0  0  0  0
+      6 17  1  0  0  0  0
+      6 18  1  0  0  0  0
+    M  END
+    $$$$`;
+
+const chair2 = `C6H12
+    APtclcactv07251806263D 0   0.00000     0.00000
+
+     18 18  0  0  0  0  0  0  0  0999 V2000
+        0.0335   -1.4421   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+       -1.2321   -0.7501    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+       -1.2657    0.6920   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+       -0.0335    1.4421    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+        1.2321    0.7501   -0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+        1.2657   -0.6920    0.2550 C   0  0  0  0  0  0  0  0  0  0  0  0
+        0.0335   -1.4421   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+        0.0574   -2.4695    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -1.2321   -0.7501    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -2.1100   -1.2844   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -2.1673    1.1851    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -1.2657    0.6920   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -0.0335    1.4421    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+       -0.0574    2.4695   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+        2.1100    1.2844    0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+        1.2321    0.7501   -1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+        2.1673   -1.1851   -0.1083 H   0  0  0  0  0  0  0  0  0  0  0  0
+        1.2657   -0.6920    1.3450 H   0  0  0  0  0  0  0  0  0  0  0  0
+      1  2  1  0  0  0  0
+      2  3  1  0  0  0  0
+      3  4  1  0  0  0  0
+      4  5  1  0  0  0  0
+      5  6  1  0  0  0  0
+      1  6  1  0  0  0  0
+      1  7  1  0  0  0  0
+      1  8  1  0  0  0  0
+      2  9  1  0  0  0  0
+      2 10  1  0  0  0  0
+      3 11  1  0  0  0  0
+      3 12  1  0  0  0  0
+      4 13  1  0  0  0  0
+      4 14  1  0  0  0  0
+      5 15  1  0  0  0  0
+      5 16  1  0  0  0  0
+      6 17  1  0  0  0  0
+      6 18  1  0  0  0  0
+    M  END
+    $$$$`
+
+function displayHelpers(){
+
+    d3.xml("img/HandIcons.svg").mimeType("image/svg+xml").get( (error, xml ) => {
+
+        if( error ) throw error;
+
+        const GrabHand = d3.select( xml.children[0].children[0] );
+        const PointerHand = d3.select( xml.children[0].children[1] );
+        const GrabbingHand = d3.select( xml.children[0].children[2] );
+
+        const PointerHelper = d3.select( "#game" )
+            .append( "svg" )
+            .attr( "class", "HandIcon" );
+
+        [1,2].forEach( el => {
+
+            PointerHelper.append( "circle" )
+                .attr( "id", "clickRipple" + el )
+                .attr( "cx", 15 )
+                .attr( "cy", 45 )
+                .attr( "r", 0 )
+                .style( "stroke", "rgba(0,0,0,1)" )
+                .style( "stroke-width", 0 )
+                .style( "fill", "none" )
+
+        });
+
+        (function PointerHelperAnim() {
+
+            PointerHelper
+                .style( "top", "70%" )
+                .style( "left", "30%" )
+                .transition()
+                .duration( 1000 )
+                .style( "top", "55%" )
+                .style( "left", "25%" )
+                .on( "end", () => {
+
+                    d3.select( "#clickRipple1" )
+                        .call( Ripple, 5 )
+
+                    d3.select( "#clickRipple2" )
+                        .call( Ripple, 3 )
+
+                    setTimeout( PointerHelperAnim, 1000 );
+
+                } )
+
+        })()
+
+        function Ripple( selection, rippleSize ){
+
+            selection
+                .style( "stroke-width", rippleSize )
+                .style( "stroke", "rgba(0,0,0,1)")
+                .attr( "r", 0 )
+                .transition()
+                .duration( 500 )
+                .ease( d3.easePolyOut )
+                .style( "stroke-width", 0 )
+                .style( "stroke", "rgba(0,0,0,0)")
+                .attr( "r", rippleSize*10 )
+
+        }
+
+        d3.select( "#game" ).on( "mousedown.helperAnims", function(){
+
+                PointerHelper.remove();
+
+                const GrabHelper = d3.select( "#game" ).append( "svg" ).attr( "class", "HandIcon" )
+
+                GrabHelper.node().appendChild( GrabHand.node() );
+                GrabHelper.node().appendChild( GrabbingHand.node() );
+
+                (function GrabHelperAnim() {
+
+                    d3.select( ".Grab" ).style( "display", null )
+                    d3.select( ".Grabbing" ).style( "display", "none" )
+
+                    GrabHelper
+                        .style( "top", "75px" )
+                        .style( "left", "300px" )
+                        .transition()
+                        .duration( 1000 )
+                        .style( "top", "0px" )
+                        .style( "left", "255px" )
+                        .on( "end", function(){
+
+                                d3.select( ".Grab" ).style( "display", "none" )
+                                d3.select( ".Grabbing" ).style( "display", null )
+
+                        } )
+                        .transition()
+                        .duration( 1000 )
+                        .style( "top", "75px" )
+                        .style( "left", "300px" )
+                        .on( "end", function(){
+
+                                d3.select( ".Grab" ).style( "display", null )
+                                d3.select( ".Grabbing" ).style( "display", "none" )
+
+                                setTimeout( GrabHelperAnim, 1000 );
+
+                        } )
+
+
+                })()
+
+                d3.selectAll( ".dragBox" ).on( "mousedown.helperAnims touchstart.helperAnims", function(){
+
+                    GrabHelper.remove();
+
+                }, {once: true} )
+
+
+            }, {once: true} )
+
+        PointerHelper.node().appendChild( PointerHand.node() );
+
+    })
+
+
+
+}
 
 function toggleConform(){
 
@@ -534,7 +912,7 @@ function MarkAttempts(){
     if( Array.from(document.querySelectorAll( ".canvas3D" )).filter( node => node.classList.contains("incorrect")).length === 0 ){
 
         //Conformations correct
-        setTimeout( handler.correctConforms, 2000 );
+        setTimeout( handler.correctConforms, 1000 );
 
     } else{
 
@@ -546,39 +924,90 @@ function MarkAttempts(){
 
 function MarkEnergy( el, answer ){
 
-    if( !answer ){
+    if( answer ? answer.molFile === handler.answerConform.molFile : false ){
 
-        wrongFlash();
-
-    } else{
-
-        if( answer.molFile === handler.answerConform.molFile ){
-
-            d3.select( el )
-                .style( "background", "rgba( 255, 255, 255, 0.3 )" )
-                .transition()
-                .duration( 200 )
-                .style( "background", "rgba( 130, 255, 130, 0.8 )" )
-                .on( "end", () => setTimeout( () => handler.changeState( 5 ), 1000 ) )
-
-
-        }
-        else{ wrongFlash() };
+        classFlash( el, "right" );
+        setTimeout( () => handler.changeState( 5 ), 600 );
 
     }
+    else{ classFlash( el, "wrong" ) };
 
-    function wrongFlash(){
+    function classFlash( _el, className ){
 
-        d3.select( el )
-            .style( "background", "rgba( 255, 255, 255, 0.3 )" )
-            .transition()
-            .duration( 200 )
-            .style( "background", "rgba( 255, 130, 130, 1 )" )
+        d3.select( _el )
+            .classed( className, true )
             .transition()
             .duration( 500 )
-            .style( "background", "rgba( 255, 255, 255, 0.3 )" )
+            .on( "end", () => d3.select( _el ).classed( className, false ) )
 
     }
+
+}
+
+function animateResult(){
+
+    d3.select( document ).on( "3DMouseover.labels", null );
+
+    const answerConf = handler.answerConform;
+    const scene = answerConf.Mol3D.scene;
+    const controls = answerConf.Mol3D.controls;
+    handler.activeConform = answerConf;
+    answerConf.Mol3D.renderer.shadowMap.enabled = true;
+
+    answerConf.draw();
+    answerConf.Mol3D.frameFunctions.highlight.enabled = false;
+
+    sprinkler1 = new Sprinkler( scene, new THREE.Vector3( -20, -5, -20 ), new THREE.Vector3( 0, 0.5, 0 ), 200, 0.05 );
+    sprinkler2 = new Sprinkler( scene, new THREE.Vector3( 20, -5, -20 ), new THREE.Vector3( 0, 0.5, 0 ), 200, 0.05 );
+    sprinkler1.draw();
+    sprinkler2.draw();
+
+    //Camera
+    answerConf.Mol3D.setView( new THREE.Box3().setFromObject( answerConf.Mol3D.molGroup ).getBoundingSphere(), new THREE.Vector3( 0, 0, 10 ), new THREE.Vector3().copy( answerConf.Mol3D.camActive.up ) );
+    controls.minZoom = 7;
+    controls.minDistance = 7;
+    controls.maxZoom = 15;
+    controls.maxDistance = 15;
+    controls.minAzimuthAngle = - Math.PI/2;
+    controls.maxAzimuthAngle = Math.PI/2;
+    controls.minPolarAngle = 0;
+    controls.maxPolarAngle = Math.PI/2;
+
+
+    //Auto-rotate
+    molGroup = new THREE.Group();
+    answerConf.Mol3D.scene.children.slice( 1 ).forEach( obj => molGroup.add( obj ) );
+    answerConf.Mol3D.scene.add( molGroup );
+    molGroup.rotateOnWorldAxis( new THREE.Vector3( 1, 0, 0 ), Math.PI/2 );
+    molGroup.traverse( obj => obj.castShadow = true );
+
+    answerConf.Mol3D.frameFunctions.autoRotate.props.target = molGroup;
+    answerConf.Mol3D.frameFunctions.autoRotate.props.axis
+    answerConf.Mol3D.autoRotate = true;
+
+    //Spotlight
+    const spotLight = new THREE.SpotLight( 0xffffff,1, 20, Math.PI/6, 0.05);
+    spotLight.position.set ( 0, 10, 0 );
+    spotLight.castShadow = true;
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+
+    spotLight.shadow.camera.near = 1;
+    spotLight.shadow.camera.far = 30;
+    spotLight.shadow.camera.fov = 30;
+
+    scene.add( spotLight );
+
+    //Ground plane
+    let geometry = new THREE.PlaneBufferGeometry( 50, 50 );
+    geometry.rotateX( Math.PI/2 );
+    geometry.translate( 0, -5, 0 );
+    let material = new THREE.MeshToonMaterial( {color: 0x303030, side: THREE.DoubleSide} );
+    let plane = new THREE.Mesh( geometry, material );
+    plane.receiveShadow = true;
+
+    scene.add( plane );
+
 
 }
 
@@ -606,10 +1035,6 @@ function generateSubGroup( substituent ){
     group = new THREE.Group().add( group );
     group.userData = substituent;
     group.name = substituent.name;
-
-    const mousePos = new THREE.Vector3( handler.activeConform.Mol3D.mouse.x, handler.activeConform.Mol3D.mouse.y, 0 );
-    mousePos.unproject( handler.activeConform.Mol3D.camActive );
-    group.position.copy( handler.activeConform.Mol3D.camActive.position ).add( mousePos.clone().sub( handler.activeConform.Mol3D.camActive.position ).multiplyScalar( 4 ) );
 
     //////Rotate group//////
     const quatOrig = new THREE.Quaternion().setFromUnitVectors(
@@ -655,33 +1080,25 @@ function hideLabels( Conform ){
 
 }
 
-//////Show labels on hover//////
-d3.select( document ).on( "3DMouseover.labels", function(){
-
-    if( !handler.grabbed && handler.activeConform ){
-
-        if( d3.event.detail.objects.length > 0 ){ showLabels( handler.activeConform.Mol3D ) }
-        else{ hideLabels( handler.activeConform.Mol3D ) }
-
-    }
-
-})
-
-//////MOUSEDOWN//////
-d3.selectAll( ".dragBox" ).on( "mousedown", handleMousedown );
-
 function handleMousedown( substituent ){
 
     if( handler.activeConform === null ){ return };
 
+    //d3.event.preventDefault();
+    //d3.event.stopPropagation();
+
     handler.activeConform.Mol3D.showHs = true;
     handler.grabbed = true;
 
-    [group, quatOrig, fadeBond] = generateSubGroup( substituent );
+    let [group, quatOrig, fadeBond] = generateSubGroup( substituent );
+
+    const mousePos = new THREE.Vector3( handler.activeConform.Mol3D.mouse.x, handler.activeConform.Mol3D.mouse.y, 0 );
+    mousePos.unproject( handler.activeConform.Mol3D.camActive );
+    group.position.copy( handler.activeConform.Mol3D.camActive.position ).add( mousePos.clone().sub( handler.activeConform.Mol3D.camActive.position ).multiplyScalar( 4 ) );
 
     handler.activeConform.Mol3D.scene.add( group );
 
-    handler.activeConform.container.style( "cursor", "grabbing" )
+    handler.activeConform.container.style( "cursor", "grabbing" );
 
     //////Add labels//////
     showLabels( handler.activeConform.Mol3D );
@@ -692,16 +1109,17 @@ function handleMousedown( substituent ){
     handler.substituent = substituent;
 
     //////MOUSEOVER//////
-    d3.select( document ).on( "3DMouseover.snapSub", handleMouseover );
+    d3.select( document ).on( "3DMouseover.snapSub", () => handleMouseover( group, quatOrig, fadeBond ) );
 
     //////MOUSEMOVE//////
-    d3.select( ".page" ).on( "mousemove.dragGroup", handleMousemove );
+    d3.select( ".page" ).on( "mousemove.dragGroup", () => handleMousemove( group ) );
+    d3.select( ".page" ).on( "touchmove.dragGroup", () => handleMousemove( group ), {passive: false} );
 
     //////MOUSEUP//////
-    d3.select( document ).on( "mouseup", handleMouseup );
+    d3.select( document ).on( "mouseup touchend", () => handleMouseup( group, fadeBond ) );
 }
 
-function handleMouseover(){
+function handleMouseover( group, quatOrig, fadeBond ){
 
     let ev = d3.event.detail;
 
@@ -729,9 +1147,9 @@ function handleMouseover(){
     }
 
     //////Hovered a group//////
-    if( ev.objects.length > 0 ? ev.objects[0].object.userData.tooltip === "H" : false ){
+    if( ev.objects.length > 0 ? ev.objects.filter( obj => obj.object.userData.tooltip === "H" ).length > 0 : false ){
 
-        handler.snapTarget = ev.objects[0].object;
+        handler.snapTarget = ev.objects.filter( obj => obj.object.userData.tooltip === "H" )[0].object;
         let rootAtom = handler.snapTarget.userData.source.bondedTo[0];
 
         let quatFin = new THREE.Quaternion().setFromUnitVectors( new THREE.Vector3( 0, 1, 0 ).applyQuaternion( quatOrig ), new THREE.Vector3().copy( handler.snapTarget.position ).sub( rootAtom.el.HTML.position ).normalize() )
@@ -790,9 +1208,11 @@ function handleMouseover(){
 
 }
 
-function handleMousemove(){
+function handleMousemove( group ){
 
     if( handler.snapTarget === null ){
+
+        d3.event.preventDefault();
 
         const mousePos = new THREE.Vector3( handler.activeConform.Mol3D.mouse.x, handler.activeConform.Mol3D.mouse.y, 0 );
         mousePos.unproject( handler.activeConform.Mol3D.camActive );
@@ -802,14 +1222,14 @@ function handleMousemove(){
 
 }
 
-function handleMouseup(){
+function handleMouseup( group, fadeBond ){
 
-    handler.activeConform.container.style( "cursor", null )
+    handler.activeConform.container.style( "cursor", null );
 
-    d3.select( ".page" ).on( "mousemove.dragGroup", null );
+    d3.select( ".page" ).on( "mousemove.dragGroup touchmove.dragGroup", null );
     d3.select( document )
         .on( "3DMouseover.snapSub", null )
-        .on( "mouseup", null )
+        .on( "mouseup touchend", null )
 
     hideLabels( handler.activeConform.Mol3D );
 
@@ -912,7 +1332,7 @@ function addSubstituents(){
               1  3  1  0  0  0  0
             M  END
             $$$$
-        `}, {name: "t-Butyl", smile: "C(C)(C)C", shorthand: "C(CH3)3" , a: 4.9, replaceBond: "0_1", img: "img/tButyl.png", molfile: `C4H10
+        `}, {name: "t-Butyl", smile: "C(C)(C)C", shorthand: "C(CH3)3" , a: 100, replaceBond: "0_1", img: "img/tButyl.png", molfile: `C4H10
             APtclcactv06071810193D 0   0.00000     0.00000
 
              5  4  0  0  0  0  0  0  0  0999 V2000
@@ -963,7 +1383,9 @@ function generateAnswerMol( len ){
 
     for( let i = 0; i < len; i++ ){
 
-        const sub = subList.splice( Math.floor( Math.random() * subList.length ), 1 )[0];
+        if( subList.length === 0 ){ break }
+
+        let sub = subList.splice( Math.floor( Math.random() * subList.length ), 1 )[0];
 
         let randAtom = Math.floor( Math.random() * 6 );
         let randPosition = Math.random() > 0.5 ? "equatorial" : "axial";
@@ -981,19 +1403,20 @@ function generateAnswerMol( len ){
 
     handler.lastState = 2;
 
-    new Conformation( null, null, AnswerMol ).draw2D();
+    if( !d3.select( ".view2D" ).empty() ){ d3.select( ".view2D" ).remove() }
+
     let conf1 = new Conformation( chair1, d3.select( "#answerconform" ), AnswerMol).sortMol();
     let conf2 = new Conformation( chair2, d3.select( "#answerconform" ), AnswerMol.map( invertRing ) ).sortMol();
 
     if( conf1.calculateEnergy() > conf2.calculateEnergy() ){
 
         handler.answerConform = conf2;
-        conf1.Mol3D.renderer.domElement.remove()
+        conf1.Mol3D.dispose();
 
     } else if( conf1.calculateEnergy() < conf2.calculateEnergy() ){
 
         handler.answerConform = conf1;
-        conf2.Mol3D.renderer.domElement.remove()
+        conf2.Mol3D.dispose();
 
     } else{
 
@@ -1001,6 +1424,8 @@ function generateAnswerMol( len ){
         return
 
     }
+
+    document.querySelector( "#questionMolecule" ).appendChild( handler.answerConform.draw2D() );
 
 }
 

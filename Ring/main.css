@@ -70,8 +70,29 @@ table {
 
 /* ********************************************* */
 
+.cc_banner-wrapper {
+
+	overflow: visible;
+
+}
+
+#answerconform {
+
+	background: #292929;
+	width: 100%;
+
+}
+
+.atomIndex {
+
+	font-family: sans-serif;
+    text-anchor: middle;
+
+}
+
 body {
-	margin-top: 80px;
+	position: relative;
+	top: 80px;
     background-color: #262f35;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -84,26 +105,31 @@ body {
 
 .button {
 
-	padding: 0.46em 1.6em;
+	margin: 5px;
+	padding: 10px;
+	background: rgba(0,0,0,0.1);
+	transition: 0.3s;
     border: 0.1em solid #000000;
-    margin: 0.2em;
     border-radius: 0.12em;
-    box-sizing: border-box;
-    text-decoration: none;
     font-family: sans-serif;
-    color: #000000;
-    text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
-    background-color: #FFFFFF;
-    text-align: center;
-    transition: 0.15s;
 
 }
 
 .button:hover {
 
-	text-shadow: 0 0 2em rgb(72, 83, 101);
-    color: rgb(72, 83, 101);
-    border-color: rgb(72, 83, 101);
+	background: rgba(0,0,0,0.05);
+
+}
+
+.button:active{
+
+	background: rgba(0,0,0,0);
+
+}
+
+.button > h2 {
+
+	font-weight: bold;
 
 }
 
@@ -114,6 +140,7 @@ body {
 	height: 100%;
 	filter: blur(15px);
 	transition: 1s;
+	cursor: all-scroll;
 
 }
 
@@ -174,6 +201,7 @@ body {
     cursor: grab;
     border-bottom-left-radius: 25px;
     border-bottom-right-radius: 25px;
+	touch-action: none;
 
 }
 
@@ -185,6 +213,12 @@ body {
 	font-family: "Verdana";
 	font-size: 20px;
 	text-align: center;
+}
+
+.front {
+
+	stroke-width: 4px !important;
+
 }
 
 .gameFrame {
@@ -232,6 +266,89 @@ h2 {
 
 }
 
+.HandIcon {
+
+	position: absolute;
+	stroke-linecap: round;
+    stroke-linejoin: round;
+	overflow: visible;
+	pointer-events: none;
+
+}
+
+.HandIcon .hand {
+
+	fill: white;
+	stroke: black;
+	stroke-width:2px;
+
+}
+
+.HandIcon .gloveButton {
+
+	fill: black;
+
+}
+
+.HandIcon .gloveFolds {
+
+	stroke: black;
+
+}
+
+#helpBody {
+
+	position: relative;
+    width: 280px;
+    top: 50px;
+    white-space: normal;
+    font-size: 16px;
+    margin: 10px;
+    transition: 0.5s;
+
+}
+
+#helpText {
+
+    background: rgba(245, 245, 245, 0.95);
+    width: 300px;
+    height: 400px;
+    margin: auto;
+    top: 110px;
+	transition: 0.5s;
+    font-family: sans-serif;
+
+}
+
+.helpFrame {
+
+	height: 100%;
+	background: rgba(0, 0, 0, 0.6);
+	pointer-events: all;
+    white-space: nowrap;
+	transition: 0.5s;
+
+}
+
+.helpFrame.hidden {
+
+	background: rgba(255, 255, 255, 0);
+	pointer-events: none;
+
+}
+
+#helpTitle {
+
+	top: 20px;
+
+}
+
+.hidden > #helpText {
+
+	width: 0px;
+
+}
+
 .HighEnergyButton {
 
 	position: absolute;
@@ -241,13 +358,19 @@ h2 {
     background: rgba(255, 255, 255, 0.3);
     border-radius: 20px;
     box-shadow: 3px 3px 11px 0px black;
+	transition: 0.3s;
+
+}
+
+.HighEnergyButton.right {
+
+	background: rgba( 130, 255, 130, 0.8 );
 
 }
 
 .HighEnergyButton.wrong {
 
 	background: rgba(255, 130, 130, 1);
-	transition: 0.3s;
 
 }
 
@@ -255,6 +378,12 @@ h2 {
 
     transform: translate(3px,3px);
     box-shadow: 0px 0px 3px 0px black;
+
+}
+
+.HighEnergyButton:not(.wrong):not(.right):hover {
+
+	background: rgba(255, 255, 255, 0.1);
 
 }
 
@@ -272,35 +401,18 @@ h2 {
 
 }
 
-.HighEnergyButton text, #beepboop {
+.HighEnergyButton text {
 
 	fill: black;
-    stroke: #89c689;
-    paint-order: stroke;
-    stroke-width: 2px;
     font-size: 24px;
     dominant-baseline: middle;
 
 }
 
-#menu > h2:not(.subtitle) {
+.HighEnergyButton.wrong text, .HighEnergyButton.right text {
 
-	margin: 10px;
-	padding: 10px;
-	background: rgba(0,0,0,0.1);
-	transition: 0.3s;
-
-}
-
-#menu > h2:not(.subtitle):hover {
-
-	background: rgba(0,0,0,0.05);
-
-}
-
-#menu > h2:not(.subtitle):active {
-
-	background: rgba(0,0,0,0);
+	stroke: rgba(137, 198, 137, 0);
+	transition: 0.2s
 
 }
 
@@ -310,7 +422,7 @@ h2 {
     width: 18px;
     height: 32px;
     font-size: 32px;
-    font-family: fantasy;
+    font-family: sans-serif;
 }
 
 #loading {
@@ -345,9 +457,40 @@ h2 {
 
 }
 
+.maskLine {
+
+	stroke-width: 10px !important;
+
+}
+
+.maskText {
+
+	stroke: black;
+	stroke-width: 6px !important;
+
+}
+
+#menu h3 {
+
+	position: relative;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 14px;
+    color: #424242;
+    top: 4px;
+
+}
+
+.nohelp > .button {
+
+	display: none;
+
+}
+
 .page {
+	position:relative;
     width: 1020px;
-	height: 677px;
+	height: 600px;
 	top:24px;
     margin: auto;
     background-color: #dee8f9;
@@ -408,14 +551,14 @@ path, line {
 
 #questionMolecule > svg > g {
 
-	transform: translate(230px,137px) scale(0.8);
+	transform: translate(230px,130px) scale(0.8);
 	transition: 1s;
 
 }
 
 #questionMolecule.maximise > svg > g {
 
-	transform: translate(513px,350px) scale(1.5);
+	transform: translate(513px,300px) scale(1.5);
 
 }
 
@@ -436,6 +579,34 @@ path, line {
 #questionMolecule > h2 {
 
 	top:20px;
+	margin-top:10px;
+
+}
+
+#result > .button {
+
+	position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background: rgba(255,255,255,1);
+    font-size: 28px;
+
+}
+
+#result > h1 {
+
+	position: absolute;
+    width: 100%;
+    color: white;
+    z-index: 10;
+    top: 15px;
+    font-size: 56px;
+
+}
+
+strong {
+
+	font-weight: bold;
 
 }
 

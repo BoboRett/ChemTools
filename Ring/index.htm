@@ -1,18 +1,14 @@
 <!DOCTYPE html><meta charset="utf-8"/>
-<link rel="stylesheet" type="text/css" href="main.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="main.css?version=3"/>
 <head>
 	<title>Cyclohexane Rings UoL</title>
 </head>
 <body>
 	<div class="header">
-		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Ring</p>
+		<p style="position: absolute;float: left;left: 25px;bottom: 17px;margin:0px; font-size: 24px;color: white;font-family: 'tradegothicltcom',sans-serif;font-weight: bold;text-shadow: 3px 4px 20px black;">School of Chemistry - Cyclohexane Rings</p>
 		<p id="dev" style="color:white"></p>
 		<a href="http://www.leeds.ac.uk/"><img src="../unileeds.svg" alt="University of Leeds" style="position: relative;float: right;right: 20px;top: 22px;margin-bottom: 35px;width: 183px"/></a>
-
-		<script type="text/javascript">
-			window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience. Google cookies are also used to help us track use of and make improvements.","dismiss":"Got it!","learnMore":"More info","link":"http://www.leeds.ac.uk/privacy","theme":"dark-bottom"};
-		</script>
-		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.10/cookieconsent.min.js"></script>
 
 	</div>
 
@@ -32,20 +28,20 @@
 					<h2>Click to activate</h2>
 				</div>
 			</div>
-			<a class="button" onclick="toggleHs();" style="position: absolute;bottom:0px;left:0%">Toggle Hydrogens</a>
-			<a class="button" onclick="MarkAttempts();" style="position: absolute;bottom:0px;left:190px">Mark</a>
+			<a class="button" onclick="toggleHs();" style="position: absolute;bottom:0px;left:62px">Toggle Hydrogens</a>
+			<a class="button" onclick="MarkAttempts();" style="position: absolute;bottom:0px;left:220px">Mark</a>
 		</div>
-		<div class="gameFrame maximise" id="questionMolecule" onclick="this.removeChild( this.children[1] );handler.changeState(handler.state === 1 ? handler.lastState : 1)">
+		<div class="gameFrame maximise" id="questionMolecule" onclick="this.removeChild( this.children[1] );this.removeChild( this.children[1] );handler.changeState(handler.state === 1 ? handler.lastState : 1)">
 			<h1>Your job is to give the two conformations of the ring below</h1>
-			<h2>Click to continue...</h2>
 		</div>
-		<div class="gameFrame" id="result">
-			<div class="view3D" id="answerconform">
-			</div>
+		<div class="gameFrame hidden" id="result">
+			<h1>That's right!</h1>
+			<div class="view3D" id="answerconform"></div>
+			<a class="button" onclick="handler.startGame();">Try Another</a>
 		</div>
 		<div class="gameFrame hidden" id="markHighEnergy">
 			<h1 style="top:5%">Good job!</h1>
-			<h1 style="top:7%">But now...Which one would be the most stable?</h1>
+			<h2 style="top:7%">But now...Which one would be the most stable?</h2>
 			<div class="HighEnergyButton" id="HighEnergyConform1" style="left:7%" onclick="MarkEnergy(this, handler.conform1)"></div>
 			<div class="HighEnergyButton" id="HighEnergyConform2" style="right:7%" onclick="MarkEnergy(this, handler.conform2)"></div>
 			<div class="HighEnergyButton" style="top: 61%;left: 38%;height: 12%;width: 25%;" onclick="MarkEnergy(this)">
@@ -67,13 +63,33 @@
 					</g>
 				</svg>
 			</div>
+			<h1 style="font-size: 54px; top: 150px">Cyclohexane Rings</h1>
 			<div id="menu" style="width: 300px; margin: auto; top: 28%; display: none;">
-				<h1>Cyclohexane Rings</h1>
 				<h2 class="subtitle">Select a difficulty:</h2>
-				<h2 onclick="handler.changeState(1); generateAnswerMol(1)">Easy</h2>
-				<h2 onclick="handler.changeState(1); generateAnswerMol(4)">Medium</h2>
-				<h2 onclick="handler.changeState(1); generateAnswerMol(6)">Hard</h2>
-				<h2 onclick="handler.changeState(1); generateAnswerMol(10)">Where's my PhD?</h2>
+				<div class="button" onclick="handler.changeState(1); handler.diff = 1; generateAnswerMol(2)">
+					<h2>Easy</h2>
+					<h3><strong>2</strong> substituents, atom indices</h3>
+				</div>
+				<div class="button" onclick="handler.changeState(1); handler.diff = 2; generateAnswerMol(4)">
+					<h2>Medium</h2>
+					<h3><strong>4</strong> substituents, atom indices</h3>
+				</div>
+				<div class="button" onclick="handler.changeState(1); handler.diff = 3; generateAnswerMol(4)">
+					<h2>Hard</h2>
+					<h3><strong>4</strong> substituents, <strong>no</strong> atom indices</h3>
+				</div>
+				<div class="button" onclick="handler.changeState(1); handler.diff = 4; generateAnswerMol(6)">
+					<h2>Where's my PhD?</h2>
+					<h3><strong>6</strong> substituents, <strong>no</strong> atom indices</h3>
+				</div>
+			</div>
+		</div>
+		<div class="helpFrame hidden nohelp">
+			<a class="button" onclick="document.querySelector( '.helpFrame' ).classList.toggle( 'hidden' )" style="position: absolute;bottom:0px;left:0%;pointer-events:all;">Help</a>
+			<div id="helpText" onclick="document.querySelector( '.helpFrame' ).classList.toggle( 'hidden' )">
+				<h2 id="helpTitle">I'm some help text!</h2>
+				<p id="helpBody">I'm some help text!</p>
+				<p style="position: absolute; bottom: 10px; text-align: center; width: 100%;">Click to continue...</p>
 			</div>
 		</div>
     </div>
@@ -123,8 +139,25 @@
 	<script src="../Scripts/stats.min.js"></script>
 	<script src="../Scripts/Detector.js"></script>
 	<script src="../Scripts/TrackballControls.js"></script>
+	<script src="../Scripts/OrbitControls.js"></script>
 	<script src="../Scripts/OutlineEffect.js"></script>
 	<script src="../Scripts/molViewer_New.js"></script>
     <script src="ring.js"></script>
+
+	<script type="text/javascript">
+		window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience. Google cookies are also used to help us track use of and make improvements.","dismiss":"Got it!","learnMore":"More info","link":"http://www.leeds.ac.uk/privacy","theme":"dark-floating"};
+	</script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.10/cookieconsent.min.js"></script>
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106347776-6"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-106347776-6');
+	</script>
+
 
 </body>
