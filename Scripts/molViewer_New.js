@@ -666,6 +666,7 @@
 		const self = this;
 
 		this._initialised = false;
+		this._FOV = 70;
 
 		this.Container    = container ? container : null;
 		this.Molecule     = molecule;
@@ -692,13 +693,13 @@
 					self.controls.update();
 
 					self._camOrtho.position.copy( new THREE.Vector3().copy( self._camPersp.position ) );
-					self._camOrtho.rotation.copy( self._camPersp.rotation );
-					self._frustum = self._frustum * self.controls.zoomFactor
+					self._camOrtho.quaternion.copy( self._camPersp.quaternion );
+					let frustum = self._frustum;
 
-					self._camOrtho.left   = -self._frustum * self._aspect / 2;
-					self._camOrtho.right  =  self._frustum * self._aspect / 2;
-					self._camOrtho.top    =  self._frustum / 2;
-					self._camOrtho.bottom = -self._frustum / 2;
+					self._camOrtho.left   = -frustum[0] / 2;
+					self._camOrtho.right  =  frustum[0] / 2;
+					self._camOrtho.top    =  frustum[1] / 2;
+					self._camOrtho.bottom = -frustum[1] / 2;
 
 					self._camOrtho.updateProjectionMatrix();
 
@@ -752,12 +753,12 @@
 				}
 			},
 			//////Auto rotate//////
-			autoRotate: {enabled: false, props: { axes: "y" }, fn: function( self ){
-				self.molGroup.rotateOnWorldAxis( new THREE.Vector3(
+			autoRotate: {enabled: false, props: { axes: "y", target: this.molGroup, speed: 0.01 }, fn: function( self ){
+					this.props.target.rotateOnWorldAxis( new THREE.Vector3(
 						this.props.axes.includes("x") ? 1 : 0,
 						this.props.axes.includes("y") ?  1 : 0,
 						this.props.axes.includes("z") ? 1 : 0
-					), 0.01 )
+					), this.props.speed )
 				}
 			},
 			//////Highlight svg elements from 3D//////
@@ -1012,11 +1013,6 @@
 			self._aspect = elBox.width / elBox.height;
 			self._camPersp.aspect = self._aspect;
 
-			self._camOrtho.left   = - self._frustum * self._aspect / 2;
-			self._camOrtho.right  =   self._frustum * self._aspect / 2;
-			self._camOrtho.top    =   self._frustum / 2;
-			self._camOrtho.bottom = - self._frustum / 2;
-
 			self.camActive.updateProjectionMatrix();
 			self.renderer.setSize( elBox.width, elBox.height );
 			self.controls.screen = { left: elBox.left, top: elBox.top, width: elBox.width, height: elBox.height };
@@ -1042,18 +1038,20 @@
 			if( this._DOM ){
 
 				//////CAMERAS//////
-				this._aspect = this._DOM.getBoundingClientRect().width / this._DOM.getBoundingClientRect().height
-				this._frustum = 10;
+				const elBox = this._DOM.getBoundingClientRect();
+				this._aspect = elBox.width / elBox.height;
 
-				this._camPersp = new THREE.PerspectiveCamera( 70, this._aspect, 1, 100);
-				this._camOrtho = new THREE.OrthographicCamera( -this._frustum*this._aspect / 2, this._frustum*this._aspect / 2, this._frustum / 2, -this._frustum / 2, -100, 100 );
+				this._camPersp = new THREE.PerspectiveCamera( this._FOV, this._aspect, 1, 100);
 				this.camActive = this._camPersp;
-				this.controls = new THREE.TrackballControls( this._camPersp, this._DOM );
+				this.controls = new THREE.OrbitControls( this._camPersp, this._DOM );
+				this.controls.enablePan = false;
+				this._camOrtho = new THREE.OrthographicCamera( 0, 0, 0, 0, -100, 100 ); //frustum applied later
 				this._disableInteractions && this.controls.dispose()
 
 				//////LIGHTS//////
 				const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
 				directionalLight.position.set( 3, 3, 3 );
+				directionalLight.name = "KeyLight";
 				this.scene.add( directionalLight );
 
 				//////RENDERER SETUP//////
@@ -1096,24 +1094,42 @@
 					this.play();
 					this._onWindowResize();
 					window.addEventListener( "resize", this._onWindowResize );
-					document.addEventListener( "mousemove", evt => {
+					["mousemove","touchmove"].forEach( e => document.addEventListener( e, evt => {
 
-						evt.preventDefault();
-						const elBox = this.renderer.domElement.getBoundingClientRect()
-						this.mouse.x = ( evt.clientX - elBox.left ) / elBox.width*2 - 1;
-						this.mouse.y = 1 - ( ( evt.clientY - elBox.top ) / elBox.height*2);
+							//evt.preventDefault();
 
-					}, false );
+							const clientX = evt.changedTouches ? evt.changedTouches[0].clientX : evt.clientX;
+							const clientY = evt.changedTouches ? evt.changedTouches[0].clientY : evt.clientY;
+
+
+							const elBox = this.renderer.domElement.getBoundingClientRect()
+							this.mouse.x = ( clientX - elBox.left ) / elBox.width*2 - 1;
+							this.mouse.y = 1 - ( ( clientY - elBox.top ) / elBox.height*2);
+
+						}, false )
+					);
 
 				}else{
 
-					var warning = Detector.getWebGLErrorMessage();
-					d3.select( this._DOM ).appendChild( warning );
+					d3.select( this._DOM ).appendChild( Detector.getWebGLErrorMessage() );
 
 				}
 			}
 
 			return this
+
+		},
+
+		dispose: function() {
+
+			if( this.animID ){ this.pause() };
+
+			this.scene.children.forEach( obj => this.scene.remove( obj ) );
+			this.scene = null;
+
+			this.renderer.domElement.remove();
+			this.renderer.dispose();
+			this.controls.dispose();
 
 		},
 
@@ -1365,8 +1381,8 @@
 			this.camActive.updateProjectionMatrix();
 			this.camActive.up.copy( up )
 
-			this.controls.dispose()
-			this.controls = new THREE.TrackballControls( this.camActive, this._DOM );
+			//this.controls.dispose()
+			//this.controls = new THREE.OrbitControls( this.camActive, this._DOM );
 			this.controls.update();
 
 		},
@@ -1409,12 +1425,12 @@
 
 					if( !value ){
 
-						!this.controls.registered && this.controls.register();
+						this.controls.enabled = true;
 						d3.select( this._DOM ).style( "cursor", "all-scroll" );
 
 					} else{
 
-						this.controls.dispose();
+						this.controls.enabled = false;
 						d3.select( this._DOM ).style( "cursor", null );
 
 					}
@@ -1614,6 +1630,22 @@
 			get: function(){ return this.frameFunctions["labelTrack"].props.labels },
 
 			set: function( value ){ this.frameFunctions["labelTrack"].props.labels = value }
+
+		},
+
+		"_frustum": {
+
+			get: function(){
+
+				let depth = this.controls.target.clone().sub( this._camPersp.position ).dot( this._camPersp.getWorldDirection( new THREE.Vector3() ) );
+				let height_ortho = depth * 2 * Math.atan( this._FOV*( Math.PI/180 ) / 2 );
+				let width_ortho = height_ortho * this._camPersp.aspect;
+
+				return [width_ortho, height_ortho]
+
+			},
+
+			set: function( value ){}
 
 		}
 
