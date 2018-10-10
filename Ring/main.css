@@ -432,6 +432,14 @@ h2 {
 
 }
 
+#loading > h1, #loading > h2 {
+
+	position: absolute;
+	width: 100%;
+	text-align: center;
+
+}
+
 #loadingWidget {
 
 	position: relative;
@@ -513,7 +521,7 @@ path, line {
 #questionMolecule {
 
     background: rgba(255,255,255,0.5);
-	height: 38.5%;
+	height: 43%;
 	width: 40%;
 	right: 0px;
 	top: 0px;
@@ -608,6 +616,11 @@ strong {
 
 	font-weight: bold;
 
+}
+
+.sub {
+    font-size: 18px;
+    dominant-baseline: mathematical;
 }
 
 .substituentImage {

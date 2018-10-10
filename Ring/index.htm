@@ -13,7 +13,7 @@
 	</div>
 
     <div class="page">
-		<div class="gameFrame" id="game">
+		<div class="gameFrame hidden" id="game">
 			<div class="view3D" id="conform1">
 				<div class="canvas3D" id="conform1_Canvas"></div>
 				<div class="conformOverlay" id="conform1_Overlay">
@@ -31,7 +31,7 @@
 			<a class="button" onclick="toggleHs();" style="position: absolute;bottom:0px;left:62px">Toggle Hydrogens</a>
 			<a class="button" onclick="MarkAttempts();" style="position: absolute;bottom:0px;left:220px">Mark</a>
 		</div>
-		<div class="gameFrame maximise" id="questionMolecule" onclick="this.removeChild( this.children[1] );this.removeChild( this.children[1] );handler.changeState(handler.state === 1 ? handler.lastState : 1)">
+		<div class="gameFrame maximise hidden" id="questionMolecule" onclick="this.removeChild( this.children[1] );this.removeChild( this.children[1] );handler.changeState(handler.state === 1 ? handler.lastState : 1)">
 			<h1>Your job is to give the two conformations of the ring below</h1>
 		</div>
 		<div class="gameFrame hidden" id="result">
@@ -50,7 +50,9 @@
 		</div>
 		<div class="gameFrame active" id="intro">
 			<div id="loading">
-				<h1 style="top: 420px;">Loading</h1>
+				<h1 style="position:absolute; top: 420px;">Loading</h1>
+				<h2 style="position:absolute; top: 465px;">If you're seeing this for a while, your Browser might not be supported.</h2>
+				<h2 style="position:absolute; top: 490px;">We recommend Google Chrome for the best experience</h2>
 				<svg id="loadingWidget">
 					<g>
 						<path d="M0 0 L60 35 L60 105 L0 140 L-60 105 L-60 35 L0 0"></path>

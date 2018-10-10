@@ -13,10 +13,11 @@ document.addEventListener( "DOMContentLoaded", ev => {
 
 let GameHandler = function(){
 
-    this.grabbed            = false;
+    this.dragging            = false;
     this.diff               = null;
     this.snapTarget         = null;
     this.fadeGroup          = null;
+    this.fadeAt             = 1;
     this.substituent        = null;
     this.state              = 0; //0: start, 1: showAnswerMolecule, 2: playing, 3: markConforms, 4: markHighEnergy, 5: result
     this.lastState          = 0;
@@ -52,7 +53,7 @@ let GameHandler = function(){
 
             case 2:
 
-                stateUpdater( ["#game"], [], ["#questionMolecule"], "What to do?", "You need to recreate the Cyclohexane shown in the top right of your screen. The two common 'chair' conformations are provided, but it's up to you to place the substituents.</br></br>You can do this by dragging them from the bar along the top and dropping them onto a Hydrogen that needs to get out the way.</br></br>Made a mistake? Grab a Hydrogen from the right of the toolbar and simply drop it on to the misplaced substituent.</br></br>Good luck!" );
+                stateUpdater( ["#game"], [], ["#questionMolecule"], "What to do?", "You need to recreate the Cyclohexane shown in the top right of your screen. The two common 'chair' conformations are provided, but it's up to you to place the substituents.</br></br>You can do this by dragging them from the bar along the top and dropping them onto a Hydrogen that needs to get out the way.</br></br>Made a mistake? Just click a substituent and it'll go away.</br></br>Good luck!" );
 
                 this.enableLabels();
 
@@ -121,9 +122,9 @@ let GameHandler = function(){
 
     this.enableLabels = function(){
 
-        d3.select( document ).on( "3DMouseover.labels", function(){
+        d3.select( document ).on( "3DMousein.labels", function(){
 
-            if( !handler.grabbed && handler.activeConform ){
+            if( !handler.dragging && handler.activeConform ){
 
                 if( d3.event.detail.objects.length > 0 ){ showLabels( handler.activeConform.Mol3D ) }
                 else{ hideLabels( handler.activeConform.Mol3D ) }
@@ -165,7 +166,7 @@ let GameHandler = function(){
 
         });
 
-        d3.select( "#questionMolecule" ).append( "h2" ).text( "Hint: Carbon 1 bears the heaviest substituent" );
+        d3.select( "#questionMolecule" ).append( "h2" ).text( "Remember: Carbon 1 bears the sterically largest substituent" );
         d3.select( "#questionMolecule" ).append( "h2" ).text( "Click to continue..." ).style( "top", "80%" );
 
 
@@ -177,10 +178,14 @@ let GameHandler = function(){
 
             handler.activeConform = d3.select( this ).attr( "id" ).split( "_" )[0] === "conform1" ? handler.conform2 : handler.conform1;
             handler.inactiveConform = handler.activeConform === handler.conform1 ? handler.conform2 : handler.conform1;
+            d3.selectAll( ".canvas3D" ).classed( "incorrect", false );
             toggleConform();
-            //handler.changeState( 2 );
 
         })
+
+        d3.select( document ).on( "3DMousein.hoverSub", handleMousein );
+        d3.select( document ).on( "3DMouseout.hoverSub", handleMouseout );
+        d3.select( document ).on( "mouseup.deleteSub touchend.deleteSub", handleMouseup );
 
     }
 
@@ -477,7 +482,7 @@ let Conformation = function( molFile, container, molecule ){
             txt.forEach( text => {
 
                 txtGrp.append( "tspan" ).text( text )
-                    .attr( "baseline-shift", +text === +text ? "sub" : null )
+                    .attr( "class", +text === +text ? "sub" : null )
 
             })
 
@@ -946,7 +951,10 @@ function MarkEnergy( el, answer ){
 
 function animateResult(){
 
-    d3.select( document ).on( "3DMouseover.labels", null );
+    d3.select( document ).on( "3DMousein.labels", null );
+    d3.select( document ).on( "3DMousein.hoverSub", null );
+    d3.select( document ).on( "3DMouseout.hoverSub", null );
+    d3.select( document ).on( "mouseup.deleteSub", null );
 
     const answerConf = handler.answerConform;
     const scene = answerConf.Mol3D.scene;
@@ -1084,111 +1092,99 @@ function handleMousedown( substituent ){
 
     if( handler.activeConform === null ){ return };
 
-    //d3.event.preventDefault();
-    //d3.event.stopPropagation();
-
     handler.activeConform.Mol3D.showHs = true;
-    handler.grabbed = true;
+    handler.dragging = true;
 
-    let [group, quatOrig, fadeBond] = generateSubGroup( substituent );
+    handler.substituent = generateSubGroup( substituent );
 
     const mousePos = new THREE.Vector3( handler.activeConform.Mol3D.mouse.x, handler.activeConform.Mol3D.mouse.y, 0 );
     mousePos.unproject( handler.activeConform.Mol3D.camActive );
-    group.position.copy( handler.activeConform.Mol3D.camActive.position ).add( mousePos.clone().sub( handler.activeConform.Mol3D.camActive.position ).multiplyScalar( 4 ) );
+    handler.substituent[0].position.copy( handler.activeConform.Mol3D.camActive.position ).add( mousePos.clone().sub( handler.activeConform.Mol3D.camActive.position ).multiplyScalar( 4 ) );
 
-    handler.activeConform.Mol3D.scene.add( group );
+    handler.activeConform.Mol3D.scene.add( handler.substituent[0] );
 
     handler.activeConform.container.style( "cursor", "grabbing" );
 
     //////Add labels//////
     showLabels( handler.activeConform.Mol3D );
 
-    handler.snapTarget = null;
-    handler.fadeGroup = null;
-    handler.fadeTransition = null;
-    handler.substituent = substituent;
+    ////////MOUSEMOVE//////
+    d3.select( ".page" ).on( "mousemove.dragGroup", () => handleMousemove( handler.substituent[0] ) );
+    d3.select( ".page" ).on( "touchstart.dragGroup touchmove.dragGroup", () => handleMousemove( handler.substituent[0] ), {passive: false} );
 
-    //////MOUSEOVER//////
-    d3.select( document ).on( "3DMouseover.snapSub", () => handleMouseover( group, quatOrig, fadeBond ) );
-
-    //////MOUSEMOVE//////
-    d3.select( ".page" ).on( "mousemove.dragGroup", () => handleMousemove( group ) );
-    d3.select( ".page" ).on( "touchmove.dragGroup", () => handleMousemove( group ), {passive: false} );
-
-    //////MOUSEUP//////
-    d3.select( document ).on( "mouseup touchend", () => handleMouseup( group, fadeBond ) );
 }
 
-function handleMouseover( group, quatOrig, fadeBond ){
+function handleMousein(){
+
+    console.log( "boop" );
 
     let ev = d3.event.detail;
 
-    function fadeGroup( fadeGroup, unfade ){
+    if( ev.objects.filter( obj => obj.object.userData.tooltip === "H" ).length > 0 ){
 
-        if( fadeGroup ){
+        handler.snapTarget = ev.objects.filter( obj => obj.object.userData.tooltip === "H" )[0].object;
 
-            d3.select( ".page" )
-                .transition()
-                .duration( 500 )
+        if( handler.snapTarget.userData.attached && handler.fadeGroup === null ){
+
+
+            handler.fadeGroup = handler.snapTarget.userData.attached.children[0];
+            fadeSub( handler.fadeGroup, true );
+
+            !handler.dragging && handler.activeConform.container.style( "cursor", "no-drop" );
+
+        }
+
+        if( handler.dragging ){
+
+            let rootAtom = handler.snapTarget.userData.source.bondedTo[0];
+            let [group, quatOrig, fadeBond] = handler.substituent;
+
+            let quatFin = new THREE.Quaternion().setFromUnitVectors( new THREE.Vector3( 0, 1, 0 ).applyQuaternion( quatOrig ), new THREE.Vector3().copy( handler.snapTarget.position ).sub( rootAtom.el.HTML.position ).normalize() );
+            let quatFrom = new THREE.Quaternion().copy( group.quaternion );
+
+            //////Set position//////
+            group.position.copy( handler.snapTarget.position );
+
+            //////Fade bond//////
+            d3.select( ".active" ).transition()
+                .duration( 200 )
                 .tween( null, () => function( t ){
-                        fadeGroup.traverse( obj => {
-                            if( obj.type === "Mesh" ){
-                                obj.material.transparent = true;
-                                obj.material.opacity = unfade ? t*0.9 + 0.1 : 1 - t*0.9;
-                            }
-                        } )
 
-                    }
+                    fadeBond.material.transparent = true;
+                    if( fadeBond.material.opacity > 0 ){ fadeBond.material.opacity = 1 - t };
+                    THREE.Quaternion.slerp( quatFrom, quatFin, group.quaternion, t );
 
-                )
+                })
+
+            //////Flash Label//////
+            d3.select( "#label" + rootAtom.el.index )
+                .transition()
+                .duration( 200 )
+                .style( "opacity", 0.1 )
+                .transition()
+                .duration( 200 )
+                .style( "opacity", 1 )
 
         }
 
     }
 
-    //////Hovered a group//////
-    if( ev.objects.length > 0 ? ev.objects.filter( obj => obj.object.userData.tooltip === "H" ).length > 0 : false ){
+}
 
-        handler.snapTarget = ev.objects.filter( obj => obj.object.userData.tooltip === "H" )[0].object;
-        let rootAtom = handler.snapTarget.userData.source.bondedTo[0];
+function handleMouseout(){
 
-        let quatFin = new THREE.Quaternion().setFromUnitVectors( new THREE.Vector3( 0, 1, 0 ).applyQuaternion( quatOrig ), new THREE.Vector3().copy( handler.snapTarget.position ).sub( rootAtom.el.HTML.position ).normalize() )
-        let quatFrom = new THREE.Quaternion().copy( group.quaternion )
+    if( handler.activeConform === null ){ return };
 
-        //////Set position//////
-        group.position.copy( handler.snapTarget.position );
+    !handler.dragging && handler.activeConform.container.style( "cursor", null );
 
-        d3.select( ".active" ).transition()
-            .duration( 200 )
-            .tween( null, () => function( t ){
+    fadeSub( handler.fadeGroup, false );
+    handler.fadeGroup = null;
 
-                fadeBond.material.transparent = true;
-                if( fadeBond.material.opacity > 0 ){ fadeBond.material.opacity = 1 - t };
-                THREE.Quaternion.slerp( quatFrom, quatFin, group.quaternion, t );
+    handler.snapTarget = null;
 
-            })
+    if( handler.dragging ){
 
-        //////Flash Label//////
-        d3.select( "#label" + rootAtom.el.index )
-            .transition()
-            .duration( 200 )
-            .style( "opacity", 0.1 )
-            .transition()
-            .duration( 200 )
-            .style( "opacity", 1 )
-
-        //////Dim attached group//////
-        if( handler.snapTarget.userData.attached && handler.fadeGroup === null ){
-
-            handler.fadeGroup = handler.snapTarget.userData.attached.children[0];
-            fadeGroup( handler.fadeGroup );
-
-        }
-
-    //////Left a group//////
-    } else{
-
-        handler.snapTarget = null;
+        let [group, quatOrig, fadeBond] = handler.substituent;
 
         let quatFrom = new THREE.Quaternion().copy( group.quaternion );
 
@@ -1201,8 +1197,9 @@ function handleMouseover( group, quatOrig, fadeBond ){
 
             })
 
-        fadeGroup( handler.fadeGroup, true );
-        handler.fadeGroup = null;
+    } else{
+
+        hideLabels( handler.activeConform.Mol3D );
 
     }
 
@@ -1222,42 +1219,80 @@ function handleMousemove( group ){
 
 }
 
-function handleMouseup( group, fadeBond ){
+function handleMouseup(){
 
-    handler.activeConform.container.style( "cursor", null );
+    if( handler.activeConform === null ){ return };
 
-    d3.select( ".page" ).on( "mousemove.dragGroup touchmove.dragGroup", null );
-    d3.select( document )
-        .on( "3DMouseover.snapSub", null )
-        .on( "mouseup touchend", null )
+    if( handler.dragging ){
 
-    hideLabels( handler.activeConform.Mol3D );
+        let [group, quatOrig, fadeBond] = handler.substituent;
 
-    if( handler.snapTarget === null ){
-        handler.activeConform.Mol3D.scene.remove( group );
-    } else {
+        handler.activeConform.container.style( "cursor", null );
 
-        let rootAtom = handler.snapTarget.userData.source.bondedTo[0];
+        d3.select( ".page" ).on( "mousemove.dragGroup touchstart.dragGroup touchmove.dragGroup", null );
 
-        group.children[0].remove( fadeBond );
+        hideLabels( handler.activeConform.Mol3D );
 
-        rootAtom.bond.end.element = handler.substituent.smile;
+        if( handler.snapTarget === null ){
 
-        if( handler.snapTarget.userData.attached ){
+            handler.activeConform.Mol3D.scene.remove( group );
 
-            handler.activeConform.Mol3D.scene.remove( handler.snapTarget.userData.attached );
+        } else {
+
+            group.children[0].remove( fadeBond );
+            replaceSub( handler.snapTarget, group );
 
         }
 
-        handler.substituent.smile === "H" && handler.activeConform.Mol3D.scene.remove( group );
+    } else if( handler.snapTarget ){
 
-        handler.activeConform.molecule[rootAtom.el.index][rootAtom.bond.btype] = handler.substituent.smile === "H" ? null : handler.substituent;
-        handler.snapTarget.userData.attached = handler.substituent.smile === "H" ? null : group;
+        replaceSub( handler.snapTarget, null );
 
     }
 
     if( !handler.HVisible ) handler.activeConform.Mol3D.showHs = false;
-    handler.grabbed = false;
+
+    handler.snapTarget = null;
+    handler.dragging = false;
+    handler.substituent = null;
+
+}
+
+function fadeSub( fadeGroup, fade ){
+
+    if( fadeGroup ){
+
+        interpolator = d3.interpolateNumber( handler.fadeAt, fade ? 0.1 : 1 );
+
+        d3.select( ".page" )
+            .transition()
+            .duration( 500 )
+            .tween( null, () => function( t ){
+                    fadeGroup.traverse( obj => {
+                        if( obj.type === "Mesh" ){
+                            obj.material.transparent = true;
+                            handler.fadeAt = interpolator( t );
+                            obj.material.opacity = handler.fadeAt;
+                        }
+                    } )
+
+                }
+
+            )
+
+    }
+
+}
+
+function replaceSub( parentAtom, newSub ){
+
+    let bondToRing = parentAtom.userData.source.bondedTo[0];
+
+    handler.activeConform.Mol3D.scene.remove( parentAtom.userData.attached );
+
+    bondToRing.bond.end.element = newSub ? newSub.userData.smile : "H";
+    handler.activeConform.molecule[bondToRing.el.index][bondToRing.bond.btype] = newSub ? newSub.userData : null;
+    handler.snapTarget.userData.attached = newSub;
 
 }
 
@@ -1345,15 +1380,6 @@ function addSubstituents(){
               1  3  1  0  0  0  0
               1  4  1  0  0  0  0
               1  5  1  0  0  0  0
-            M  END
-            $$$$
-        `}, {name: "Reset", smile: "H", shorthand: "H" , a: 0, replaceBond: "0_1", img: "img/H.png", molfile: `H2
-            APtclcactv06121804423D 0   0.00000     0.00000
-
-              2  1  0  0  0  0  0  0  0  0999 V2000
-               -0.3800    0.0000    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
-                0.3800    0.0000    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
-              1  2  1  0  0  0  0
             M  END
             $$$$
         `}
