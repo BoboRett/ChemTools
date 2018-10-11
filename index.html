@@ -6,5 +6,37 @@ title: BoboRett - Incabable Coder
 	<h1>Blah!</h1>
 	<p>blahblahblahblah</p>
 </div><!-- /.blurb -->
+<div class="toolScroller"></div>
 
 <a href="{{ site.baseurl }}/Stereochemistry/">Stereochemistry</a>
+
+<script>
+
+	const tools = [
+
+		{name: "Stereochemistry", link: "https://github.com/BoboRett/ChemTools/blob/master/Stereochemistry/", desc: ""},
+		{name: "Cyclohexane Rings", link: "https://github.com/BoboRett/ChemTools/blob/master/Ring/", desc: ""},
+
+	]
+
+	tools.forEach( appendTool );
+
+
+	function appendTool( tool ){
+
+		const parent = document.querySelector( ".toolScroller" );
+		const div = parent.appendChild( document.createElement( "div" ) );
+		const title = div.appendChild( document.createElement( "h2" ) );
+		const link = div.appendChild( document.createElement( "a" ) );
+
+		div.className = "toolLink";
+		title.innerHTML = tool.name;
+
+		link.innerHTML = "Go to tool"
+		link.href = tool.link;
+
+
+
+	}
+
+</script>
