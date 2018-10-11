@@ -175,9 +175,9 @@
 				subStruct.forEach( function( ss ){
 
 					ss.found = false;
-					source.bondedTo.filter( bond => bond.el.index !== rootIndex && domain.map( dom => dom.index ).indexOf( bond.el.index ) === -1 && bond.bond.claimed === false ).forEach( function( bond ){
+					source.bondedTo.filter( bond => bond.el.index !== rootIndex && !domain.map( dom => dom.index ).includes( bond.el.index ) && bond.bond.claimed === false ).forEach( function( bond ){
 						if( !ss.found && bond.bond.type === ss.btype ){
-							if( ( ss.el === "R" ? true : ( ss.el === "X" ? ["Cl", "Br", "I", "F"].indexOf( bond.el.element ) !== -1 : bond.el.element === ss.el ) ) ){
+							if( ( ss.el === "R" ? true : ( ss.el === "X" ? ["Cl", "Br", "I", "F"].includes( bond.el.element ) : bond.el.element === ss.el ) ) ){
 
 								domain.push( bond.el );
 								claimed.push( bond.bond );
@@ -279,8 +279,8 @@
 		this.dims = dims;
 		this.molecule = molecule;
 
-		this.zoomable = params.hasOwnProperty( "zoomable" ) ? params.zoomable : true;
-		this.showIndices = params.showIndices !== undefined ? params.showIndices : false;
+		this.zoomable = params.zoomable || true;
+		this.showIndices = params.showIndices || false;
 
 		this.zoomFunc = d3.zoom().on( "zoom", function(){
 
@@ -668,7 +668,7 @@
 		this._initialised = false;
 		this._FOV = 70;
 
-		this.Container    = container ? container : null;
+		this.Container    = container || null;
 		this.Molecule     = molecule;
 		this.scene        = new THREE.Scene();
 		this.mouse        = new THREE.Vector2();
@@ -812,19 +812,22 @@
 
 					var intersects = raycaster.intersectObjects( self.molGroup.children, true );
 
+					if( this.props._hovered !== intersects.length && this.props._hovered > 0 ){
+
+						document.dispatchEvent( new CustomEvent( "3DMouseout", {"detail": {"type": "mouseout", "objects":intersects } } ) );
+
+					}
+
 					if( intersects.length > 0 ){
 						if( this.props._hovered < intersects.length ){
-							document.dispatchEvent( new CustomEvent( "3DMouseover", {"detail": {"type": "mouseover", "objects":intersects } } ) )
+							document.dispatchEvent( new CustomEvent( "3DMousein", {"detail": {"type": "mouseover", "objects":intersects } } ) );
 							this.props._hovered = intersects.length;
 						} else if( this.props._hovered > intersects.length ){
-							document.dispatchEvent( new CustomEvent( "3DMouseover", {"detail": {"type": "mouseout", "objects":intersects } } ) )
+							document.dispatchEvent( new CustomEvent( "3DMousein", {"detail": {"type": "mouseout", "objects":intersects } } ) );
 							this.props._hovered = intersects.length;
 						}
 					} else{
-						if( this.props._hovered !== 0 ){
-							this.props._hovered = 0;
-							document.dispatchEvent( new CustomEvent( "3DMouseover", {"detail": {"type": "mouseout", "objects":intersects } } ) )
-						}
+						this.props._hovered = 0;
 					}
 				}
 			},
@@ -843,16 +846,16 @@
 			}
 		}
 
-		this.highlight           = params.highlight !== undefined ? params.highlight : true;
-		this.autoRotate          = params.autoRotate !== undefined ? params.autoRotate : false;
-		this.highlightSync       = params.highlightSync !== undefined ? params.highlightSync : false;
-		this.mouseoverDispatch   = params.mouseoverDispatch !== undefined ? params.mouseoverDispatch : false;
-		this.labelTrack          = params.labelTrack !== undefined ? params.labelTrack : true;
+		this.highlight           = params.highlight || true;
+		this.autoRotate          = params.autoRotate || false;
+		this.highlightSync       = params.highlightSync || false;
+		this.mouseoverDispatch   = params.mouseoverDispatch || false;
+		this.labelTrack          = params.labelTrack || true;
 
-		this.disableInteractions = params.disableInteractions !== undefined ? params.disableInteractions : false;
-		this.showfGroups         = params.showfGroups !== undefined ? params.showfGroups : true;
-		this.showHs              = params.showHs !== undefined ? params.showHs : true;
-		this.showStats           = params.showStats !== undefined ? params.showStats : false;
+		this.disableInteractions = params.disableInteractions || false;
+		this.showfGroups         = params.showfGroups || true;
+		this.showHs              = params.showHs || true;
+		this.showStats           = params.showStats || false;
 
 		//////CPK Colours//////
 		{
@@ -1094,7 +1097,7 @@
 					this.play();
 					this._onWindowResize();
 					window.addEventListener( "resize", this._onWindowResize );
-					["mousemove","touchmove"].forEach( e => document.addEventListener( e, evt => {
+					["mousemove","touchmove","touchstart"].forEach( e => document.addEventListener( e, evt => {
 
 							//evt.preventDefault();
 
