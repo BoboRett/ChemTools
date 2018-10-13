@@ -55,6 +55,11 @@ let GameHandler = function(){
 
                 stateUpdater( ["#game"], [], ["#questionMolecule"], "What to do?", "You need to recreate the Cyclohexane shown in the top right of your screen. The two common 'chair' conformations are provided, but it's up to you to place the substituents.</br></br>You can do this by dragging them from the bar along the top and dropping them onto a Hydrogen that needs to get out the way.</br></br>Made a mistake? Just click a substituent and it'll go away.</br></br>Good luck!" );
 
+                d3.select( "#questionMolecule > svg" )
+                    .transition()
+                    .duration( 1000 )
+                    .attr( "viewBox", "-270 -75 510 323")
+
                 this.enableLabels();
 
                 break;
@@ -428,7 +433,7 @@ let Conformation = function( molFile, container, molecule ){
         const wedgeBond = `<polygon id="" points="0,0 ` + length + `,` + width + ` ` + length + `,` + -width + `"></polygon>`;
         const hashBond = Array( 6 ).fill( 0 ).map( ( val, i, arr )  => { i = i + 1; return "<line class='bond' x1=" + i*length/arr.length + " x2=" + i*length/arr.length + " y1=" + i*width/arr.length + " y2=" + -i*width/arr.length + "></line>" } ).join("");
 
-        let svg = d3.select( document.createElementNS( "http://www.w3.org/2000/svg", "svg" ) ).classed( "view2D maximise", true );
+        let svg = d3.select( document.createElementNS( "http://www.w3.org/2000/svg", "svg" ) ).classed( "view2D maximise", true ).attr( "viewBox", "-340 -200 680 400");
         const grp = svg.append( "g" );
         grp.append( "path" ).attr( "d", hexPoints.map( ( point, i ) => ( i === 0 ? "M " : "L " ) + point.join( " " ) ).join( " " ));
 
