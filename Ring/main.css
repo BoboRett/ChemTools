@@ -50,8 +50,8 @@ div{
 }
 
 .header {
-	position: fixed;
-    top: -5px;
+	position: absolute;
+    top: -80px;
     background-color: #3e4649;
     display: block;
     width: 100%;

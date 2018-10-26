@@ -1116,8 +1116,6 @@ function handleMousedown( substituent ){
 
 function handleMousein(){
 
-    console.log( "boop" );
-
     let ev = d3.event.detail;
 
     if( ev.objects.filter( obj => obj.object.userData.tooltip === "H" ).length > 0 ){
@@ -1262,7 +1260,7 @@ function fadeSub( fadeGroup, fade ){
 
     if( fadeGroup ){
 
-        interpolator = d3.interpolateNumber( handler.fadeAt, fade ? 0.1 : 1 );
+        const interpolator = d3.interpolateNumber( handler.fadeAt, fade ? 0.1 : 1 );
 
         d3.select( ".page" )
             .transition()
