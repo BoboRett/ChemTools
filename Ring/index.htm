@@ -53,7 +53,7 @@
 				<h1 style="position:absolute; top: 420px;">Loading</h1>
 				<h2 style="position:absolute; top: 465px;">If you're seeing this for a while, your Browser might not be supported.</h2>
 				<h2 style="position:absolute; top: 490px;">We recommend Google Chrome for the best experience</h2>
-				<svg id="loadingWidget">
+				<svg id="loadingWidget" viewBox="-150 -75 300 300">
 					<g>
 						<path d="M0 0 L60 35 L60 105 L0 140 L-60 105 L-60 35 L0 0"></path>
 						<circle id="loadCirc0" cx="0" cy="0" r="0"></circle>
@@ -102,31 +102,48 @@
 
 			const loadEl = d3.select( "#loadingWidget > g > path" );
 			let point = -1;
+			let gen1 = getCircle();
+			let gen2 = getCircle();
 
 			loadEl
 				.style( "stroke-dashoffset", 420 )
 				.transition()
 		        .duration( 2000 )
-				.ease( d3.easeLinear )
+				.ease( d3.easeCubic )
 				.style( "stroke-dashoffset", 0 )
-				.tween( null, () => t => animCircle( t, d3.easeBackOut, 6 ) )
+				.tween( null, () => t => animCircle( t, d3.easeBackOut, 6, gen1 ) )
 				.transition()
 				.duration( 2000 )
-				.ease( d3.easeLinear )
+				.ease( d3.easeCubic )
 				.style( "stroke-dashoffset", -420 )
-				.tween( null, () => t => animCircle( t, d3.easeBackIn, 0 ) )
+				.tween( null, () => t => animCircle( t, d3.easeBackIn, 0, gen2 ) )
 				.on( "end", LoadingWidget )
 
-			function animCircle( t, easeFn, radius ){
+			function animCircle( t, easeFn, radius, generator ){
 
 				if( point != Math.floor( t*6 ) ){
 
-					d3.select( "#loadCirc" + ( point+1 ) )
+					d3.select( "#loadCirc" + generator.next().value )
 						.transition()
-						.duration( 1000 )
+						.duration( 500 )
 						.ease( easeFn )
 						.attr( "r", radius )
-					point = point > 5 ? -1 : Math.floor( t*6 );
+					point = point > 4 ? -1 : Math.floor( t*6 );
+
+				}
+
+			}
+
+			function* getCircle(){
+
+				while( true ){
+
+					yield 0
+					yield 1
+					yield 2
+					yield 3
+					yield 4
+					yield 5
 
 				}
 
@@ -146,10 +163,29 @@
 	<script src="../Scripts/molViewer_New.js"></script>
     <script src="ring.js"></script>
 
-	<script type="text/javascript">
-		window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience. Google cookies are also used to help us track use of and make improvements.","dismiss":"Got it!","learnMore":"More info","link":"http://www.leeds.ac.uk/privacy","theme":"dark-floating"};
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js"></script>
+	<script>
+		window.addEventListener("load", function(){
+		window.cookieconsent.initialise({
+			  "palette": {
+			    "popup": {
+			      "background": "#edeff5",
+			      "text": "#838391"
+			    },
+			    "button": {
+			      "background": "#4b81e8"
+			    }
+			  },
+			  "theme": "edgeless",
+			  "position": "bottom-right",
+			  "content": {
+			    "message": "This website uses cookies to ensure you get the best experience. Google cookies are also used to help us track use of and make improvements.",
+			    "href": "http://www.leeds.ac.uk/info/5000/about/237/privacy_notice"
+			  }
+			})
+		});
 	</script>
-	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.10/cookieconsent.min.js"></script>
 
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106347776-6"></script>
